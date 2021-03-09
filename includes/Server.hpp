@@ -32,9 +32,11 @@ class Server {
 		Server(const Server &other);
 		Server &operator=(const Server &other);
 		~Server();
+
+		int check_config();
         
 		std::string		_listen;
-		std::string		_port;
+		int				_port;
 		std::string		_host;
 		std::string		_server_name;
 		std::string		_limit_client_body;

@@ -18,11 +18,11 @@ int		set_listen(std::vector<Server> *all, char **line, int i, int j)
 	all->rbegin()->_listen = add;
 	if (!(adds = ft_split(add, ':')))
 	{
-		std::cout << "malloc error" << std::endl;
+		std::cout << "\033[1;31m   Error malloc\033[0m" << std::endl;
 		return (1);
 	}
 	adds[0] ? all->rbegin()->_host = adds[0] : 0;
-	adds[1] ? all->rbegin()->_port = adds[1] : 0;
+	adds[1] ? all->rbegin()->_port = ft_atoi(adds[1]) : 0;
 	int k(0);
 	while (adds[k])
 		free(adds[k++]);
@@ -68,14 +68,14 @@ int		set_location(std::vector<Server> *all, char **line, int i, int j)
 	char **split;
 	if (!(split = ft_split(&line[j][i], ' ')) || !split[0])
 	{
-		std::cout << "error malloc" << std::endl;
+		std::cout << "\033[1;31m   Error malloc\033[0m" << std::endl;
 		return (-1);
 	}
 	int k(0);
-	int l;
+	int l = 0;
 	while (split[k] && split[k][l] != '{')
 	{
-		int l=0;
+		l=0;
 		while (split[k] && ((split[k][l] >= 9 && split[k][l] <= 13) || split[k][l] == 32))
 			l++;
 		if (split[k][l] != '{')
@@ -83,7 +83,7 @@ int		set_location(std::vector<Server> *all, char **line, int i, int j)
 	}
 	if (!split[k])
 	{
-		std::cout << "File is not normed" << std::endl;
+		std::cout << "\033[1;31m   File is not normed\033[0m" << std::endl;
 		return (-1);
 	}
 	all->rbegin()->_routes->rbegin()->_dir_file = split[0];
@@ -167,12 +167,13 @@ int		set_location(std::vector<Server> *all, char **line, int i, int j)
 	}
 	if (line[j] && (line[j][i] == '}' || !strncmp(&line[j][i], "location ", 9)))
 		return (--j);
-	std::cout << "Norme error" << std::endl;
+	std::cout << "\033[1;31m   Norme error\033[0m" << std::endl;
 	return (-1);
 }
 
 int		check_bef_serv(char **line, int j)
-{	int i;
+{
+	int i;
 	int skip_empty_line(1);
 
 	while (skip_empty_line)
@@ -192,7 +193,7 @@ int		check_bef_serv(char **line, int j)
 	}
 	if (line[j][i] != '}')
 	{
-		std::cout << "File is not normed: missing '}'" << std::endl;
+		std::cout << "\033[1;31m   File is not normed: \033[0;31m missing '}'\033[0m" << std::endl;
 		return (-1);
 	}
 	return (0);
@@ -218,7 +219,7 @@ int		check_aft_serv(char **line, int i, int j)
 			parsing--;
 	}
 	if (parsing < 1)
-		std::cout << "File is not normed: missing '{'" << std::endl;
+		std::cout << "\033[1;31m   File is not normed: \033[0;31m missing '{'\033[0m" << std::endl;
 	return (parsing);
 }
 
@@ -273,7 +274,7 @@ int		parse_conf(const char *path, std::vector<Server> *all)
 	int conf;
 	if ((conf = open(path, O_RDONLY)) < 0)
 	{
-		std::cout << "No such file "<< path << std::endl;
+		std::cout << "\033[1;31m   No such file:  \033[0;35m" << path << "\033[0m" << std::endl;
 		return (-1);
 	}
 
@@ -290,7 +291,7 @@ int		parse_conf(const char *path, std::vector<Server> *all)
 	// reopen the file
 	if ((conf = open(path, O_RDONLY)) < 0)
 	{
-		std::cout << "No such file "<< path << std::endl;
+		std::cout << "\033[1;31m   Error: \033[0;31m openning file an 2nd time\033[0m" << std::endl;
 		return (-1);
 	}
 
@@ -298,7 +299,7 @@ int		parse_conf(const char *path, std::vector<Server> *all)
 	char **all_line;
 	if (!(all_line = (char **)malloc(sizeof(all_line) * nb_line)))
 	{
-		std::cout << "error malloc" << std::endl;
+		std::cout << "\033[1;31m   Error: \033[0;31m malloc\033[0m" << std::endl;
 		return (-1);
 	}
 	nb_line = 0;
