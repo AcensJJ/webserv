@@ -12,8 +12,7 @@ one of the most used protocol on internet. Knowing its arcane will be useful, ev
 won’t be working on a website.
 
 > *Project en collaboration avec:<br>*
-> -	   *<a href="https://github.com/Kronx12">Guillaume Baud</a> (<a href="https://profile.intra.42.fr/users/gbaud">gbaud</a>).<br>*
-> -	   *<a href="https://github.com/JDesbordes">Jérôme Desbordes</a> (<a href="https://profile.intra.42.fr/users/jdesbord">jdesbord</a>).<br>*
+> -	   *<a href="https://github.com/nemu69">Nemuel Page Léonie</a> (<a href="https://profile.intra.42.fr/users/nepage-l">nepage-l</a>).<br>*
 > -    *<a href="https://github.com/AcensJJ">Jean-Jacques Acens</a> (<a href="https://profile.intra.42.fr/users/jacens">jacens</a>).*
 
 # Mandatory part
