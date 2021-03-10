@@ -11,6 +11,10 @@
 #include <netinet/in.h> 
 #include <string>
 #include <sys/types.h>
+#include <arpa/inet.h>
+
+#include "../libft-cpp/include/libft.hpp"
+#include "../libft-cpp/include/get_next_line.hpp"
 
 #include "Server.hpp"
 

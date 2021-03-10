@@ -21,7 +21,10 @@ int		set_listen(std::vector<Server> *all, char **line, int i, int j)
 		std::cout << "\033[1;31m   Error malloc\033[0m" << std::endl;
 		return (1);
 	}
-	adds[0] ? all->rbegin()->_host = adds[0] : 0;
+	j = 7;
+	while ((adds[0][j] >= 9 && adds[0][j] <= 13) || adds[0][j] == 32)
+		j++;
+	adds[0] ? all->rbegin()->_host = &adds[0][j] : 0;
 	adds[1] ? all->rbegin()->_port = ft_atoi(adds[1]) : 0;
 	int k(0);
 	while (adds[k])
