@@ -89,7 +89,7 @@ int		set_location(std::vector<Server> *all, char **line, int i, int j)
 		std::cout << "\033[1;31m   File is not normed\033[0m" << std::endl;
 		return (-1);
 	}
-	all->rbegin()->_routes->rbegin()->_dir_file = split[0];
+	all->rbegin()->_routes->rbegin()->setDirFile(split[0]);
 	i = -1;
 	for (int k = 0; split[k]; k++)
 		free(split[k]);
@@ -140,16 +140,16 @@ int		set_location(std::vector<Server> *all, char **line, int i, int j)
 			i++;
 			while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 				i++;
-			all->rbegin()->_routes->rbegin()->_listen = FALSE;
+			all->rbegin()->_routes->rbegin()->setListen(FALSE);
 			if (!strncmp(&line[j][i], "on", 2))
-				all->rbegin()->_routes->rbegin()->_listen = TRUE;
+				all->rbegin()->_routes->rbegin()->setListen(TRUE);
 		}
 		else if (!strncmp(&line[j][i], "cgi_extension ", 14))
-			all->rbegin()->_routes->rbegin()->_gci_extension = &line[j][i + 14];
+			all->rbegin()->_routes->rbegin()->setGCIExtension(&line[j][i + 14]);
 		else if (!strncmp(&line[j][i], "cgi_path ", 9))
-			all->rbegin()->_routes->rbegin()->_gci_path = &line[j][i + 9];
+			all->rbegin()->_routes->rbegin()->setGCIPath(&line[j][i + 9]);
 		else if (!strncmp(&line[j][i], "root ", 5))
-			all->rbegin()->_routes->rbegin()->_location = &line[j][i + 5];
+			all->rbegin()->_routes->rbegin()->setLocation(&line[j][i + 5]);
 		j++;
 		i = 0;
 		while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))

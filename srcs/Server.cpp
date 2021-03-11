@@ -1,28 +1,6 @@
 #include "Server.hpp"
 
-Routes::Routes()
-{
-	
-}
-
-Routes::Routes(const Routes &other)  : _http_method(other._http_method), _dir_file(other._dir_file),
- _listen(other._listen),  _default(other._default)
-{
-
-}
-
-Routes::~Routes()
-{
-
-}
-
-Routes &Routes::operator=(const Routes &other)
-{
-    if (this == &other) return(*this);
-    this->~Routes();
-    return *new(this) Routes(other);
-}
-
+// COPLIEN
 Server::Server()
 {
 
@@ -46,29 +24,7 @@ Server &Server::operator=(const Server &other)
     return *new(this) Server(other);
 }
 
-int Server::check_config()
-{
-	// checking listen (port / host)
-	if (this->_host.empty() && this->_port > 0)
-	{
-		std::cout << "\033[1;31m   Error: \033[0;31m Server haven't listen\033[0m" << std::endl;
-		return (-1);
-	}
-	// checking serv name
-	if (this->_server_name.empty())
-	{
-		std::cout << "\033[1;31m   Error: \033[0;31m Server haven't name\033[0m" << std::endl;
-		return (-1);
-	}
-
-	// checking error pages and if the pages exist
-
-	// checking location
-
-	// all good
-	return (0);
-}
-
+// SET
 void Server::setListen(std::string value)
 {
 	this->_listen = value;
@@ -98,6 +54,7 @@ void Server::setRoutes(std::vector<Routes> value)
 	this->_routes = &value;
 };
 
+// GET
 std::string Server::getListen() const
 {
 	return(this->_listen);
@@ -122,3 +79,27 @@ std::string Server::getLimitClientBody() const
 {
 	return(this->_limit_client_body);
 };
+
+// OTHER
+int Server::check_config()
+{
+	// checking listen (port / host)
+	if (this->_host.empty() && this->_port > 0)
+	{
+		std::cout << "\033[1;31m   Error: \033[0;31m Server haven't listen\033[0m" << std::endl;
+		return (-1);
+	}
+	// checking serv name
+	if (this->_server_name.empty())
+	{
+		std::cout << "\033[1;31m   Error: \033[0;31m Server haven't name\033[0m" << std::endl;
+		return (-1);
+	}
+
+	// checking error pages and if the pages exist
+
+	// checking location
+
+	// all good
+	return (0);
+}
