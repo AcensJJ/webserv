@@ -1,52 +1,71 @@
 #include "global.hpp"
 
+int		config_data_serv(Server serv, int server_fd, sockaddr_in *address, int new_socket, char *buffer)
+{
+	std::cout << std::endl;
+	int request_fd;
+	char *dataserv = ft_strjoin("./dataServ/", serv.getServerName().c_str());
+	if (!dataserv)
+	{
+		close(new_socket);
+		close(server_fd);
+		std::cout << "\033[1;31m   Error: \033[0;31m malloc failed\033[0m" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	if ((request_fd = open(dataserv, O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
+	{
+		free(dataserv);
+		close(new_socket);
+		close(server_fd);
+		std::cout << "\033[1;31m   Error: \033[0;31m open failed\033[0m" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	free(dataserv);
+	return (request_fd);
+}
+
+int		accept_one_client(Server serv, int server_fd, sockaddr_in *address)
+{
+	int new_socket;
+	int addrlen = sizeof(address);
+
+	if ((new_socket = accept(server_fd, (struct sockaddr *)address, (socklen_t*)&addrlen)) < 0) 
+		std::cout << "\033[1;31m   Error: \033[0;31m accept failed\033[0m" << std::endl; 
+	else
+		std::cout << "\033[1;32m   Connection: \033[0m accepted" << std::endl;
+	if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0) 
+		std::cout << "\033[1;31m   Error: \033[0;31m fcntl failed\033[0m" << std::endl;
+	return (new_socket);
+}
+
 void	waiting_client(Server serv, char **env, int server_fd, sockaddr_in *address)
 {
 	struct timeval timeout;
-	int addrlen = sizeof(address);
 	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
 	while (select(server_fd + 1, NULL, NULL, NULL, &timeout) >= 0)
 	{
 		std::cout << std::endl << "\033[0;34m   WAITING...\033[0m" << std::endl;
 		int new_socket;
-		if ((new_socket = accept(server_fd, (struct sockaddr *)address, (socklen_t*)&addrlen)) < 0) 
-			std::cout << "\033[1;31m   Error: \033[0;31m accept failed\033[0m" << std::endl; 
-		else
-			std::cout << "\033[1;32m   Connection: \033[0m accepted" << std::endl;
-		if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0) 
-			std::cout << "\033[1;31m   Error: \033[0;31m fcntl failed\033[0m" << std::endl;
-		char buffer[1024];
-		std::cout << std::endl;
-		int request;
-		char *dataserv = ft_strjoin("./dataServ/", serv.getServerName().c_str());
-		if (!dataserv)
+		if ((new_socket = accept_one_client(serv, server_fd, address)) > 0)
 		{
+			int request_fd;
+			char buffer[1024];
+			if ((request_fd = config_data_serv(serv, server_fd, address, new_socket, buffer)) > 0)
+			{
+				while(recv(new_socket, buffer, 1024, 0) > 0)
+				{
+					std::cout << buffer;
+					write(request_fd, buffer, ft_strlen(buffer));
+				}
+				close(request_fd);
+				std::cout << std::endl;
+				// if (send(new_socket, buffer, ft_strlen(buffer), 0) < 0)
+				// 	std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
+			}
 			close(new_socket);
-			close(server_fd);
-			std::cout << "\033[1;31m   Error: \033[0;31m malloc failed\033[0m" << std::endl;
-			exit(EXIT_FAILURE);
+			std::cout << std::endl;
 		}
-		if ((request = open(dataserv, O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
-		{
-			free(dataserv);
-			close(new_socket);
-			close(server_fd);
-			std::cout << "\033[1;31m   Error: \033[0;31m open failed\033[0m" << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		free(dataserv);
-		while(recv(new_socket, buffer, 1024, 0) > 0)
-		{
-			std::cout << buffer;
-			write(request, buffer, ft_strlen(buffer));
-		}
-		close(request);
-		std::cout << std::endl;
-		// if (send(new_socket, buffer, ft_strlen(buffer), 0) < 0)
-		// 	std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
-		close(new_socket);
-		std::cout << std::endl;
 	}
 	std::cout << "\033[1;31m   Error: \033[0;31m select failed\033[0m" << std::endl;
 	close(server_fd);
@@ -104,20 +123,12 @@ int		main(int ac, char **av, char **env)
 	pid_t pid;
 	for (std::vector<Server>::iterator itr = all->begin(); itr != all->end(); itr++)
 	{
-		// if ((pid = fork()) == -1)
-		// {
-		// 	std::cout << "fork error" << std::endl;
-		// 	return (-1);
-		// }
-		// else if (pid == 0) {
-			Server serv = *itr;
-			std::cout << std::endl << "\033[0;35m   New serv:\033[0m " << serv.getServerName() << std::endl;
-			if (serv.check_config())
-				exit(EXIT_FAILURE);
-			else
-				launch_serv(serv, env);
-		// }
+		Server serv = *itr;
+		std::cout << std::endl << "\033[0;35m   New serv:\033[0m " << serv.getServerName() << std::endl;
+		if (serv.check_config())
+			exit(EXIT_FAILURE);
+		else
+			launch_serv(serv, env);
 	}
-	// waitpid(pid, NULL, 0);
     return (EXIT_SUCCESS);
 }
