@@ -83,13 +83,11 @@ std::string Server::getLimitClientBody() const
 // OTHER
 int Server::check_config()
 {
-	// checking listen (port / host)
 	if (this->_host.empty() && this->_port > 0)
 	{
 		std::cout << "\033[1;31m   Error: \033[0;31m Server haven't listen\033[0m" << std::endl;
 		return (-1);
 	}
-	// checking serv name
 	if (this->_server_name.empty())
 	{
 		std::cout << "\033[1;31m   Error: \033[0;31m Server haven't name\033[0m" << std::endl;

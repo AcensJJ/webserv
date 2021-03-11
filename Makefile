@@ -22,7 +22,7 @@ INCS			=	$(notdir $(INCS_PATH))
 CC				=	clang++
 CFLAGS			=	#-Wall -Wextra -Werror
 CVERSION		=	--std=c++98
-FSANITIZE		=	-fsanitize=address
+FSANITIZE		=	#-fsanitize=address
 LFLAGS  		=	-I $(INCS_DIR) -I $(LIBF_DIR)/include
 CALLF			=	$(CC) $(CFLAGS) $(CVERSION)
 CALLFLIB		=	$(CC) $(CFLAGS) $(CVERSION) $(LFLAGS) $(FSANITIZE)
@@ -40,6 +40,7 @@ $(OBJS_DIR)/%.o	:	%.cpp $(INCS)
 # Make the Directories #
 directories		:
 	@mkdir -p $(OBJS_DIR)
+	@mkdir -p dataServ
 
 lib:
 	make -C $(LIBF_DIR)
@@ -49,6 +50,7 @@ run: all
 
 # Clean obj #
 clean			:
+	@rm -rf dataServ
 	@rm -f $(OBJS_PATH)
 	@rm -rf $(NAME).dSYM
 	@make clean -C $(LIBF_DIR)

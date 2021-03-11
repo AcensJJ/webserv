@@ -18,8 +18,30 @@ void	waiting_client(Server serv, char **env, int server_fd, sockaddr_in *address
 			std::cout << "\033[1;31m   Error: \033[0;31m fcntl failed\033[0m" << std::endl;
 		char buffer[1024];
 		std::cout << std::endl;
+		int request;
+		char *dataserv = ft_strjoin("./dataServ/", serv.getServerName().c_str());
+		if (!dataserv)
+		{
+			close(new_socket);
+			close(server_fd);
+			std::cout << "\033[1;31m   Error: \033[0;31m malloc failed\033[0m" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		if ((request = open(dataserv, O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
+		{
+			free(dataserv);
+			close(new_socket);
+			close(server_fd);
+			std::cout << "\033[1;31m   Error: \033[0;31m open failed\033[0m" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		free(dataserv);
 		while(recv(new_socket, buffer, 1024, 0) > 0)
+		{
 			std::cout << buffer;
+			write(request, buffer, ft_strlen(buffer));
+		}
+		close(request);
 		std::cout << std::endl;
 		// if (send(new_socket, buffer, ft_strlen(buffer), 0) < 0)
 		// 	std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
@@ -79,24 +101,23 @@ int		main(int ac, char **av, char **env)
 	std::cout << std::endl << "\033[1;34m   Parsing file:\033[0m " << str << std::endl;
 	if (parse_conf(str.c_str(), all))
 		return (-1);
-
 	pid_t pid;
 	for (std::vector<Server>::iterator itr = all->begin(); itr != all->end(); itr++)
 	{
-		if ((pid = fork()) == -1)
-		{
-			std::cout << "fork error" << std::endl;
-			return (-1);
-		}
-		else if (pid == 0) {
+		// if ((pid = fork()) == -1)
+		// {
+		// 	std::cout << "fork error" << std::endl;
+		// 	return (-1);
+		// }
+		// else if (pid == 0) {
 			Server serv = *itr;
 			std::cout << std::endl << "\033[0;35m   New serv:\033[0m " << serv.getServerName() << std::endl;
 			if (serv.check_config())
 				exit(EXIT_FAILURE);
 			else
 				launch_serv(serv, env);
-		}
+		// }
 	}
-	waitpid(pid, NULL, 0);
+	// waitpid(pid, NULL, 0);
     return (EXIT_SUCCESS);
 }
