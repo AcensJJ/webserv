@@ -15,7 +15,7 @@ int		set_listen(std::vector<Server> *all, char **line, int i, int j)
 	char *add;
 	add = &line[j][i];
 	char **adds;
-	all->rbegin()->_listen = add;
+	all->rbegin()->setListen(add);
 	if (!(adds = ft_split(add, ':')))
 	{
 		std::cout << "\033[1;31m   Error malloc\033[0m" << std::endl;
@@ -24,8 +24,8 @@ int		set_listen(std::vector<Server> *all, char **line, int i, int j)
 	j = 7;
 	while ((adds[0][j] >= 9 && adds[0][j] <= 13) || adds[0][j] == 32)
 		j++;
-	adds[0] ? all->rbegin()->_host = &adds[0][j] : 0;
-	adds[1] ? all->rbegin()->_port = ft_atoi(adds[1]) : 0;
+	if (adds[0]) all->rbegin()->setHost(&adds[0][j]);
+	if (adds[1]) all->rbegin()->setPort(ft_atoi(adds[1]));
 	int k(0);
 	while (adds[k])
 		free(adds[k++]);
@@ -40,7 +40,7 @@ void	set_server_name(std::vector<Server> *all, char **line, int i, int j)
 		i++;
 	char *add;
 	add = &line[j][i];
-	all->rbegin()->_server_name = add;
+	all->rbegin()->setServerName(add);
 }
 
 void	set_limit_client_body(std::vector<Server> *all, char **line, int i, int j)
@@ -50,7 +50,7 @@ void	set_limit_client_body(std::vector<Server> *all, char **line, int i, int j)
 		i++;
 	char *add;
 	add = &line[j][i];
-	all->rbegin()->_limit_client_body = add;
+	all->rbegin()->setLimitClientBody(add);
 }
 
 void	set_error_page(std::vector<Server> *all, char **line, int i, int j)

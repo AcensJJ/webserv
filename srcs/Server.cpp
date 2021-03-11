@@ -68,3 +68,57 @@ int Server::check_config()
 	// all good
 	return (0);
 }
+
+void Server::setListen(std::string value)
+{
+	this->_listen = value;
+};
+void Server::setPort(int value)
+{
+	this->_port = value;
+};
+void Server::setHost(std::string value)
+{
+	this->_host = value;
+};
+void Server::setServerName(std::string value)
+{
+	this->_server_name = value;
+};
+void Server::setLimitClientBody(std::string value)
+{
+	this->_limit_client_body = value;
+};
+void Server::setErrorPages(std::list<std::string> value)
+{
+	this->_error_pages = &value;
+};
+void Server::setRoutes(std::vector<Routes> value)
+{
+	this->_routes = &value;
+};
+
+std::string Server::getListen() const
+{
+	return(this->_listen);
+};
+
+int Server::getPort() const
+{
+	return(this->_port);
+};
+
+std::string Server::getHost() const
+{
+	return(this->_host);
+};
+
+std::string Server::getServerName() const
+{
+	return(this->_server_name);
+};
+
+std::string Server::getLimitClientBody() const
+{
+	return(this->_limit_client_body);
+};

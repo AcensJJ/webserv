@@ -1,30 +1,30 @@
 #include "global.hpp"
 
-void	running_serv(Server serv, char **env, int server_fd, sockaddr_in address)
+void	waiting_client(Server serv, char **env, int server_fd, sockaddr_in *address)
 {
 	struct timeval timeout;
 	int addrlen = sizeof(address);
-	fd_set set;
-	FD_ZERO(&set);
-	FD_SET(server_fd, &set);
 	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
-	while (select(server_fd + 1, &set, NULL, NULL, &timeout) >= 0)
+	while (select(server_fd + 1, NULL, NULL, NULL, &timeout) >= 0)
 	{
+		std::cout << std::endl << "\033[0;34m   WAITING...\033[0m" << std::endl;
 		int new_socket;
-		std::cout << "\033[0;34m   WAITING...\033[0m" << std::endl;
-		if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) 
-		{
-			close(server_fd);
-			std::cout << "\033[1;31m   Error: \033[0;31m accept\033[0m" << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		// recv + fcntl O_NONBLOCK
-
-		// send
-
-		std::cout << new_socket << std::endl;
-		std::cout << server_fd << std::endl;
+		if ((new_socket = accept(server_fd, (struct sockaddr *)address, (socklen_t*)&addrlen)) < 0) 
+			std::cout << "\033[1;31m   Error: \033[0;31m accept failed\033[0m" << std::endl; 
+		else
+			std::cout << "\033[1;32m   Connection: \033[0m accepted" << std::endl;
+		if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0) 
+			std::cout << "\033[1;31m   Error: \033[0;31m fcntl failed\033[0m" << std::endl;
+		char buffer[1024];
+		std::cout << std::endl;
+		while(recv(new_socket, buffer, 1024, 0) > 0)
+			std::cout << buffer;
+		std::cout << std::endl;
+		// if (send(new_socket, buffer, ft_strlen(buffer), 0) < 0)
+		// 	std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
+		close(new_socket);
+		std::cout << std::endl;
 	}
 	std::cout << "\033[1;31m   Error: \033[0;31m select failed\033[0m" << std::endl;
 	close(server_fd);
@@ -48,13 +48,11 @@ void	launch_serv(Server serv, char **env)
 	}
 	struct sockaddr_in address;
 	address.sin_family = AF_INET;
-	// address.sin_addr.s_addr = INADDR_ANY;
-	if (strcmp(serv._host.c_str(), "localhost"))
-		address.sin_addr.s_addr = inet_addr(serv._host.c_str());
+	if (strcmp(serv.getHost().c_str(), "localhost"))
+		address.sin_addr.s_addr = inet_addr(serv.getHost().c_str());
 	else
 		address.sin_addr.s_addr = inet_addr("127.0.0.1");
-	address.sin_port = htons( serv._port );
-	std::cout << serv._host << std::endl;
+	address.sin_port = htons( serv.getPort() );
 	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)))
 	{
 		close(server_fd);
@@ -67,8 +65,8 @@ void	launch_serv(Server serv, char **env)
 		std::cout << "\033[1;31m   Error: \033[0;31m listen failed\033[0m" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	std::cout << "\033[1;32m   Server launch succesly: \033[0;36mhttp://localhost:" << serv._port << "\033[0m" << std::endl;
-	running_serv(serv, env, server_fd, address);
+	std::cout << "\033[1;32m   Server launch succesly: \033[0;36mhttp://localhost:" << serv.getPort() << "\033[0m" << std::endl;
+	waiting_client(serv, env, server_fd, &address);
 }
 
 int		main(int ac, char **av, char **env)
@@ -92,7 +90,7 @@ int		main(int ac, char **av, char **env)
 		}
 		else if (pid == 0) {
 			Server serv = *itr;
-			std::cout << std::endl << "\033[0;35m   New serv:\033[0m " << serv._server_name << std::endl;
+			std::cout << std::endl << "\033[0;35m   New serv:\033[0m " << serv.getServerName() << std::endl;
 			if (serv.check_config())
 				exit(EXIT_FAILURE);
 			else

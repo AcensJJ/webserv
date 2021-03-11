@@ -33,15 +33,33 @@ class Server {
 		Server &operator=(const Server &other);
 		~Server();
 
+		void setListen(std::string value);
+		void setPort(int value);
+		void setHost(std::string value);
+		void setServerName(std::string value);
+		void setLimitClientBody(std::string value);
+		void setErrorPages(std::list<std::string> value);
+		void setRoutes(std::vector<Routes> value);
+		
+		std::string getListen() const;
+		int getPort() const;
+		std::string getHost() const;
+		std::string getServerName() const;
+		std::string getLimitClientBody() const;
+		std::list<std::string> *getErrorPages();
+		// std::string getErrorPage() const;
+		std::vector<Routes> *getRoutes();
+		
 		int check_config();
-        
+
+		std::list<std::string>		*_error_pages;
+		std::vector<Routes>	*_routes;
+	private:
 		std::string		_listen;
 		int				_port;
 		std::string		_host;
 		std::string		_server_name;
 		std::string		_limit_client_body;
-		std::list<std::string>		*_error_pages;
-		std::vector<Routes>	*_routes;
 };
 
 #endif // !SERVER_HPP
