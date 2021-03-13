@@ -1,13 +1,12 @@
 #include "Server.hpp"
 
-// COPLIEN
 Server::Server()
 {
 
 }
 
-Server::Server(const Server &other) : _port(other._port), _host(other._host), _server_name(other._server_name),
-_limit_client_body(other._limit_client_body), _error_pages(other._error_pages)
+Server::Server(const Server &other) : _error_pages(other._error_pages), _port(other._port), _host(other._host),
+_server_name(other._server_name), _limit_client_body(other._limit_client_body)
 {
 	_routes = other._routes;
 }
@@ -24,7 +23,6 @@ Server &Server::operator=(const Server &other)
     return *new(this) Server(other);
 }
 
-// SET
 void Server::setListen(std::string value)
 {
 	this->_listen = value;
@@ -54,7 +52,6 @@ void Server::setRoutes(std::vector<Routes> value)
 	this->_routes = &value;
 };
 
-// GET
 std::string Server::getListen() const
 {
 	return(this->_listen);
@@ -80,24 +77,20 @@ std::string Server::getLimitClientBody() const
 	return(this->_limit_client_body);
 };
 
-// OTHER
-int Server::check_config()
+void Server::check_config()
 {
-	if (this->_host.empty() && this->_port > 0)
-	{
-		std::cout << "\033[1;31m   Error: \033[0;31m Server haven't listen\033[0m" << std::endl;
-		return (-1);
-	}
+	if (this->_host.empty() && this->_port <= 0)
+		throw Server::BadConfigListenException();
 	if (this->_server_name.empty())
-	{
-		std::cout << "\033[1;31m   Error: \033[0;31m Server haven't name\033[0m" << std::endl;
-		return (-1);
-	}
+		throw Server::BadConfigServerNameException();
+}
 
-	// checking error pages and if the pages exist
+const char* Server::BadConfigListenException::what() const throw ()
+{
+	return ("\033[1;31m   Error: \033[0;31m Server haven't listen\033[0m");
+}
 
-	// checking location
-
-	// all good
-	return (0);
+const char* Server::BadConfigServerNameException::what() const throw ()
+{
+	return ("\033[1;31m   Error: \033[0;31m Server haven't name\033[0m");
 }

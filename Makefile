@@ -20,9 +20,9 @@ INCS			=	$(notdir $(INCS_PATH))
 
 # Compile #
 CC				=	clang++
-CFLAGS			=	#-Wall -Wextra -Werror
+CFLAGS			=	-Wall -Wextra -Werror
 CVERSION		=	--std=c++98
-FSANITIZE		=	#-fsanitize=address
+FSANITIZE		=	-fsanitize=address
 LFLAGS  		=	-I $(INCS_DIR) -I $(LIBF_DIR)/include
 CALLF			=	$(CC) $(CFLAGS) $(CVERSION)
 CALLFLIB		=	$(CC) $(CFLAGS) $(CVERSION) $(LFLAGS) $(FSANITIZE)

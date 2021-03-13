@@ -3,6 +3,7 @@
 
 #define FALSE 0
 #define TRUE 1
+#define RECV_BUFF 1024
 
 #include <unistd.h> 
 #include <stdio.h>
@@ -15,8 +16,8 @@
 
 #include "../libft-cpp/include/libft.hpp"
 #include "../libft-cpp/include/get_next_line.hpp"
+#include "includes.hpp"
 
 #include "Server.hpp"
 
-int		parse_conf(const char *path, std::vector<Server> *all);
 #endif

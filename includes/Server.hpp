@@ -34,7 +34,19 @@ class Server {
 		std::string getServerName() const;
 		std::string getLimitClientBody() const;
 		
-		int check_config();
+		void check_config();
+
+		class BadConfigListenException : public std::exception
+		{
+			public:
+				virtual const char* what () const throw();
+		};
+
+		class BadConfigServerNameException : public std::exception
+		{
+			public:
+				virtual const char* what () const throw();
+		};
 
 		std::list<std::string>		*_error_pages;
 		std::vector<Routes>	*_routes;
