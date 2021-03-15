@@ -284,7 +284,7 @@ int		parse_conf(const char *path, std::vector<Server> *all)
 	// compte line of the file
 	unsigned long long nb_line(1);
 	char *line;
-	while (get_next_line(conf, &line) && ++nb_line)
+	while (get_next_line(conf, &line) > 0 && ++nb_line)
 		free(line);
 	++nb_line;
 	if (line) free(line);
@@ -306,9 +306,9 @@ int		parse_conf(const char *path, std::vector<Server> *all)
 		return (-1);
 	}
 	nb_line = 0;
-	while (get_next_line(conf, &line))
+	while (get_next_line(conf, &line) > 0)
 		all_line[nb_line++] = line;
-	all_line[nb_line++] = line;
+	if (line) all_line[nb_line++] = line;
 	all_line[nb_line] = NULL;
 	int ret;
 	ret = set_value(all_line, all); 

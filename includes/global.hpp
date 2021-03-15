@@ -18,6 +18,6 @@
 #include "../libft-cpp/include/get_next_line.hpp"
 #include "includes.hpp"
 
-#include "Server.hpp"
+#include "class/Server.hpp"
 
 #endif

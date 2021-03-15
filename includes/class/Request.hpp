@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <unistd.h>
+#include "../../libft-cpp/include/libft.hpp"
+#include "../../libft-cpp/include/get_next_line.hpp"
 
 class Request {
     public:
@@ -50,7 +52,13 @@ class Request {
 		std::string getWWWAuthenticate() const;
 
 		// void config_request(int fd);
-		// void verif_config();
+		void verif_config();
+
+		class GNLMallocException : public std::exception
+		{
+			public:
+				virtual const char* what () const throw();
+		};
 
 	private:
 		std::string _acceptCharsets;
