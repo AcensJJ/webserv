@@ -6,12 +6,12 @@ SRCS_DIR		=	srcs
 OBJS_DIR		=	objs
 INCS_DIR		=	includes
 LIBF_DIR		=	libft-cpp
-VPATH			=	$(SRCS_DIR):$(OBJS_DIR):$(INCS_DIR):$(LIBF_DIR)
+VPATH			=	$(SRCS_DIR):$(OBJS_DIR):$(INCS_DIR):$(LIBF_DIR):objs/class:srcs/class:includes/class
 
 # File with Path #
-SRCS_PATH		=	$(wildcard $(SRCS_DIR)/*.cpp)
-OBJS_PATH		=	$(patsubst $(SRCS_DIR)%,$(OBJS_DIR)%,$(SRCS_PATH:%.cpp=%.o))
-INCS_PATH		=	$(wildcard $(INCS_DIR)/*.hpp)
+SRCS_PATH		=	$(wildcard $(SRCS_DIR)/*.cpp) $(wildcard $(SRCS_DIR)/*/*.cpp)
+OBJS_PATH		=	$(SRCS:%.cpp=$(OBJS_DIR)/%.o)
+INCS_PATH		=	$(wildcard $(INCS_DIR)/*.hpp) $(wildcard $(INCS_DIR)/*/*.hpp)
 
 # File #
 SRCS			=	$(notdir $(SRCS_PATH))
