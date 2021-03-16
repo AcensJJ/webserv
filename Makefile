@@ -5,8 +5,9 @@ NAME			=	Webserv
 SRCS_DIR		=	srcs
 OBJS_DIR		=	objs
 INCS_DIR		=	includes
+ALLS_DIR		=	srcs/class:includes/class:srcs/server
 LIBF_DIR		=	libft-cpp
-VPATH			=	$(SRCS_DIR):$(OBJS_DIR):$(INCS_DIR):$(LIBF_DIR):objs/class:srcs/class:includes/class
+VPATH			=	$(SRCS_DIR):$(OBJS_DIR):$(INCS_DIR):$(LIBF_DIR):$(ALLS_DIR)
 
 # File with Path #
 SRCS_PATH		=	$(wildcard $(SRCS_DIR)/*.cpp) $(wildcard $(SRCS_DIR)/*/*.cpp)
