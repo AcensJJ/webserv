@@ -51,8 +51,9 @@ class Request {
 		std::string getUserAgent() const;
 		std::string getWWWAuthenticate() const;
 
-		// void config_request(int fd);
-		void verif_config();
+		void config_request(int fd);
+		void set_line_config(char *line);
+		// void verif_config();
 
 		class GNLMallocException : public std::exception
 		{

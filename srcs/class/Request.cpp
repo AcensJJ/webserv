@@ -219,7 +219,77 @@ std::string Request::getWWWAuthenticate() const
 	return(this->_wwwAuthenticate);
 }
 
-// void config_request(int fd)
-// {
-// 	// while (get_next_line());
-// }
+void Request::set_line_config(char *line)
+{
+	char	*temp;
+	
+	temp = (char *)"Accept-Charset:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setAcceptCharsets(line);
+	temp = (char *)"Accept-Language:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setAcceptLanguage(line);
+	temp = (char *)"Allow:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setAllow(line);
+	temp = (char *)"Authorization:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setAuthorization(line);
+	temp = (char *)"Content-Language:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setContentLanguage(line);
+	temp = (char *)"Content-Length:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setContentLength(line);
+	temp = (char *)"Content-Location:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setContentLocation(line);
+	temp = (char *)"Content-Type:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setContentType(line);
+	temp = (char *)"Date:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setDate(line);
+	temp = (char *)"Host:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setHost(line);
+	temp = (char *)"Last-Modified:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setLastModified(line);
+	temp = (char *)"Location:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setLocation(line);
+	temp = (char *)"Referer:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setReferer(line);
+	temp = (char *)"Retry-After:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setRetryAfter(line);
+	temp = (char *)"Server:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setServer(line);
+	temp = (char *)"Transfer-Encoding:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setTransferEncoding(line);
+	temp = (char *)"User-Agent:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setAcceptLanguage(line);
+	temp = (char *)"WWW-Authenticate:";
+	if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		setWWWAuthenticate(line);
+	free(line);
+}
+
+void Request::config_request(int fd)
+{
+	char *line;
+	while (get_next_line(fd, &line) > 0)
+		set_line_config(line);
+	if (line) set_line_config(line);
+	else throw Request::GNLMallocException();
+}
+
+const char* Request::GNLMallocException::what() const throw ()
+{
+	return ("\033[1;31m   Error: \033[0;31m GNL malloc failed\033[0m");
+}

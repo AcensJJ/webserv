@@ -17,7 +17,7 @@ void	waiting_client(Server serv, char **env, int server_fd, sockaddr_in *address
 void	one_client(Server serv, char **env, int new_socket, int server_fd);
 
 /***
- *** parse_serv_conf.cpp
+ *** server_parse_conf.cpp
 ***/
 int		parse_conf(const char *path, std::vector<Server> *all);
 

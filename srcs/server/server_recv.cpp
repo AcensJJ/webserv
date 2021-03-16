@@ -15,18 +15,18 @@ void	one_client(Server serv, char **env, int new_socket, int server_fd)
 		close(request_fd);
 		if ((request_fd = config_data_serv(serv, server_fd, new_socket, O_RDONLY)) >= 0)
 		{
-			// Request req;
-			// try
-			// {
-			// 	req.config_request(reques_fd);
-			// }
-			// catch(const std::exception& e)
-			// {
-			// 	std::cerr << e.what() << std::endl;
-			// }
+			Request req;
+			try
+			{
+				req.config_request(request_fd);
+			}
+			catch(const std::exception& e)
+			{
+				std::cerr << e.what() << std::endl;
+			}
 			
-			// if (send(new_socket, buffer, ft_strlen(buffer), 0) < 0)
-			// 	std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
+			if (send(new_socket, buffer, ft_strlen(buffer), 0) < 0)
+				std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
 			(void)env;
 		}
 	}

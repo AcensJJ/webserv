@@ -57,17 +57,15 @@ int		main(int ac, char **av, char **env)
 	{
 		Server serv(*itr);
 		std::cout << std::endl << "\033[0;35m   New serv:\033[0m " << serv.getServerName() << std::endl;
-		int err(0);
 		try
 		{ 
 			serv.check_config();
+			launch_serv(serv, env);
 		}
 		catch (std::exception & e)
 		{
 			std::cerr << e.what() << std::endl;
-			err++;
 		}
-		if (!err) launch_serv(serv, env);
 	}
     return (EXIT_SUCCESS);
 }

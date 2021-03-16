@@ -19,5 +19,6 @@
 #include "includes.hpp"
 
 #include "class/Server.hpp"
+#include "class/Request.hpp"
 
 #endif
