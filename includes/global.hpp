@@ -20,5 +20,6 @@
 
 #include "class/Server.hpp"
 #include "class/Request.hpp"
+#include "class/Response.hpp"
 
 #endif
