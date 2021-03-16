@@ -39,6 +39,11 @@ Request &Request::operator=(const Request &other)
     return *new(this) Request(other);
 }
 
+void Request::setFirstLine(std::string value)
+{
+	this->_firstLine = value;
+}
+
 void Request::setAcceptCharsets(std::string value)
 {
 	this->_acceptCharsets = value;
@@ -127,6 +132,11 @@ void Request::setUserAgent(std::string value)
 void Request::setWWWAuthenticate(std::string value)
 {
 	this->_wwwAuthenticate = value;
+}
+
+std::string Request::getFirstLine() const
+{
+	return(this->_firstLine);
 }
 
 std::string Request::getAcceptCharsets() const
@@ -223,6 +233,8 @@ void Request::set_line_config(char *line)
 {
 	char	*temp;
 	
+	if (this->_firstLine.empty())
+		setFirstLine(line);
 	temp = (char *)"Accept-Charset:";
 	if (!ft_strncmp(line, temp, ft_strlen(temp)))
 		setAcceptCharsets(line);

@@ -1,6 +1,6 @@
 #include "global.hpp"
 
-void	set_server(std::vector<Server> *all)
+static void	set_server(std::vector<Server> *all)
 {
 	Server _new;
 	all->push_back(_new);
@@ -8,7 +8,7 @@ void	set_server(std::vector<Server> *all)
 	all->rbegin()->_error_pages = new std::list<std::string>;
 }
 
-int		set_listen(std::vector<Server> *all, char **line, int i, int j)
+static int		set_listen(std::vector<Server> *all, char **line, int i, int j)
 {
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
 		i++;
@@ -33,7 +33,7 @@ int		set_listen(std::vector<Server> *all, char **line, int i, int j)
 	return (0);
 }
 
-void	set_server_name(std::vector<Server> *all, char **line, int i, int j)
+static void	set_server_name(std::vector<Server> *all, char **line, int i, int j)
 {
 	i += 12;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
@@ -43,7 +43,7 @@ void	set_server_name(std::vector<Server> *all, char **line, int i, int j)
 	all->rbegin()->setServerName(add);
 }
 
-void	set_limit_client_body(std::vector<Server> *all, char **line, int i, int j)
+static void	set_limit_client_body(std::vector<Server> *all, char **line, int i, int j)
 {
 	i += 18;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
@@ -53,7 +53,7 @@ void	set_limit_client_body(std::vector<Server> *all, char **line, int i, int j)
 	all->rbegin()->setLimitClientBody(add);
 }
 
-void	set_error_page(std::vector<Server> *all, char **line, int i, int j)
+static void	set_error_page(std::vector<Server> *all, char **line, int i, int j)
 {
 	i += 11;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
@@ -63,7 +63,7 @@ void	set_error_page(std::vector<Server> *all, char **line, int i, int j)
 	all->rbegin()->_error_pages->push_back(add);
 }
 
-int		set_location(std::vector<Server> *all, char **line, int i, int j)
+static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 {
 	i += 9;
 	Routes _new;
@@ -174,7 +174,7 @@ int		set_location(std::vector<Server> *all, char **line, int i, int j)
 	return (-1);
 }
 
-int		check_bef_serv(char **line, int j)
+static int		check_bef_serv(char **line, int j)
 {
 	int i;
 	int skip_empty_line(1);
@@ -202,7 +202,7 @@ int		check_bef_serv(char **line, int j)
 	return (0);
 }
 
-int		check_aft_serv(char **line, int i, int j)
+static int		check_aft_serv(char **line, int i, int j)
 {
 	int	parsing(0);
 
@@ -226,7 +226,7 @@ int		check_aft_serv(char **line, int i, int j)
 	return (parsing);
 }
 
-int		set_value(char **line, std::vector<Server> *all)
+static int		set_value(char **line, std::vector<Server> *all)
 {
 	int j(-1);
 

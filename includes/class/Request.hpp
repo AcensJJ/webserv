@@ -13,6 +13,7 @@ class Request {
 		Request &operator=(const Request &other);
 		~Request();
 
+		void setFirstLine(std::string value);
 		void setAcceptCharsets(std::string value);
 		void setAcceptLanguage(std::string value);
 		void setAllow(std::string value);
@@ -32,6 +33,7 @@ class Request {
 		void setUserAgent(std::string value);
 		void setWWWAuthenticate(std::string value);
 
+		std::string getFirstLine() const;
 		std::string getAcceptCharsets() const;
 		std::string getAcceptLanguage() const;
 		std::string getAllow() const;
@@ -53,7 +55,6 @@ class Request {
 
 		void config_request(int fd);
 		void set_line_config(char *line);
-		// void verif_config();
 
 		class GNLMallocException : public std::exception
 		{
@@ -62,6 +63,7 @@ class Request {
 		};
 
 	private:
+		std::string _firstLine;
 		std::string _acceptCharsets;
 		std::string _acceptLanguage;
 		std::string _allow;

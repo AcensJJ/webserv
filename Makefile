@@ -33,15 +33,18 @@ all				:	directories lib $(NAME)
 
 # Stuff #
 $(NAME)			:	$(OBJS_PATH) $(LIBF_DIR)/libft.a
-	$(CALLFLIB) $(OBJS_PATH) -o $(NAME) $(LIBF_DIR)/libft.a
+	@echo "\n\033[0;34m  [UPDATE]\033[0m \033[1;30m CREATED:\033[0m \033 \033[0m \033[0;36m $(NAME)\033[0m\n"
+	@$(CALLFLIB) $(OBJS_PATH) -o $(NAME) $(LIBF_DIR)/libft.a
 
 $(OBJS_DIR)/%.o	:	%.cpp $(INCS)
-	$(CALLFLIB) -c $< -o $@
+	@echo "\033[0;32m   [ OK ] \033[0m \033[0;33m Compiling:\033[0m" $<
+	@$(CALLFLIB) -c $< -o $@
 
 # Make the Directories #
 directories		:
+	@echo  "\n\033[0;35m [BUILDING]\033[0m\033[0m\033[0;36m $(NAME)\033[0m\n"
 	@mkdir -p $(OBJS_DIR)
-	@mkdir -p dataServ
+	@mkdir -p server/dataServ
 
 lib:
 	make -C $(LIBF_DIR)
@@ -51,7 +54,7 @@ run: all
 
 # Clean obj #
 clean			:
-	@rm -rf dataServ
+	@rm -rf server/dataServ
 	@rm -f $(OBJS_PATH)
 	@rm -rf $(NAME).dSYM
 	@make clean -C $(LIBF_DIR)

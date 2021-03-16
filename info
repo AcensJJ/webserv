@@ -1,3 +1,12 @@
+man:
 http://manpagesfr.free.fr/man/man7/socket.7.html
+
+info build server with socket:
 https://www.geeksforgeeks.org/socket-programming-cc/
 https://www.tala-informatique.fr/wiki/index.php/C_socket
+
+request / response:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages
+
+request method:
+https://www.tutorialspoint.com/http/http_requests.htm
