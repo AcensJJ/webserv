@@ -4,6 +4,8 @@
 #include <iostream>
 #include <unistd.h>
 
+#include "Request.hpp"
+
 class Response {
 	public:
 		Response();
@@ -15,7 +17,7 @@ class Response {
 
 		std::string getResponse() const;
 
-		void config_response();
+		void config_response(Request req);
 	
 	class BuildResponseException : public std::exception
 	{

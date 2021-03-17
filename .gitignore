@@ -2,4 +2,4 @@
 *.a
 Webserv
 objs/*
-dataServ/*
+server/dataServ/*

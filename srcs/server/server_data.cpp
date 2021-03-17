@@ -43,7 +43,7 @@ void	one_client(Server serv, char **env, int new_socket, int server_fd)
 			{
 				req.config_request(request_fd);
 				Response res;
-				res.config_response();
+				res.config_response(req);
 				if (send(new_socket, res.getResponse().c_str(), ft_strlen(res.getResponse().c_str()), 0) < 0)
 					std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
 			}

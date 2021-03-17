@@ -295,6 +295,7 @@ void Request::set_line_config(char *line)
 void Request::config_request(int fd)
 {
 	char *line;
+
 	while (get_next_line(fd, &line) > 0)
 		set_line_config(line);
 	if (line) set_line_config(line);
