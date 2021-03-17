@@ -1,5 +1,5 @@
-#ifndef GLOBAL
-#define GLOBAL
+#ifndef GLOBAL_HPP
+#define GLOBAL_HPP
 
 #define FALSE 0
 #define TRUE 1
@@ -13,6 +13,7 @@
 #include <string>
 #include <sys/types.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
 
 #include "../libft-cpp/include/libft.hpp"
 #include "../libft-cpp/include/get_next_line.hpp"

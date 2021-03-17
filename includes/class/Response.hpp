@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <time.h>
 
 #include "Request.hpp"
 
@@ -17,7 +18,7 @@ class Response {
 
 		std::string getResponse() const;
 
-		void config_response(Request req);
+		void config_response();
 	
 	class BuildResponseException : public std::exception
 	{

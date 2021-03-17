@@ -4,21 +4,15 @@ int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt)
 {
 	int request_fd;
 	char *dataserv = ft_strjoin("./server/dataServ/", serv.getServerName().c_str());
+	struct stat st;
+
 	if (!dataserv)
-	{
-		close(new_socket);
-		close(server_fd);
-		std::cout << "\033[1;31m   Error: \033[0;31m malloc failed\033[0m" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+		exit_err("malloc failed", NULL, new_socket, server_fd);
+	if (stat("./server/dataServ", &st) == -1)
+		if (mkdir("./server/dataServ", 0700) == -1)
+			exit_err("mkdir failed", dataserv, new_socket, server_fd);
 	if ((request_fd = open(dataserv, fd_opt, 0644)) < 0)
-	{
-		free(dataserv);
-		close(new_socket);
-		close(server_fd);
-		std::cout << "\033[1;31m   Error: \033[0;31m open failed\033[0m" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+		exit_err("open failed", dataserv, new_socket, server_fd);
 	free(dataserv);
 	return (request_fd);
 }
@@ -43,7 +37,7 @@ void	one_client(Server serv, char **env, int new_socket, int server_fd)
 			{
 				req.config_request(request_fd);
 				Response res;
-				res.config_response(req);
+				res.config_response();
 				if (send(new_socket, res.getResponse().c_str(), ft_strlen(res.getResponse().c_str()), 0) < 0)
 					std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
 			}

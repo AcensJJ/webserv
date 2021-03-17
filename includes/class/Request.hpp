@@ -84,5 +84,4 @@ class Request {
 		std::string _wwwAuthenticate;
 };
 
-
 #endif // !REQUEST_HPP

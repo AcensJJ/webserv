@@ -94,3 +94,8 @@ const char* Server::BadConfigServerNameException::what() const throw ()
 {
 	return ("\033[1;31m   Error: \033[0;31m Server haven't name\033[0m");
 }
+
+const char* Server::SameServerNameException::what() const throw ()
+{
+	return ("\033[1;31m   Error: \033[0;31m Same server name\033[0m");
+}

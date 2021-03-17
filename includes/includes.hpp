@@ -1,5 +1,5 @@
-#ifndef INCLUDES
-#define INCLUDES
+#ifndef INCLUDES_HPP
+#define INCLUDES_HPP
 
 class Server;
 
@@ -12,6 +12,7 @@ void	one_client(Server serv, char **env, int new_socket, int server_fd);
 /***
  *** server_fnct.cpp
 ***/
+void	exit_err(std::string err, char *freevar, int new_socket, int server_fd);
 int		accept_one_client(int server_fd, sockaddr_in *address);
 void	waiting_client(Server serv, char **env, int server_fd, sockaddr_in *address);
 void	launch_serv(Server serv, char **env);

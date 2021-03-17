@@ -48,6 +48,12 @@ class Server {
 				virtual const char* what () const throw();
 		};
 
+		class SameServerNameException : public std::exception
+		{
+			public:
+				virtual const char* what () const throw();
+		};
+
 		std::list<std::string>		*_error_pages;
 		std::vector<Routes>	*_routes;
 	private:
