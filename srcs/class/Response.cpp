@@ -35,26 +35,7 @@ std::string Response::getResponse() const
 void Response::config_response()
 {
 	setResponse("HTTP/1.1 200 ok\r\n");
-	setResponse(getResponse().insert(getResponse().length(), "\n"));
-	setResponse(getResponse().insert(getResponse().length(), "<html>\n<body>\n<h1>Hello World!</h1>\n</body>\n</html>\n"));
-	
-	// struct tm tm;
-    // char buf[255];
-	// strftime(buf, sizeof(buf), "%Y", &tm);
-    // puts(buf);
-
-	
-	// std::cout<< tm.tm_sec << "la"<< std::endl;
-	// time_t rawtime;
-	// struct tm * timeinfo;
-	// char buffer [80];
-
-	// time (&rawtime);
-	// // timeinfo = localtime (&rawtime);
-
-	// strftime (buffer,80,"Now it's %I:%M%p.",timeinfo);
-	// puts (buffer);
-
+	setResponse(getResponse().insert(getResponse().length(), "\n<html>\n<body>\n<h1>Hello World!</h1>\n</body>\n</html>\n"));
 
 }
 
