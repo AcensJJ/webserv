@@ -26,7 +26,7 @@ int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd
 	return (request_fd);
 }
 
-void	one_client(Server serv, char **env, int new_socket, int server_fd, fd_set readfds)
+void	one_client(Server serv, int new_socket, int server_fd, fd_set readfds, fd_set writefds)
 {
 	int request_fd;
 	char buffer[RECV_BUFF];
@@ -47,14 +47,15 @@ void	one_client(Server serv, char **env, int new_socket, int server_fd, fd_set r
 				req.config_request(request_fd);
 				Response res;
 				res.config_response();
-				if (send(new_socket, res.getResponse().c_str(), ft_strlen(res.getResponse().c_str()), 0) < 0)
-					std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
+				(void)writefds;
+				// if (FD_ISSET(server_fd, &writefds))
+					if (send(new_socket, res.getResponse().c_str(), ft_strlen(res.getResponse().c_str()), 0) < 0)
+						std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
 			}
 			catch(const std::exception& e)
 			{
 				std::cerr << e.what() << std::endl;
 			}
-			(void)env;
 		}
 	}
 	close(new_socket);

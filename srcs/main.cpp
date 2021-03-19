@@ -9,7 +9,7 @@ void	waiting_screen()
 	std::cout  <<  "\x1b[A\033\033[0;34m   WAITING...\033[0m" << std::endl;
 }
 
-int		main(int ac, char **av, char **env)
+int		main(int ac, char **av)
 {
 	std::cout << "\033[1;33m   Program starting\033[0m " << std::endl;
 	std::vector<Server> *all = new std::vector<Server>;
@@ -35,7 +35,7 @@ int		main(int ac, char **av, char **env)
 			while (all->begin() != itr && ++itrcheck != all->begin())
 				if (!ft_strcmp(serv.getServerName().c_str(), itrcheck->getServerName().c_str()))
 					throw Server::SameServerNameException();
-			launch_serv(serv, env);
+			launch_serv(serv);
 		}
 		catch (std::exception & e)
 		{
