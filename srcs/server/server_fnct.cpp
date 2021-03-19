@@ -24,41 +24,23 @@ int			accept_one_client(int server_fd, sockaddr_in *address)
 	return (new_socket);
 }
 
-static int config_client(fd_set *readfds, fd_set *writefds, int *client_socket, int max_clients, int max_sd, int server_fd)
+static void config_client(fd_set *readfds, fd_set *writefds, int server_fd)
 {
-	int sd, i;
 	FD_ZERO(readfds);
-	FD_SET(server_fd , readfds);
 	FD_ZERO(writefds);
-	writefds = readfds;
-	//add child sockets to set
-	for ( i = 0 ; i < max_clients ; i++) 
-	{
-		//socket descriptor
-		sd = client_socket[i];
-		//if valid socket descriptor then add to read list
-		if(sd > 0)
-			FD_SET( sd , readfds);
-		//highest file descriptor number, need it for the select function
-		if(sd > max_sd)
-			max_sd = sd;
-	}
-	return (max_sd);
+	FD_SET(server_fd , readfds);
+	FD_SET(server_fd , writefds);
 }
 
 void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 {
 	struct timeval	timeout;
 	fd_set readfds, writefds;
-	int max_sd = server_fd, client_socket[30], max_clients = 30;
 	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
- 	//initialise all client_socket[] to 0 so not checked
-	for (int i = 0; i < max_clients; i++) 
-		client_socket[i] = 0;
-	max_sd = config_client(&readfds, &writefds, client_socket, max_clients, max_sd, server_fd);
+	config_client(&readfds, &writefds, server_fd);
 	waiting_screen();
-	while (select(max_sd + 1, &readfds, &writefds, NULL, &timeout) >= 0)
+	while (select(server_fd + 1, &readfds, &writefds, NULL, &timeout) >= 0)
 	{
 		if (FD_ISSET(server_fd, &readfds)) 
         {
@@ -66,13 +48,12 @@ void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 			std::cout << "\x1b[A\x1b[A\033[1;35m   New connection attempt: \033[0m" << std::endl;
 			int new_socket;
 			if ((new_socket = accept_one_client(server_fd, address)) >= 0)
-				one_client(serv, new_socket, server_fd, readfds, writefds);
-			if(new_socket > max_sd) max_sd = new_socket;
+				one_client(serv, new_socket, server_fd, readfds);
 		}
 		else
 			std::cout << "\x1b[A             \x1b[A\x1b[A";
 		waiting_screen();
-		max_sd = config_client(&readfds, &writefds, client_socket, max_clients, max_sd, server_fd);
+		config_client(&readfds, &writefds, server_fd);
 	}
 	std::cout << "\x1b[A\x1b[A";
 	FD_CLR(server_fd, &readfds);

@@ -3,10 +3,8 @@
 void	waiting_screen()
 {
 	std::cout  << std::endl << std::endl << "\033[0;34m   WAITING.\033[0m" << std::endl;
-	usleep(500000);
+	usleep(150000);
 	std::cout  <<  "\x1b[A\033\033[0;34m   WAITING..\033[0m" << std::endl;
-	usleep(500000);
-	std::cout  <<  "\x1b[A\033\033[0;34m   WAITING...\033[0m" << std::endl;
 }
 
 int		main(int ac, char **av)
