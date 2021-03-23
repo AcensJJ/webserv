@@ -18,8 +18,7 @@ int			accept_one_client(int server_fd, sockaddr_in *address)
 	else
 	{
 		std::cout << "\033[1;32m   Connection: \033[0m accepted" << std::endl;
-		if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0) 
-			std::cout << "\033[1;31m   Error: \033[0;31m fcntl failed\033[0m" << std::endl;
+		fcntl(new_socket, F_SETFL, O_NONBLOCK);
 	}
 	return (new_socket);
 }
@@ -48,7 +47,7 @@ void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 			std::cout << "\x1b[A\x1b[A\033[1;35m   New connection attempt: \033[0m" << std::endl;
 			int new_socket;
 			if ((new_socket = accept_one_client(server_fd, address)) >= 0)
-				one_client(serv, new_socket, server_fd, readfds);
+				one_client(serv, new_socket, server_fd, readfds, writefds);
 		}
 		else
 			std::cout << "\x1b[A             \x1b[A\x1b[A";
@@ -57,6 +56,7 @@ void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 	}
 	std::cout << "\x1b[A\x1b[A";
 	FD_CLR(server_fd, &readfds);
+	FD_CLR(server_fd, &writefds);
 	exit_err("select failed", NULL, -1, server_fd);
 }
 

@@ -1,6 +1,6 @@
 #include "global.hpp"
 
-int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd_set readfds)
+int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd_set readfds, fd_set writefds)
 {
 	int request_fd;
 	char *dataserv = ft_strjoin("./server/dataServ/", serv.getServerName().c_str());
@@ -9,36 +9,37 @@ int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd
 	if (!dataserv)
 	{
 		FD_CLR(server_fd, &readfds);
+		FD_CLR(server_fd, &writefds);
 		exit_err("malloc failed", NULL, new_socket, server_fd);
 	}
 	if (stat("./server/dataServ", &st) == -1)
 		if (mkdir("./server/dataServ", 0700) == -1)
 		{
 			FD_CLR(server_fd, &readfds);
+		FD_CLR(server_fd, &writefds);
 			exit_err("mkdir failed", dataserv, new_socket, server_fd);
 		}
 	if ((request_fd = open(dataserv, fd_opt, 0644)) < 0)
 	{
 		FD_CLR(server_fd, &readfds);
+		FD_CLR(server_fd, &writefds);
 		exit_err("open failed", dataserv, new_socket, server_fd);
 	}
 	free(dataserv);
 	return (request_fd);
 }
 
-void	one_client(Server serv, int new_socket, int server_fd, fd_set readfds)
+void	one_client(Server serv, int new_socket, int server_fd, fd_set readfds, fd_set writefds)
 {
 	int request_fd, nbytes = RECV_BUFF - 1;
 	char buffer[RECV_BUFF];
 	ft_bzero(buffer, RECV_BUFF);
 
-	if ((request_fd = config_data_serv(serv, server_fd, new_socket, O_CREAT | O_WRONLY | O_TRUNC, readfds)) >= 0)
+	if ((request_fd = config_data_serv(serv, server_fd, new_socket, O_CREAT | O_WRONLY | O_TRUNC, readfds, writefds)) >= 0)
 	{
 		while(nbytes == (RECV_BUFF - 1) && (nbytes = recv(new_socket, (void*)buffer, RECV_BUFF - 1, MSG_DONTWAIT)))
 		{
 			if (nbytes < 1) {
-				// std::cout << "\033[1;31m   Error: \033[0;31m recv failed\033[0m" << std::endl;
-				if (nbytes == -1) printf("Recv Error: %d value: %d\n", errno, nbytes);
 				nbytes = RECV_BUFF - 1;
 			}
 			else {
@@ -48,14 +49,14 @@ void	one_client(Server serv, int new_socket, int server_fd, fd_set readfds)
 		}
 		close(request_fd);
 		FD_CLR(server_fd, &readfds);
-		if ((request_fd = config_data_serv(serv, server_fd, new_socket, O_RDONLY, readfds)) >= 0)
+		if ((request_fd = config_data_serv(serv, server_fd, new_socket, O_RDONLY, readfds, writefds)) >= 0)
 		{
 			Request req;
 			try
 			{
 				req.config_request(request_fd);
 				Response res;
-				res.config_response();
+				res.config_response(&req, &serv);
 				if (send(new_socket, res.getResponse().c_str(), ft_strlen(res.getResponse().c_str()), 0) < 0)
 					std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
 			}
@@ -65,5 +66,6 @@ void	one_client(Server serv, int new_socket, int server_fd, fd_set readfds)
 			}
 		}
 	}
+	FD_CLR(server_fd, &writefds);
 	close(new_socket);
 }

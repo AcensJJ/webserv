@@ -7,6 +7,7 @@
 #include <sys/time.h>
 
 #include "Request.hpp"
+#include "Server.hpp"
 
 class Response {
 	public:
@@ -19,7 +20,15 @@ class Response {
 
 		std::string getResponse() const;
 
-		void config_response();
+		int statu_code(std::string path);
+		void get_method(std::string file, Server *serv);
+		void head_method();
+		void put_method();
+		void delete_method();
+		void connect_method();
+		void options_method();
+		void trace_method();
+		void config_response(Request *req, Server *serv);
 	
 	class BuildResponseException : public std::exception
 	{
