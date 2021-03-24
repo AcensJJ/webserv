@@ -44,7 +44,7 @@ void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 		if (FD_ISSET(server_fd, &readfds)) 
         {
 			std::cout << "\x1b[A             "  << std::endl;
-			std::cout << "\x1b[A\x1b[A\033[1;35m   New connection attempt: \033[0m" << std::endl;
+			std::cout << "\x1b[A\x1b[A\033[1;35m   new Connection attempt: \033[0m" << std::endl;
 			int new_socket;
 			if ((new_socket = accept_one_client(server_fd, address)) >= 0)
 				one_client(serv, new_socket, server_fd, readfds, writefds);

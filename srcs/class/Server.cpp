@@ -26,56 +26,62 @@ Server &Server::operator=(const Server &other)
 void Server::setListen(std::string value)
 {
 	this->_listen = value;
-};
+}
+
 void Server::setPort(int value)
 {
 	this->_port = value;
-};
+}
+
 void Server::setHost(std::string value)
 {
 	this->_host = value;
-};
+}
+
 void Server::setServerName(std::string value)
 {
 	this->_server_name = value;
-};
+}
+
 void Server::setLimitClientBody(std::string value)
 {
 	this->_limit_client_body = value;
-};
+}
+
 void Server::setErrorPages(std::list<std::string> value)
 {
 	this->_error_pages = &value;
-};
+}
+
 void Server::setRoutes(std::vector<Routes> value)
 {
 	this->_routes = &value;
-};
+}
 
 std::string Server::getListen() const
 {
 	return(this->_listen);
-};
+}
 
 int Server::getPort() const
 {
 	return(this->_port);
-};
+}
 
 std::string Server::getHost() const
 {
 	return(this->_host);
-};
+}
 
 std::string Server::getServerName() const
 {
 	return(this->_server_name);
-};
+}
 
 std::string Server::getLimitClientBody() const
 {
 	return(this->_limit_client_body);
-};
+}
 
 void Server::check_config()
 {
@@ -83,6 +89,29 @@ void Server::check_config()
 		throw Server::BadConfigListenException();
 	if (this->_server_name.empty())
 		throw Server::BadConfigServerNameException();
+}
+
+std::string Server::getErrorPage(std::string err) const
+{
+	std::list<std::string>::iterator itr;
+	std::string errpath;
+	for (itr = this->_error_pages->begin(); itr != this->_error_pages->end(); itr++)
+	{
+		if (!ft_strncmp(err.c_str(), itr->c_str(), err.length()))
+		{
+			const char *verif = itr->c_str();
+			int i = 3;
+			while ((verif[i] >= 9 && verif[i]  <= 13) || verif[i]  == 32)
+				i++;
+			if (verif[i++] == ':')
+			{
+				while ((verif[i] >= 9 && verif[i]  <= 13) || verif[i]  == 32)
+					i++;
+				errpath = &verif[i];
+			}
+		}
+	}
+	return (errpath);
 }
 
 const char* Server::BadConfigListenException::what() const throw ()

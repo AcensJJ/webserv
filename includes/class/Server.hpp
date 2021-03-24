@@ -34,6 +34,7 @@ class Server {
 		std::string getServerName() const;
 		std::string getLimitClientBody() const;
 		
+		std::string getErrorPage(std::string err) const;
 		void check_config();
 
 		class BadConfigListenException : public std::exception

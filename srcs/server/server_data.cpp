@@ -16,7 +16,7 @@ int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd
 		if (mkdir("./server/dataServ", 0700) == -1)
 		{
 			FD_CLR(server_fd, &readfds);
-		FD_CLR(server_fd, &writefds);
+			FD_CLR(server_fd, &writefds);
 			exit_err("mkdir failed", dataserv, new_socket, server_fd);
 		}
 	if ((request_fd = open(dataserv, fd_opt, 0644)) < 0)
