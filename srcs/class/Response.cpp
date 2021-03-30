@@ -184,7 +184,7 @@ void Response::getMethod(std::string file, Server *serv)
 		else if (statu_code(errpath) == 200) content = getContent(errpath);
 		else throw Response::BuildResponseException();
 	}
-	if (statuCode == 200) content = getContent(www);
+	else content = getContent(www);
 	setContenLength(content);
 	setContenType(www);
 	setResponse(getResponse().insert(getResponse().length(), "\n"));

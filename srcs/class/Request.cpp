@@ -9,15 +9,9 @@ Request::Request(const Request &other)
 {
 	_acceptCharsets = other.getAcceptCharsets();
 	_acceptLanguage = other.getAcceptLanguage();
-	_allow = other.getAllow();
 	_authorization = other.getAuthorization();
-	_contentLanguage = other.getContentLanguage();
-	_contentLength = other.getContentLength();
-	_contentLocation = other.getContentLocation();
-	_contentType = other.getContentType();
 	_date = other.getDate();
 	_host = other.getHost();
-	_referer = other.getReferer();
 }
 
 Request::~Request()
@@ -47,34 +41,9 @@ void Request::setAcceptLanguage(std::string value)
 	this->_acceptLanguage = value;
 }
 
-void Request::setAllow(std::string value)
-{
-	this->_allow = value;
-}
-
 void Request::setAuthorization(std::string value)
 {
 	this->_authorization = value;
-}
-
-void Request::setContentLanguage(std::string value)
-{
-	this->_contentLanguage = value;
-}
-
-void Request::setContentLength(std::string value)
-{
-	this->_contentLength = value;
-}
-
-void Request::setContentLocation(std::string value)
-{
-	this->_contentLocation = value;
-}
-
-void Request::setContentType(std::string value)
-{
-	this->_contentType = value;
 }
 
 void Request::setDate(std::string value)
@@ -85,11 +54,6 @@ void Request::setDate(std::string value)
 void Request::setHost(std::string value)
 {
 	this->_host = value;
-}
-
-void Request::setReferer(std::string value)
-{
-	this->_referer = value;
 }
 
 std::string Request::getFirstLine() const
@@ -107,34 +71,9 @@ std::string Request::getAcceptLanguage() const
 	return(this->_acceptLanguage);
 }
 
-std::string Request::getAllow() const
-{
-	return(this->_allow);
-}
-
 std::string Request::getAuthorization() const
 {
 	return(this->_authorization);
-}
-
-std::string Request::getContentLanguage() const
-{
-	return(this->_contentLanguage);
-}
-
-std::string Request::getContentLength() const
-{
-	return(this->_contentLength);
-}
-
-std::string Request::getContentLocation() const
-{
-	return(this->_contentLocation);
-}
-
-std::string Request::getContentType() const
-{
-	return(this->_contentType);
 }
 
 std::string Request::getDate() const
@@ -145,11 +84,6 @@ std::string Request::getDate() const
 std::string Request::getHost() const
 {
 	return(this->_host);
-}
-
-std::string Request::getReferer() const
-{
-	return(this->_referer);
 }
 
 void Request::set_line_config(char *line)
@@ -165,33 +99,15 @@ void Request::set_line_config(char *line)
 		temp = (char *)"Accept-Language:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))
 			setAcceptLanguage(line);
-		temp = (char *)"Allow:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setAllow(line);
 		temp = (char *)"Authorization:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))
 			setAuthorization(line);
-		temp = (char *)"Content-Language:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setContentLanguage(line);
-		temp = (char *)"Content-Length:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setContentLength(line);
-		temp = (char *)"Content-Location:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setContentLocation(line);
-		temp = (char *)"Content-Type:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setContentType(line);
 		temp = (char *)"Date:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))
 			setDate(line);
 		temp = (char *)"Host:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))
 			setHost(line);
-		temp = (char *)"Referer:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setReferer(line);
 	}
 	free(line);
 }

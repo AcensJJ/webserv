@@ -16,11 +16,13 @@ class Response {
 		Response &operator=(const Response &other);
 		~Response();
 
-		void	setResponse(std::string value);
-		void	setLastModified(std::string path);
+		// HEADER ENTITY
 		void	setContenLength(std::string content);
 		void	setContenType(std::string path);
+		// HEADER RESPONSE
+		void	setLastModified(std::string path);
 
+		void	setResponse(std::string value);
 		std::string getResponse() const;
 		std::string	getContent(std::string path);
 		void	getMethod(std::string file, Server *serv);

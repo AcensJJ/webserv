@@ -31,26 +31,17 @@ void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds)
 	int request_fd, nbytes = RECV_BUFF - 1;
 	char buffer[RECV_BUFF];
 	ft_bzero(buffer, RECV_BUFF);
-
-
 	if ((request_fd = config_data_serv(serv, server_fd, new_socket, O_CREAT | O_WRONLY | O_TRUNC, readfds)) >= 0)
 	{
 		while(nbytes == (RECV_BUFF - 1) && (nbytes = recv(new_socket, (void*)buffer, RECV_BUFF - 1, MSG_DONTWAIT)))
-		{
-			if (nbytes < 1) {
-				nbytes = RECV_BUFF - 1;
-			}
-			else {
-				write(request_fd, buffer, ft_strlen(buffer));
-				ft_bzero(buffer, RECV_BUFF);
-			}	
-		}
+			if (nbytes > 0)
+				write(request_fd, buffer, nbytes);
 		close(request_fd);
 		if ((request_fd = config_data_serv(serv, server_fd, new_socket, O_RDONLY, readfds)) >= 0)
 		{
-			Request req;
 			try
 			{
+				Request req;
 				req.config_request(request_fd);
 				Response res;
 				res.config_response(&req, &serv);
