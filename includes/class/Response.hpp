@@ -17,13 +17,16 @@ class Response {
 		~Response();
 
 		void	setResponse(std::string value);
+		void	setLastModified(std::string path);
+		void	setContenLength(std::string content);
+		void	setContenType(std::string path);
 
 		std::string getResponse() const;
+		std::string	getContent(std::string path);
+		void	getMethod(std::string file, Server *serv);
 
-		void	set_lastModified(std::string path);
-		void	set_content(std::string path);
 		int		statu_code(std::string path);
-		void	get_method(std::string file, Server *serv);
+
 		void	head_method();
 		void	put_method();
 		void	delete_method();

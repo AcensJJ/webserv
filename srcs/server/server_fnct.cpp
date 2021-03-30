@@ -23,23 +23,21 @@ int			accept_one_client(int server_fd, sockaddr_in *address)
 	return (new_socket);
 }
 
-static void config_client(fd_set *readfds, fd_set *writefds, int server_fd)
+static void config_client(fd_set *readfds, int server_fd)
 {
 	FD_ZERO(readfds);
-	FD_ZERO(writefds);
 	FD_SET(server_fd , readfds);
-	FD_SET(server_fd , writefds);
 }
 
 void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 {
 	struct timeval	timeout;
-	fd_set readfds, writefds;
+	fd_set readfds;
 	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
-	config_client(&readfds, &writefds, server_fd);
+	config_client(&readfds, server_fd);
 	waiting_screen();
-	while (select(server_fd + 1, &readfds, &writefds, NULL, &timeout) >= 0)
+	while (select(server_fd + 1, &readfds, NULL, NULL, &timeout) >= 0)
 	{
 		if (FD_ISSET(server_fd, &readfds)) 
         {
@@ -47,16 +45,17 @@ void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 			std::cout << "\x1b[A\x1b[A\033[1;35m   new Connection attempt: \033[0m" << std::endl;
 			int new_socket;
 			if ((new_socket = accept_one_client(server_fd, address)) >= 0)
-				one_client(serv, new_socket, server_fd, readfds, writefds);
+				one_client(serv, new_socket, server_fd, &readfds);
+			FD_CLR(server_fd, &readfds);
+			close(new_socket);
 		}
 		else
 			std::cout << "\x1b[A             \x1b[A\x1b[A";
 		waiting_screen();
-		config_client(&readfds, &writefds, server_fd);
+		config_client(&readfds, server_fd);
 	}
 	std::cout << "\x1b[A\x1b[A";
 	FD_CLR(server_fd, &readfds);
-	FD_CLR(server_fd, &writefds);
 	exit_err("select failed", NULL, -1, server_fd);
 }
 

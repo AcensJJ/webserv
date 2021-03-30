@@ -6,8 +6,8 @@ class Server;
 /***
  *** server_data.cpp
 ***/
-int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd_set readfds, fd_set writefds);
-void	one_client(Server serv, int new_socket, int server_fd, fd_set readfds, fd_set writefds);
+int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd_set *readfds);
+void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds);
 
 /***
  *** server_fnct.cpp
