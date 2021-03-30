@@ -24,14 +24,7 @@ class Request {
 		void setContentType(std::string value);
 		void setDate(std::string value);
 		void setHost(std::string value);
-		void setLastModified(std::string value);
-		void setLocation(std::string value);
 		void setReferer(std::string value);
-		void setRetryAfter(std::string value);
-		void setServer(std::string value);
-		void setTransferEncoding(std::string value);
-		void setUserAgent(std::string value);
-		void setWWWAuthenticate(std::string value);
 
 		std::string getFirstLine() const;
 		std::string getAcceptCharsets() const;
@@ -44,14 +37,7 @@ class Request {
 		std::string getContentType() const;
 		std::string getDate() const;
 		std::string getHost() const;
-		std::string getLastModified() const;
-		std::string getLocation() const;
 		std::string getReferer() const;
-		std::string getRetryAfter() const;
-		std::string getServer() const;
-		std::string getTransferEncoding() const;
-		std::string getUserAgent() const;
-		std::string getWWWAuthenticate() const;
 
 		void config_request(int fd);
 		void set_line_config(char *line);
@@ -74,14 +60,7 @@ class Request {
 		std::string _contentType;
 		std::string _date;
 		std::string _host;
-		std::string _lastModified;
-		std::string _location;
 		std::string _referer;
-		std::string _retryAfter;
-		std::string _server;
-		std::string _transferEncoding;
-		std::string _userAgent;
-		std::string _wwwAuthenticate;
 };
 
 #endif // !REQUEST_HPP

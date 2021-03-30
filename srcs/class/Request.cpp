@@ -17,14 +17,7 @@ Request::Request(const Request &other)
 	_contentType = other.getContentType();
 	_date = other.getDate();
 	_host = other.getHost();
-	_lastModified = other.getLastModified();
-	_location = other.getLocation();
 	_referer = other.getReferer();
-	_retryAfter = other.getRetryAfter();
-	_server = other.getServer();
-	_transferEncoding = other.getTransferEncoding();
-	_userAgent = other.getUserAgent();
-	_wwwAuthenticate = other.getWWWAuthenticate();
 }
 
 Request::~Request()
@@ -94,44 +87,9 @@ void Request::setHost(std::string value)
 	this->_host = value;
 }
 
-void Request::setLastModified(std::string value)
-{
-	this->_lastModified = value;
-}
-
-void Request::setLocation(std::string value)
-{
-	this->_location = value;
-}
-
 void Request::setReferer(std::string value)
 {
 	this->_referer = value;
-}
-
-void Request::setRetryAfter(std::string value)
-{
-	this->_retryAfter = value;
-}
-
-void Request::setServer(std::string value)
-{
-	this->_server = value;
-}
-
-void Request::setTransferEncoding(std::string value)
-{
-	this->_transferEncoding = value;
-}
-
-void Request::setUserAgent(std::string value)
-{
-	this->_userAgent = value;
-}
-
-void Request::setWWWAuthenticate(std::string value)
-{
-	this->_wwwAuthenticate = value;
 }
 
 std::string Request::getFirstLine() const
@@ -189,44 +147,9 @@ std::string Request::getHost() const
 	return(this->_host);
 }
 
-std::string Request::getLastModified() const
-{
-	return(this->_lastModified);
-}
-
-std::string Request::getLocation() const
-{
-	return(this->_location);
-}
-
 std::string Request::getReferer() const
 {
 	return(this->_referer);
-}
-
-std::string Request::getRetryAfter() const
-{
-	return(this->_retryAfter);
-}
-
-std::string Request::getServer() const
-{
-	return(this->_server);
-}
-
-std::string Request::getTransferEncoding() const
-{
-	return(this->_transferEncoding);
-}
-
-std::string Request::getUserAgent() const
-{
-	return(this->_userAgent);
-}
-
-std::string Request::getWWWAuthenticate() const
-{
-	return(this->_wwwAuthenticate);
 }
 
 void Request::set_line_config(char *line)
@@ -234,10 +157,8 @@ void Request::set_line_config(char *line)
 	char	*temp;
 	
 	if (getFirstLine().empty())
-	{
 		setFirstLine(line);
-	}
-	else{
+	else {
 		temp = (char *)"Accept-Charset:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))
 			setAcceptCharsets(line);
@@ -268,30 +189,9 @@ void Request::set_line_config(char *line)
 		temp = (char *)"Host:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))
 			setHost(line);
-		temp = (char *)"Last-Modified:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setLastModified(line);
-		temp = (char *)"Location:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setLocation(line);
 		temp = (char *)"Referer:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))
 			setReferer(line);
-		temp = (char *)"Retry-After:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setRetryAfter(line);
-		temp = (char *)"Server:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setServer(line);
-		temp = (char *)"Transfer-Encoding:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setTransferEncoding(line);
-		temp = (char *)"User-Agent:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setAcceptLanguage(line);
-		temp = (char *)"WWW-Authenticate:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
-			setWWWAuthenticate(line);
 	}
 	free(line);
 }

@@ -32,7 +32,7 @@ std::string Response::getResponse() const
 	return(this->_response);
 }
 
-void Response::setContenLength(std::string content) // not that
+void Response::setContenLength(std::string content)
 {
 	char* len;
 	if (!(len = ft_itoa(content.length()))) throw Response::BuildResponseException();
@@ -120,18 +120,18 @@ void Response::setLastModified(std::string path)
 	struct stat	sb;
 	stat(path.c_str(), &sb);
 	char *date;
-	if (!(date = (char *)malloc(13))) throw Response::BuildResponseException();
-	ft_bzero(date, 13);
-	strftime(date, 4, "%a", gmtime(&(sb.st_ctime)));
+	if (!(date = (char *)malloc(12))) throw Response::BuildResponseException();
+	ft_bzero(date, 12);
+	strftime(date, 3, "%a", gmtime(&(sb.st_ctime)));
 	setResponse(getResponse().insert(getResponse().length(), "last-modified: "));
 	setResponse(getResponse().insert(getResponse().length(), date));
 	setResponse(getResponse().insert(getResponse().length(), ", "));
-	ft_bzero(date, 4);
-	strftime(date, 13, "%d %h %Y", gmtime(&(sb.st_ctime)));
+	ft_bzero(date, 3);
+	strftime(date, 11, "%d %h %Y", gmtime(&(sb.st_ctime)));
 	setResponse(getResponse().insert(getResponse().length(), date));
 	setResponse(getResponse().insert(getResponse().length(), " "));
-	ft_bzero(date, 13);
-	strftime(date, 9, "%H:%M:%S", gmtime(&(sb.st_ctime)));
+	ft_bzero(date, 11);
+	strftime(date, 8, "%H:%M:%S", gmtime(&(sb.st_ctime)));
 	setResponse(getResponse().insert(getResponse().length(), date));
 	setResponse(getResponse().insert(getResponse().length(), " GMT"));
 	free(date);
@@ -147,6 +147,7 @@ std::string Response::getContent(std::string path)
 	while (get_next_line(fd, &line) > 0)
 	{
 		ret.insert(ret.length(), line);
+		ret.insert(ret.length(), "\n");
 		free(line);
 	}
 	close(fd);
@@ -170,25 +171,24 @@ void Response::getMethod(std::string file, Server *serv)
 	if (file[file.length() - 1] == '/') file.insert(file.length(), "index.html");
 	std::string www = "./server/www";
 	www.insert(www.length(), file);
-	(void)serv;
-	// int statuCode = statu_code(www);
-	// setResponse("HTTP/");
-	// if (statuCode == 200){
-	// 	setResponse(getResponse().insert(getResponse().length(), " 200 ok\n"));
-		// setLastModified(www);
-	// }
-	// else if (statuCode == 404) setResponse(getResponse().insert(getResponse().length(), " 404 Not Found\n"));
-	// if (statuCode == 404) {
-	// 	std::string errpath = serv->getErrorPage("404");
-	// 	if (errpath.empty()) content = getContent("./server/default/error404.html");
-	// 	else if (statu_code(errpath) == 200) content = getContent(errpath);
-	// 	else throw Response::BuildResponseException();
-	// }
-	// if (statuCode == 200) content = getContent(www);
-	// setContenLength(content);
-	// setContenType(www);
-	// setResponse(getResponse().insert(getResponse().length(), "\n"));
-	// setResponse(getResponse().insert(getResponse().length(), content));
+	int statuCode = statu_code(www);
+	setResponse("HTTP/");
+	if (statuCode == 200){
+		setResponse(getResponse().insert(getResponse().length(), " 200 ok\n"));
+		setLastModified(www);
+	}
+	else if (statuCode == 404) setResponse(getResponse().insert(getResponse().length(), " 404 Not Found\n"));
+	if (statuCode == 404) {
+		std::string errpath = serv->getErrorPage("404");
+		if (errpath.empty()) content = getContent("./server/default/error404.html");
+		else if (statu_code(errpath) == 200) content = getContent(errpath);
+		else throw Response::BuildResponseException();
+	}
+	if (statuCode == 200) content = getContent(www);
+	setContenLength(content);
+	setContenType(www);
+	setResponse(getResponse().insert(getResponse().length(), "\n"));
+	setResponse(getResponse().insert(getResponse().length(), content));
 
 }
 
