@@ -48,6 +48,7 @@ void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 				one_client(serv, new_socket, server_fd, &readfds);
 			FD_CLR(server_fd, &readfds);
 			close(new_socket);
+			std::cout << "\033[1;32m   Connection: \033[0m closed" << std::endl;
 		}
 		else
 			std::cout << "\x1b[A             \x1b[A\x1b[A";

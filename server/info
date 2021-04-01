@@ -1,5 +1,6 @@
 [norme serv]:
 	- https://tools.ietf.org/html/rfc7230
+	- https://developer.mozilla.org/fr/docs/Web/HTTP/Resources_and_specifications
 
 [man]:
 	- http://manpagesfr.free.fr/man/man7/socket.7.html
@@ -11,16 +12,14 @@
 	- https://www.binarytides.com/multiple-socket-connections-fdset-select-linux/
 
 [request / response]:
-	- https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages
-
 [request method]:
-	- https://www.tutorialspoint.com/http/http_requests.htm
+	-https://developer.mozilla.org/fr/docs/Web/HTTP/
 
 [mimes types]:
 	- https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
 
-[try]:
-	- https://www.lowtek.com/sockets/select.html
+[Redirection]:
+	- https://developer.mozilla.org/fr/docs/Web/HTTP/Status
 
 [HEADER]:
 	- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers
@@ -33,13 +32,13 @@
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Authorization
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Host
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Referer
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/User-Agent
 	(response):
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Last-Modified
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Location
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Retry-After
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Server
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Transfer-Encoding
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/User-Agent
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/WWW-Authenticate
 	(entity):
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Allow

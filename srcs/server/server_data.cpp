@@ -28,14 +28,17 @@ int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd
 
 void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds)
 {
-	int request_fd, nbytes = RECV_BUFF - 1;
+	int request_fd = -1, nbytes = RECV_BUFF - 1;
 	char buffer[RECV_BUFF];
 	ft_bzero(buffer, RECV_BUFF);
-	if ((request_fd = config_data_serv(serv, server_fd, new_socket, O_CREAT | O_WRONLY | O_TRUNC, readfds)) >= 0)
+	while(nbytes == (RECV_BUFF - 1) && (nbytes = recv(new_socket, (void*)buffer, RECV_BUFF - 1, MSG_DONTWAIT)) > 0)
+		if (nbytes > 0)
+		{
+			if (request_fd == -1) request_fd = config_data_serv(serv, server_fd, new_socket, O_CREAT | O_WRONLY | O_TRUNC, readfds);
+			write(request_fd, buffer, nbytes);
+		}
+	if (request_fd != -1) 
 	{
-		while(nbytes == (RECV_BUFF - 1) && (nbytes = recv(new_socket, (void*)buffer, RECV_BUFF - 1, MSG_DONTWAIT)))
-			if (nbytes > 0)
-				write(request_fd, buffer, nbytes);
 		close(request_fd);
 		if ((request_fd = config_data_serv(serv, server_fd, new_socket, O_RDONLY, readfds)) >= 0)
 		{

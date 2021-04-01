@@ -16,19 +16,25 @@ class Response {
 		Response &operator=(const Response &other);
 		~Response();
 
+		void	setResponse(std::string value);
+		std::string getResponse() const;
+
 		// HEADER ENTITY
 		void	setContenLength(std::string content);
 		void	setContenType(std::string path);
 		// HEADER RESPONSE
 		void	setLastModified(std::string path);
+		void	setLocation(std::string file, int statuCode);
+		void	setRetryAfer(int statuCode);
+		void	setServer();
+		void	setTransfetEncoding();
+		void	setWWWAuthenticate(int statuCode);
 
-		void	setResponse(std::string value);
-		std::string getResponse() const;
 		std::string	getContent(std::string path);
+		int		statu_code(std::string path, std::vector<Routes> *routes);
+
 		void	getMethod(std::string file, Server *serv);
-
-		int		statu_code(std::string path);
-
+		// todo
 		void	head_method();
 		void	put_method();
 		void	delete_method();

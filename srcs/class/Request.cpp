@@ -56,6 +56,11 @@ void Request::setHost(std::string value)
 	this->_host = value;
 }
 
+void Request::setUserAgent(std::string value)
+{
+	this->_userAgent = value;
+}
+
 std::string Request::getFirstLine() const
 {
 	return(this->_firstLine);
@@ -86,6 +91,11 @@ std::string Request::getHost() const
 	return(this->_host);
 }
 
+std::string Request::getUserAgent() const
+{
+	return(this->_userAgent);
+}
+
 void Request::set_line_config(char *line)
 {
 	char	*temp;
@@ -108,6 +118,9 @@ void Request::set_line_config(char *line)
 		temp = (char *)"Host:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))
 			setHost(line);
+		temp = (char *)"User_Agent:";
+		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+			setUserAgent(line);
 	}
 	free(line);
 }

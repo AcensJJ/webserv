@@ -19,6 +19,7 @@ class Request {
 		void setAuthorization(std::string value);
 		void setDate(std::string value);
 		void setHost(std::string value);
+		void setUserAgent(std::string value);
 
 		std::string getFirstLine() const;
 		std::string getAcceptCharsets() const;
@@ -27,6 +28,7 @@ class Request {
 		std::string getContentType() const;
 		std::string getDate() const;
 		std::string getHost() const;
+		std::string getUserAgent() const;
 
 		void config_request(int fd);
 		void set_line_config(char *line);
@@ -44,6 +46,7 @@ class Request {
 		std::string _authorization;
 		std::string _date;
 		std::string _host;
+		std::string _userAgent;
 };
 
 #endif // !REQUEST_HPP
