@@ -41,7 +41,7 @@ void Response::setContenLength(std::string content)
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 }
 
-void Response::setContenType(std::string path)
+void Response::setContenType(std::string path, Request *req)
 {
 	size_t nb = path.find_last_of(".");
 	std::string type = path;
@@ -113,6 +113,13 @@ void Response::setContenType(std::string path)
 	if (!ft_strcmp(type.c_str() , ".3gp"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: video/3gpp\n"));
 	if (!ft_strcmp(type.c_str() , ".3g2"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: video/3gpp2\n"));
 	if (!ft_strcmp(type.c_str() , ".7z"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-7z-compressed\n"));
+	if (!req->getAcceptCharsets().empty())
+	{
+		setResponse(getResponse().insert(getResponse().length() - 1, "; charset="));
+		int i(16);
+		std::string charset = req->getAcceptCharsets().substr(i);
+		setResponse(getResponse().insert(getResponse().length() - 1, charset));
+	}
 }
 
 void Response::setLastModified(std::string path)
@@ -189,6 +196,14 @@ void Response::setWWWAuthenticate(int statuCode)
 	}
 }
 
+void Response::setFirstLine(int statuCode)
+{
+	setResponse("HTTP/1.1");
+	if (statuCode == 200) setResponse(getResponse().insert(getResponse().length(), " 200 ok\n"));
+	else if (statuCode == 404) setResponse(getResponse().insert(getResponse().length(), " 404 Not Found\n"));
+	else if (statuCode == 400) setResponse(getResponse().insert(getResponse().length(), " 400 Bad Request\n"));
+}
+
 std::string Response::getContent(std::string path)
 {
 	std::string ret;
@@ -219,19 +234,25 @@ int Response::statu_code(std::string path, std::vector<Routes> *routes)
 	return (200);
 }
 
-void Response::getMethod(std::string file, Server *serv)
+void Response::getMethod(std::string file, Server *serv, Request *req, int statuCode)
 {
 	std::string content;
 	if (file[file.length() - 1] == '/') file.insert(file.length(), "index.html");
 	std::string www = "./server/www";
 	www.insert(www.length(), file);
-	int statuCode = statu_code(www, serv->_routes);
-	setResponse("HTTP/");
-	if (statuCode == 200) setResponse(getResponse().insert(getResponse().length(), " 200 ok\n"));
-	else if (statuCode == 404) setResponse(getResponse().insert(getResponse().length(), " 404 Not Found\n"));
-	if (statuCode == 404) {
-		www = serv->getErrorPage("404");
-		if (www.empty()) www = "./server/default/error404.html";
+	if (!statuCode) statuCode = statu_code(www, serv->_routes);
+	setFirstLine(statuCode);
+	if (statuCode >= 400 && statuCode < 500) {
+		char *statuChar = ft_itoa(statuCode);
+		if (!statuChar) throw Response::BuildResponseException();
+		www = serv->getErrorPage(statuChar);
+		if (www.empty()) 
+		{
+			www = "./server/default/error";
+			www.insert(www.length(), statuChar);
+			www.insert(www.length(), ".html");
+		}
+		free(statuChar);
 		if (statu_code(www, NULL) == 404) throw Response::BuildResponseException();
 	}
 	content = getContent(www);
@@ -242,7 +263,7 @@ void Response::getMethod(std::string file, Server *serv)
 	setTransfetEncoding();
 	setWWWAuthenticate(statuCode);
 	setContenLength(content);
-	setContenType(www);
+	setContenType(www, req);
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 	setResponse(getResponse().insert(getResponse().length(), content));
 
@@ -280,7 +301,6 @@ void Response::trace_method()
 
 void Response::config_response(Request *req, Server *serv)
 {
-	// req->verif(); // verif les HEARDERS de resquest si no host return page 400 etc...
 	std::string request(req->getFirstLine());
 	int space[2];
 	space[0] = request.find(' ');
@@ -288,7 +308,8 @@ void Response::config_response(Request *req, Server *serv)
 	std::string method = request.substr(0, space[0]);
 	std::string file = request.substr(space[0] + 1, space[1] - (space[0] + 1));
 	std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << method << " on " << file << "\033[0m" << std::endl;
-	if (!ft_strcmp(method.c_str(), "GET")) getMethod(file, serv);
+	if (req->getHost().empty()) getMethod(file, serv, req, 400);
+	else if (!ft_strcmp(method.c_str(), "GET")) getMethod(file, serv, req, 0);
 	else if (!ft_strcmp(method.c_str(), "HEAD")) head_method();
 	else if (!ft_strcmp(method.c_str(), "PUT")) put_method();
 	else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method();

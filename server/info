@@ -27,22 +27,22 @@
 	(general):
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Date
 	(request):
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Accept-Charset
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Accept-Charset ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Accept-Language
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Authorization
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Host
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Host ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Referer
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/User-Agent
 	(response):
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Last-Modified
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Location
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Last-Modified ✅
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Location ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Retry-After
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Server
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Server ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Transfer-Encoding
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/WWW-Authenticate
 	(entity):
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Allow
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Language
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Length
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Length ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Location
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Type
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Type ✅

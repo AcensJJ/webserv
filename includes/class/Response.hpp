@@ -21,7 +21,7 @@ class Response {
 
 		// HEADER ENTITY
 		void	setContenLength(std::string content);
-		void	setContenType(std::string path);
+		void	setContenType(std::string path, Request *req);
 		// HEADER RESPONSE
 		void	setLastModified(std::string path);
 		void	setLocation(std::string file, int statuCode);
@@ -30,24 +30,28 @@ class Response {
 		void	setTransfetEncoding();
 		void	setWWWAuthenticate(int statuCode);
 
-		std::string	getContent(std::string path);
-		int		statu_code(std::string path, std::vector<Routes> *routes);
+		void	setFirstLine(int statuCode);
 
-		void	getMethod(std::string file, Server *serv);
-		// todo
+
+		std::string	getContent(std::string path);
+		int			statu_code(std::string path, std::vector<Routes> *routes);
+
+		void	getMethod(std::string file, Server *serv, Request *req, int statuCode);
+
 		void	head_method();
 		void	put_method();
 		void	delete_method();
 		void	connect_method();
 		void	options_method();
 		void	trace_method();
+
 		void	config_response(Request *req, Server *serv);
 	
-	class BuildResponseException : public std::exception
-	{
-		public:
-			virtual const char* what () const throw();
-	};
+		class BuildResponseException : public std::exception
+		{
+			public:
+				virtual const char* what () const throw();
+		};
 
 	private:
 		std::string _response;
