@@ -20,8 +20,10 @@ class Response {
 		std::string getResponse() const;
 
 		// HEADER ENTITY
-		void	setContenLength(std::string content);
-		void	setContenType(std::string path, Request *req);
+		void	setContentLanguage(Request *req);
+		void	setContentLength(std::string content);
+		void	setContentLocation(std::string file);
+		void	setContentType(std::string path, Request *req);
 		// HEADER RESPONSE
 		void	setLastModified(std::string path);
 		void	setLocation(std::string file, int statuCode);
