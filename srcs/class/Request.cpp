@@ -61,6 +61,11 @@ void Request::setUserAgent(std::string value)
 	this->_userAgent = value;
 }
 
+void Request::setTime(int value)
+{
+	this->_time = value;
+}
+
 std::string Request::getFirstLine() const
 {
 	return(this->_firstLine);
@@ -94,6 +99,11 @@ std::string Request::getHost() const
 std::string Request::getUserAgent() const
 {
 	return(this->_userAgent);
+}
+
+int			Request::getTime() const
+{
+	return(this->_time);
 }
 
 void Request::set_line_config(char *line)

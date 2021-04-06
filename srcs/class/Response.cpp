@@ -69,6 +69,7 @@ void Response::setContentLength(std::string content)
 	setResponse(getResponse().insert(getResponse().length(), "Content-Length: "));
 	setResponse(getResponse().insert(getResponse().length(), len));
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
+	free(len);
 }
 
 void Response::setContentLocation(std::string file)
@@ -394,13 +395,19 @@ void Response::trace_method()
 
 void Response::config_response(Request *req, Server *serv)
 {
-	std::string request(req->getFirstLine());
+	struct timeval time;
+	gettimeofday(&time, NULL);
+	std::string request(req->getFirstLine()); // check si timeout pas de value
 	int sep[2];
 	sep[0] = request.find(' ');
 	sep[1] = request.rfind(' ');
 	std::string method = request.substr(0, sep[0]);
 	std::string file = request.substr(sep[0] + 1, sep[1] - (sep[0] + 1));
 	std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << method << " on " << file << "\033[0m" << std::endl;
+	if (req->getTime() - time.tv_sec > 30){
+		getMethod(file, serv, req, 408);
+		throw "Timeout";
+	}
 	if (req->getHost().empty()) getMethod(file, serv, req, 400);
 	else 
 	{

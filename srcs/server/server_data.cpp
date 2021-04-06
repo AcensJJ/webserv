@@ -26,28 +26,47 @@ int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd
 	return (request_fd);
 }
 
-void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds)
+void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds, Request *req)
 {
+	struct timeval time;
+	gettimeofday(&time, NULL);
+	int timeout(0);
 	int request_fd = -1, nbytes = RECV_BUFF - 1;
 	char buffer[RECV_BUFF];
 	ft_bzero(buffer, RECV_BUFF);
-	while(nbytes == (RECV_BUFF - 1) && (nbytes = recv(new_socket, (void*)buffer, RECV_BUFF - 1, MSG_DONTWAIT)) > 0)
+	while(!timeout && nbytes == (RECV_BUFF - 1) && (nbytes = recv(new_socket, (void*)buffer, RECV_BUFF - 1, MSG_DONTWAIT)) > 0)
 		if (nbytes > 0)
 		{
+			gettimeofday(&time, NULL);
+			if (req->getTime() - time.tv_sec > 30) timeout = 1;
 			if (request_fd == -1) request_fd = config_data_serv(serv, server_fd, new_socket, O_CREAT | O_WRONLY | O_TRUNC, readfds);
 			write(request_fd, buffer, nbytes);
 		}
-	if (request_fd != -1) 
+	if (timeout)
+	{
+		try
+		{
+			Response res;
+			res.config_response(req, &serv);
+			if (send(new_socket, res.getResponse().c_str(), ft_strlen(res.getResponse().c_str()), 0) < 0)
+				std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
+			throw "Timeout request!";
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
+	}
+	else if (request_fd != -1) 
 	{
 		close(request_fd);
 		if ((request_fd = config_data_serv(serv, server_fd, new_socket, O_RDONLY, readfds)) >= 0)
 		{
 			try
 			{
-				Request req;
-				req.config_request(request_fd);
+				req->config_request(request_fd);
 				Response res;
-				res.config_response(&req, &serv);
+				res.config_response(req, &serv);
 				if (send(new_socket, res.getResponse().c_str(), ft_strlen(res.getResponse().c_str()), 0) < 0)
 					std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
 			}
