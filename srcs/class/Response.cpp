@@ -47,16 +47,38 @@ void Response::setDate()
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 }
 
-void Response::setContenLength(std::string content)
+void	Response::setContentLanguage(Request *req)
+{
+	if (!req->getAcceptLanguage().empty())
+	{
+		setResponse(getResponse().insert(getResponse().length(), "Content-Langage: "));
+		int sep[2];
+		sep[0] = 16;
+		sep[1] = req->getAcceptLanguage().find(',');
+		if (sep[1] == -1) sep[1] = req->getAcceptLanguage().length();
+		std::string language = req->getAcceptLanguage().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
+		setResponse(getResponse().insert(getResponse().length(), language));
+		setResponse(getResponse().insert(getResponse().length(), "\n"));
+	}
+}
+
+void Response::setContentLength(std::string content)
 {
 	char* len;
 	if (!(len = ft_itoa(content.length()))) throw Response::BuildResponseException();
-	setResponse(getResponse().insert(getResponse().length(), "content-length: "));
+	setResponse(getResponse().insert(getResponse().length(), "Content-Length: "));
 	setResponse(getResponse().insert(getResponse().length(), len));
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 }
 
-void Response::setContenType(std::string path, Request *req)
+void Response::setContentLocation(std::string file)
+{
+	setResponse(getResponse().insert(getResponse().length(), "Content-Location: "));
+	setResponse(getResponse().insert(getResponse().length(), file));
+	setResponse(getResponse().insert(getResponse().length(), "\n"));
+}
+
+void Response::setContentType(std::string path, Request *req)
 {
 	size_t nb = path.find_last_of(".");
 	std::string type = path;
@@ -131,8 +153,11 @@ void Response::setContenType(std::string path, Request *req)
 	if (!req->getAcceptCharsets().empty())
 	{
 		setResponse(getResponse().insert(getResponse().length() - 1, "; charset="));
-		int i(16);
-		std::string charset = req->getAcceptCharsets().substr(i);
+		int sep[2];
+		sep[0] = 15;
+		sep[1] = req->getAcceptCharsets().find(',');
+		if (sep[1] == -1) sep[1] = req->getAcceptCharsets().length();
+		std::string charset = req->getAcceptCharsets().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
 		setResponse(getResponse().insert(getResponse().length() - 1, charset));
 	}
 }
@@ -162,7 +187,7 @@ void Response::setLastModified(std::string path)
 
 void Response::setLocation(std::string file, int statuCode)
 {
-	if ((statuCode >= 300 && statuCode < 400) || statuCode == 201)
+	if ((statuCode >= 301 && statuCode <= 308) || statuCode == 201)
 	{
 		setResponse(getResponse().insert(getResponse().length(), "Location: "));
 		setResponse(getResponse().insert(getResponse().length(), file));
@@ -179,7 +204,6 @@ void Response::setRetryAfer(int statuCode)
 		// setResponse(getResponse().insert(getResponse().length(), date));
 		// setResponse(getResponse().insert(getResponse().length(), "\n"));
 		setResponse(getResponse().insert(getResponse().length(), "Retry-After: "));
-		(void)statuCode;
 		// std::string msg;
 		// if (statuCode == 503) msg = ;
 		// else if (statuCode == 429) msg = ;
@@ -214,9 +238,60 @@ void Response::setWWWAuthenticate(int statuCode)
 void Response::setFirstLine(int statuCode)
 {
 	setResponse("HTTP/1.1");
-	if (statuCode == 200) setResponse(getResponse().insert(getResponse().length(), " 200 ok\n"));
-	else if (statuCode == 404) setResponse(getResponse().insert(getResponse().length(), " 404 Not Found\n"));
+	if      (statuCode == 100) setResponse(getResponse().insert(getResponse().length(), " 100 Continue\n"));
+	else if (statuCode == 101) setResponse(getResponse().insert(getResponse().length(), " 200 Switching Protocols\n"));
+	else if (statuCode == 103) setResponse(getResponse().insert(getResponse().length(), " 200 Ear;y Hints\n"));
+	else if (statuCode == 200) setResponse(getResponse().insert(getResponse().length(), " 200 OK\n"));
+	else if (statuCode == 201) setResponse(getResponse().insert(getResponse().length(), " 201 Created\n"));
+	else if (statuCode == 202) setResponse(getResponse().insert(getResponse().length(), " 202 Accepted\n"));
+	else if (statuCode == 203) setResponse(getResponse().insert(getResponse().length(), " 203 Non-Authoritative Information\n"));
+	else if (statuCode == 204) setResponse(getResponse().insert(getResponse().length(), " 204 No Content\n"));
+	else if (statuCode == 205) setResponse(getResponse().insert(getResponse().length(), " 205 Reset Content\n"));
+	else if (statuCode == 206) setResponse(getResponse().insert(getResponse().length(), " 206 Partial Content\n"));
+	else if (statuCode == 300) setResponse(getResponse().insert(getResponse().length(), " 300 Multiple Choices\n"));
+	else if (statuCode == 301) setResponse(getResponse().insert(getResponse().length(), " 301 Moved Permanently\n"));
+	else if (statuCode == 302) setResponse(getResponse().insert(getResponse().length(), " 302 Found\n"));
+	else if (statuCode == 303) setResponse(getResponse().insert(getResponse().length(), " 303 See Other\n"));
+	else if (statuCode == 304) setResponse(getResponse().insert(getResponse().length(), " 304 Not Modified\n"));
+	else if (statuCode == 307) setResponse(getResponse().insert(getResponse().length(), " 307 Temporary Redirect\n"));
+	else if (statuCode == 308) setResponse(getResponse().insert(getResponse().length(), " 308 Permanent Redirect\n"));
 	else if (statuCode == 400) setResponse(getResponse().insert(getResponse().length(), " 400 Bad Request\n"));
+	else if (statuCode == 401) setResponse(getResponse().insert(getResponse().length(), " 401 Unauthoriwed\n"));
+	else if (statuCode == 402) setResponse(getResponse().insert(getResponse().length(), " 402 Payment Required\n"));
+	else if (statuCode == 403) setResponse(getResponse().insert(getResponse().length(), " 403 Forbidden\n"));
+	else if (statuCode == 404) setResponse(getResponse().insert(getResponse().length(), " 404 Not Found\n"));
+	else if (statuCode == 405) setResponse(getResponse().insert(getResponse().length(), " 405 Method Not Allowed\n"));
+	else if (statuCode == 406) setResponse(getResponse().insert(getResponse().length(), " 406 Not Acceptable\n"));
+	else if (statuCode == 407) setResponse(getResponse().insert(getResponse().length(), " 407 Proxy Authentication Required\n"));
+	else if (statuCode == 408) setResponse(getResponse().insert(getResponse().length(), " 408 Request Timeout\n"));
+	else if (statuCode == 409) setResponse(getResponse().insert(getResponse().length(), " 409 Conflict\n"));
+	else if (statuCode == 410) setResponse(getResponse().insert(getResponse().length(), " 410 Gone\n"));
+	else if (statuCode == 411) setResponse(getResponse().insert(getResponse().length(), " 411 Length Required\n"));
+	else if (statuCode == 412) setResponse(getResponse().insert(getResponse().length(), " 412 Precondition Failed\n"));
+	else if (statuCode == 413) setResponse(getResponse().insert(getResponse().length(), " 413 Payload Too Large\n"));
+	else if (statuCode == 414) setResponse(getResponse().insert(getResponse().length(), " 414 URI Too Long\n"));
+	else if (statuCode == 415) setResponse(getResponse().insert(getResponse().length(), " 415 Unsupported Media Type\n"));
+	else if (statuCode == 416) setResponse(getResponse().insert(getResponse().length(), " 416 Range Not Satisfiable\n"));
+	else if (statuCode == 417) setResponse(getResponse().insert(getResponse().length(), " 417 Expectation Failed\n"));
+	else if (statuCode == 418) setResponse(getResponse().insert(getResponse().length(), " 418 I'm a teapot\n"));
+	else if (statuCode == 422) setResponse(getResponse().insert(getResponse().length(), " 422 Unprocessable Entity\n"));
+	else if (statuCode == 425) setResponse(getResponse().insert(getResponse().length(), " 425 Too Early\n"));
+	else if (statuCode == 426) setResponse(getResponse().insert(getResponse().length(), " 426 Upgrade Required\n"));
+	else if (statuCode == 428) setResponse(getResponse().insert(getResponse().length(), " 428 Precondition Required\n"));
+	else if (statuCode == 429) setResponse(getResponse().insert(getResponse().length(), " 429 Too Many Requests\n"));
+	else if (statuCode == 431) setResponse(getResponse().insert(getResponse().length(), " 431 Request Header Fields Too Large\n"));
+	else if (statuCode == 451) setResponse(getResponse().insert(getResponse().length(), " 451 Unavailable For Legal Reasons\n"));
+	else if (statuCode == 500) setResponse(getResponse().insert(getResponse().length(), " 500 Internal Server Error\n"));
+	else if (statuCode == 501) setResponse(getResponse().insert(getResponse().length(), " 501 Not Implemented\n"));
+	else if (statuCode == 502) setResponse(getResponse().insert(getResponse().length(), " 502 Bad Gateway\n"));
+	else if (statuCode == 503) setResponse(getResponse().insert(getResponse().length(), " 503 Service Unavailable\n"));
+	else if (statuCode == 504) setResponse(getResponse().insert(getResponse().length(), " 504 Gateway Timeout\n"));
+	else if (statuCode == 505) setResponse(getResponse().insert(getResponse().length(), " 505 HTTP Version Not Supported\n"));
+	else if (statuCode == 506) setResponse(getResponse().insert(getResponse().length(), " 506 Variant Also Negotiates\n"));
+	else if (statuCode == 507) setResponse(getResponse().insert(getResponse().length(), " 507 Insufficient Sotrage\n"));
+	else if (statuCode == 508) setResponse(getResponse().insert(getResponse().length(), " 508 Loop Detected\n"));
+	else if (statuCode == 510) setResponse(getResponse().insert(getResponse().length(), " 510 Not Extended\n"));
+	else if (statuCode == 511) setResponse(getResponse().insert(getResponse().length(), " 511 Network Authentication Required\n"));
 }
 
 std::string Response::getContent(std::string path)
@@ -278,8 +353,10 @@ void Response::getMethod(std::string file, Server *serv, Request *req, int statu
 	setServer();
 	setTransfetEncoding();
 	setWWWAuthenticate(statuCode);
-	setContenLength(content);
-	setContenType(www, req);
+	setContentLanguage(req);
+	setContentLength(content);
+	setContentLocation(file);
+	setContentType(www, req);
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 	setResponse(getResponse().insert(getResponse().length(), content));
 
@@ -318,20 +395,39 @@ void Response::trace_method()
 void Response::config_response(Request *req, Server *serv)
 {
 	std::string request(req->getFirstLine());
-	int space[2];
-	space[0] = request.find(' ');
-	space[1] = request.rfind(' ');
-	std::string method = request.substr(0, space[0]);
-	std::string file = request.substr(space[0] + 1, space[1] - (space[0] + 1));
+	int sep[2];
+	sep[0] = request.find(' ');
+	sep[1] = request.rfind(' ');
+	std::string method = request.substr(0, sep[0]);
+	std::string file = request.substr(sep[0] + 1, sep[1] - (sep[0] + 1));
 	std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << method << " on " << file << "\033[0m" << std::endl;
 	if (req->getHost().empty()) getMethod(file, serv, req, 400);
-	else if (!ft_strcmp(method.c_str(), "GET")) getMethod(file, serv, req, 0);
-	else if (!ft_strcmp(method.c_str(), "HEAD")) head_method();
-	else if (!ft_strcmp(method.c_str(), "PUT")) put_method();
-	else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method();
-	else if (!ft_strcmp(method.c_str(), "CONNECT")) connect_method();
-	else if (!ft_strcmp(method.c_str(), "OPTIONS")) options_method();
-	else if (!ft_strcmp(method.c_str(), "TRACE")) trace_method();
+	else 
+	{
+		std::string host;
+		std::string port("80");
+		sep[0] = req->getHost().find(' ');
+		sep[1] = req->getHost().rfind(':');
+		if (sep[1] != -1) port = req->getHost().substr(sep[1] + 1);
+		if (sep[1] == -1) sep[1] = req->getHost().length();
+		host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
+		if (!strcmp(host.c_str(), "localhost") || !strcmp(host.c_str(), "127.0.0.1"))
+		{
+			if (serv->getPort() != ft_atoi(port.c_str())) getMethod(file, serv, req, 400);
+			else if (strcmp("localhost", serv->getHost().c_str()) && strcmp("127.0.0.1", serv->getHost().c_str())) getMethod(file, serv, req, 400);
+		}
+		else if (strcmp(host.c_str(), serv->getHost().c_str()) || serv->getPort() != ft_atoi(port.c_str())) getMethod(file, serv, req, 400);
+		if (getResponse().empty())
+		{
+			if (!ft_strcmp(method.c_str(), "GET")) getMethod(file, serv, req, 0);
+			else if (!ft_strcmp(method.c_str(), "HEAD")) head_method();
+			else if (!ft_strcmp(method.c_str(), "PUT")) put_method();
+			else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method();
+			else if (!ft_strcmp(method.c_str(), "CONNECT")) connect_method();
+			else if (!ft_strcmp(method.c_str(), "OPTIONS")) options_method();
+			else if (!ft_strcmp(method.c_str(), "TRACE")) trace_method();
+		}
+	}
 	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m{\033[3;36m" << getResponse() << "\033[0m}" << std::endl;
 
 }

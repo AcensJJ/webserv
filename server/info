@@ -28,7 +28,7 @@
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Date ✅
 	(request):
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Accept-Charset ✅
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Accept-Language
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Accept-Language ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Authorization
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Host ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Referer
@@ -42,7 +42,7 @@
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/WWW-Authenticate
 	(entity):
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Allow
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Language
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Language ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Length ✅
-		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Location
+		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Location ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Type ✅
