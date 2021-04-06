@@ -1,5 +1,6 @@
 *.o
 *.a
+*a.out
 Webserv
 objs/*
 server/dataServ/*

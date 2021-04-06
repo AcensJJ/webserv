@@ -18,7 +18,8 @@ class Response {
 
 		void	setResponse(std::string value);
 		std::string getResponse() const;
-
+		// HEADER GENERAL
+		void	setDate();
 		// HEADER ENTITY
 		void	setContenLength(std::string content);
 		void	setContenType(std::string path, Request *req);

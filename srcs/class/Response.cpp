@@ -32,6 +32,21 @@ std::string Response::getResponse() const
 	return(this->_response);
 }
 
+
+void Response::setDate()
+{
+	char buf[30];
+	struct timeval tv;
+	time_t curtime;
+
+	gettimeofday(&tv, NULL); 
+	curtime=tv.tv_sec;
+	setResponse(getResponse().insert(getResponse().length(), "Date: "));
+	strftime(buf,sizeof(buf),"%a, %d %b %Y %H:%M:%S GMT",localtime(&curtime));
+	setResponse(getResponse().insert(getResponse().length(), buf));
+	setResponse(getResponse().insert(getResponse().length(), "\n"));
+}
+
 void Response::setContenLength(std::string content)
 {
 	char* len;
@@ -256,6 +271,7 @@ void Response::getMethod(std::string file, Server *serv, Request *req, int statu
 		if (statu_code(www, NULL) == 404) throw Response::BuildResponseException();
 	}
 	content = getContent(www);
+	setDate();
 	setLastModified(www);
 	setLocation(file, statuCode);
 	setRetryAfer(statuCode);
