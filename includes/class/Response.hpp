@@ -32,6 +32,8 @@ class Response {
 		void	setServer();
 		void	setTransfetEncoding();
 		void	setWWWAuthenticate(int statuCode);
+		
+		void	setConnectionClose();
 
 		void	setFirstLine(int statuCode);
 

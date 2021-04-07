@@ -236,6 +236,11 @@ void Response::setWWWAuthenticate(int statuCode)
 	}
 }
 
+void Response::setConnectionClose()
+{
+	setResponse(getResponse().insert(getResponse().length(), "Connection: close\n"));
+}
+
 void Response::setFirstLine(int statuCode)
 {
 	setResponse("HTTP/1.1");
@@ -299,7 +304,9 @@ std::string Response::getContent(std::string path)
 {
 	std::string ret;
 	int fd;
+	//int res;
 	if ((fd = open(path.c_str(), O_RDONLY)) < 0) throw Response::BuildResponseException();
+	//char line[2];
 	char *line;
 	while (get_next_line(fd, &line) > 0)
 	{
@@ -307,7 +314,14 @@ std::string Response::getContent(std::string path)
 		ret.insert(ret.length(), "\n");
 		free(line);
 	}
+	//while ((res = read(fd, line, 1)) > 0)
+	//{
+	//	line[1] = '\0';;
+	//	ret.insert(ret.length(), line);
+	//	//ret.insert(ret.length(), "\n");
+	//}
 	close(fd);
+		//line[1] = '\0';
 	if (!line) throw Response::BuildResponseException();
 	ret.insert(ret.length(), line);
 	free(line);
@@ -435,7 +449,7 @@ void Response::config_response(Request *req, Server *serv)
 			else if (!ft_strcmp(method.c_str(), "TRACE")) trace_method();
 		}
 	}
-	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m{\033[3;36m" << getResponse() << "\033[0m}" << std::endl;
+	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m{" << getResponse() << "}" << std::endl;
 
 }
 

@@ -26,6 +26,7 @@
 
 	(general):
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Date ✅
+		- https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Connection
 	(request):
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Accept-Charset ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Accept-Language ✅
