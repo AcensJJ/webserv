@@ -405,7 +405,7 @@ void Response::config_response(Request *req, Server *serv)
 {
 	struct timeval time;
 	gettimeofday(&time, NULL);
-	std::string request(req->getFirstLine()); // check si timeout pas de value
+	std::string request(req->getFirstLine());
 	int sep[2];
 	std::string method;
 	std::string file;

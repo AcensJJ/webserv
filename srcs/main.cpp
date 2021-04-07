@@ -1,17 +1,5 @@
 #include "global.hpp"
 
-void	waiting_screen()
-{
-	std::cout  << std::endl << std::endl << std::endl;
-	std::cout  <<  "\x1b[A\033\033[0;31m   WAITING\033[0m" << std::endl;
-	usleep(150000);
-	std::cout  <<  "\x1b[A\033\033[0;32m   WAITING.\033[0m" << std::endl;
-	usleep(150000);
-	std::cout  <<  "\x1b[A\033\033[0;33m   WAITING..\033[0m" << std::endl;
-	usleep(150000);
-	std::cout  <<  "\x1b[A\033\033[0;34m   WAITING...\033[0m" << std::endl;
-}
-
 int		main(int ac, char **av)
 {
 	std::cout << "\033[1;33m   Program starting\033[0m " << std::endl;
