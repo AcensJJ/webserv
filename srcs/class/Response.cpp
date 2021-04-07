@@ -313,12 +313,18 @@ std::string Response::getContent(std::string path)
 	return (ret);
 }
 
-int Response::statu_code(std::string path, std::vector<Routes> *routes)
+int Response::statu_code(std::string path, std::vector<Routes> *routes, std::string method)
 {
 	struct stat	sb;
 	if (stat(path.c_str(), &sb) == -1) return (404);
-	if (routes)
+	if (routes && !method.empty())
 	{
+		int sep[2];
+		sep[0] = path.find("www") + 3;
+		sep[1] = path.rfind("/");
+		std::string dir;
+		if (sep[0] == sep[1]) dir = "/";
+		else dir = path.substr(sep[0], sep[1] - (sep[0]));
 		(void)routes;
 	}
 	return (200);
@@ -330,7 +336,7 @@ void Response::getMethod(std::string file, Server *serv, Request *req, int statu
 	if (file[file.length() - 1] == '/') file.insert(file.length(), "index.html");
 	std::string www = "./server/www";
 	www.insert(www.length(), file);
-	if (!statuCode) statuCode = statu_code(www, serv->_routes);
+	if (!statuCode) statuCode = statu_code(www, serv->_routes, "get");
 	setFirstLine(statuCode);
 	if (statuCode >= 400 && statuCode < 500) {
 		char *statuChar = ft_itoa(statuCode);
@@ -343,7 +349,7 @@ void Response::getMethod(std::string file, Server *serv, Request *req, int statu
 			www.insert(www.length(), ".html");
 		}
 		free(statuChar);
-		if (statu_code(www, NULL) == 404) throw Response::BuildResponseException();
+		if (statu_code(www, NULL, NULL) == 404) throw Response::BuildResponseException();
 	}
 	content = getContent(www);
 	setDate();
