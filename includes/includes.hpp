@@ -22,9 +22,4 @@ void	launch_serv(Server serv);
  *** server_parse_conf.cpp
 ***/
 int		parse_conf(const char *path, std::vector<Server> *all);
-
-/***
- *** main.cpp
-***/
-void	waiting_screen();
 #endif

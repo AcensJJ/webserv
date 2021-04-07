@@ -39,7 +39,7 @@ class Response {
 
 
 		std::string	getContent(std::string path);
-		int			statu_code(std::string path, std::vector<Routes> *routes);
+		int			statu_code(std::string path, std::vector<Routes> *routes, std::string method);
 
 		void	getMethod(std::string file, Server *serv, Request *req, int statuCode);
 
