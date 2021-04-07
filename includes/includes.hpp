@@ -2,12 +2,13 @@
 #define INCLUDES_HPP
 
 class Server;
+class Request;
 
 /***
  *** server_data.cpp
 ***/
 int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd_set *readfds);
-void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds);
+void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds, Request *req);
 
 /***
  *** server_fnct.cpp

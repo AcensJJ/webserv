@@ -9,10 +9,14 @@ void		exit_err(std::string err, char *freevar, int new_socket, int server_fd)
 	exit(EXIT_FAILURE);
 }
 
-int			accept_one_client(int server_fd, sockaddr_in *address)
+int			accept_one_client(int server_fd, sockaddr_in *address, Request *req)
 {
 	int new_socket, addrlen = sizeof(address);
 
+
+	struct timeval time;
+	gettimeofday(&time, NULL);
+	req->setTime(time.tv_sec);
 	if ((new_socket = accept(server_fd, (struct sockaddr *)address, (socklen_t*)&addrlen)) < 0) 
 		std::cout << "\033[1;31m   Error: \033[0;31m accept failed\033[0m" << std::endl; 
 	else
@@ -44,8 +48,9 @@ void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 			std::cout << "\x1b[A             "  << std::endl;
 			std::cout << "\x1b[A\x1b[A\033[1;35m   new Connection attempt: \033[0m" << std::endl;
 			int new_socket;
-			if ((new_socket = accept_one_client(server_fd, address)) >= 0)
-				one_client(serv, new_socket, server_fd, &readfds);
+			Request req;
+			if ((new_socket = accept_one_client(server_fd, address, &req)) >= 0)
+				one_client(serv, new_socket, server_fd, &readfds, &req);
 			FD_CLR(server_fd, &readfds);
 			close(new_socket);
 			std::cout << "\033[1;32m   Connection: \033[0m closed" << std::endl;

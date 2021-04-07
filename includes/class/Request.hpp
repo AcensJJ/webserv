@@ -20,6 +20,7 @@ class Request {
 		void setDate(std::string value);
 		void setHost(std::string value);
 		void setUserAgent(std::string value);
+		void setTime(int value);
 
 		std::string getFirstLine() const;
 		std::string getAcceptCharsets() const;
@@ -29,6 +30,7 @@ class Request {
 		std::string getDate() const;
 		std::string getHost() const;
 		std::string getUserAgent() const;
+		int			getTime() const;
 
 		void config_request(int fd);
 		void set_line_config(char *line);
@@ -47,6 +49,7 @@ class Request {
 		std::string _date;
 		std::string _host;
 		std::string _userAgent;
+		int			_time;
 };
 
 #endif // !REQUEST_HPP
