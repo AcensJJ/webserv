@@ -38,7 +38,7 @@ void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds, Req
 		if (nbytes > 0)
 		{
 			gettimeofday(&time, NULL);
-			if (req->getTime() - time.tv_sec > 30) timeout = 1;
+			if (time.tv_sec - req->getTime() > 30) timeout = 1;
 			if (request_fd == -1) request_fd = config_data_serv(serv, server_fd, new_socket, O_CREAT | O_WRONLY | O_TRUNC, readfds);
 			write(request_fd, buffer, nbytes);
 		}

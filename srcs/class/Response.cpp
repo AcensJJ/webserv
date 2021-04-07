@@ -335,7 +335,8 @@ void Response::getMethod(std::string file, Server *serv, Request *req, int statu
 {
 	std::string content;
 	if (file[file.length() - 1] == '/') file.insert(file.length(), "index.html");
-	std::string www = "./server/www";
+	std::string base = "./server/www";
+	std::string www = base;
 	www.insert(www.length(), file);
 	if (!statuCode) statuCode = statu_code(www, serv->_routes, "get");
 	setFirstLine(statuCode);
@@ -343,14 +344,14 @@ void Response::getMethod(std::string file, Server *serv, Request *req, int statu
 		char *statuChar = ft_itoa(statuCode);
 		if (!statuChar) throw Response::BuildResponseException();
 		www = serv->getErrorPage(statuChar);
-		if (www.empty()) 
+		if (www.empty())
 		{
 			www = "./server/default/error";
 			www.insert(www.length(), statuChar);
 			www.insert(www.length(), ".html");
 		}
 		free(statuChar);
-		if (statu_code(www, NULL, NULL) == 404) throw Response::BuildResponseException();
+		if (statu_code(www, NULL, "") == 404) throw Response::BuildResponseException();
 	}
 	content = getContent(www);
 	setDate();
@@ -366,6 +367,7 @@ void Response::getMethod(std::string file, Server *serv, Request *req, int statu
 	setContentType(www, req);
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 	setResponse(getResponse().insert(getResponse().length(), content));
+	std::cout<< "la\n";
 
 }
 
@@ -405,40 +407,47 @@ void Response::config_response(Request *req, Server *serv)
 	gettimeofday(&time, NULL);
 	std::string request(req->getFirstLine()); // check si timeout pas de value
 	int sep[2];
-	sep[0] = request.find(' ');
-	sep[1] = request.rfind(' ');
-	std::string method = request.substr(0, sep[0]);
-	std::string file = request.substr(sep[0] + 1, sep[1] - (sep[0] + 1));
-	std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << method << " on " << file << "\033[0m" << std::endl;
-	if (req->getTime() - time.tv_sec > 30){
-		getMethod(file, serv, req, 408);
-		throw "Timeout";
-	}
-	if (req->getHost().empty()) getMethod(file, serv, req, 400);
-	else 
+	std::string method;
+	std::string file;
+	if (!request.empty())
 	{
-		std::string host;
-		std::string port("80");
-		sep[0] = req->getHost().find(' ');
-		sep[1] = req->getHost().rfind(':');
-		if (sep[1] != -1) port = req->getHost().substr(sep[1] + 1);
-		if (sep[1] == -1) sep[1] = req->getHost().length();
-		host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
-		if (!strcmp(host.c_str(), "localhost") || !strcmp(host.c_str(), "127.0.0.1"))
+		sep[0] = request.find(' ');
+		sep[1] = request.rfind(' ');
+		method = request.substr(0, sep[0]);
+		file = request.substr(sep[0] + 1, sep[1] - (sep[0] + 1));
+		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << method << " on " << file << "\033[0m" << std::endl;
+	}
+	if (time.tv_sec - req->getTime() > 30){
+		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m timeout\033[0m" << std::endl;
+		getMethod("error408.html", serv, req, 408);
+	}
+	else {	
+		if (req->getHost().empty()) getMethod(file, serv, req, 400);
+		else 
 		{
-			if (serv->getPort() != ft_atoi(port.c_str())) getMethod(file, serv, req, 400);
-			else if (strcmp("localhost", serv->getHost().c_str()) && strcmp("127.0.0.1", serv->getHost().c_str())) getMethod(file, serv, req, 400);
-		}
-		else if (strcmp(host.c_str(), serv->getHost().c_str()) || serv->getPort() != ft_atoi(port.c_str())) getMethod(file, serv, req, 400);
-		if (getResponse().empty())
-		{
-			if (!ft_strcmp(method.c_str(), "GET")) getMethod(file, serv, req, 0);
-			else if (!ft_strcmp(method.c_str(), "HEAD")) head_method();
-			else if (!ft_strcmp(method.c_str(), "PUT")) put_method();
-			else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method();
-			else if (!ft_strcmp(method.c_str(), "CONNECT")) connect_method();
-			else if (!ft_strcmp(method.c_str(), "OPTIONS")) options_method();
-			else if (!ft_strcmp(method.c_str(), "TRACE")) trace_method();
+			std::string host;
+			std::string port("80");
+			sep[0] = req->getHost().find(' ');
+			sep[1] = req->getHost().rfind(':');
+			if (sep[1] != -1) port = req->getHost().substr(sep[1] + 1);
+			if (sep[1] == -1) sep[1] = req->getHost().length();
+			host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
+			if (!strcmp(host.c_str(), "localhost") || !strcmp(host.c_str(), "127.0.0.1"))
+			{
+				if (serv->getPort() != ft_atoi(port.c_str())) getMethod(file, serv, req, 400);
+				else if (strcmp("localhost", serv->getHost().c_str()) && strcmp("127.0.0.1", serv->getHost().c_str())) getMethod(file, serv, req, 400);
+			}
+			else if (strcmp(host.c_str(), serv->getHost().c_str()) || serv->getPort() != ft_atoi(port.c_str())) getMethod(file, serv, req, 400);
+			if (getResponse().empty())
+			{
+				if (!ft_strcmp(method.c_str(), "GET")) getMethod(file, serv, req, 0);
+				else if (!ft_strcmp(method.c_str(), "HEAD")) head_method();
+				else if (!ft_strcmp(method.c_str(), "PUT")) put_method();
+				else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method();
+				else if (!ft_strcmp(method.c_str(), "CONNECT")) connect_method();
+				else if (!ft_strcmp(method.c_str(), "OPTIONS")) options_method();
+				else if (!ft_strcmp(method.c_str(), "TRACE")) trace_method();
+			}
 		}
 	}
 	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m{\033[3;36m" << getResponse() << "\033[0m}" << std::endl;
