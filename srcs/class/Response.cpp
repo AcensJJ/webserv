@@ -219,13 +219,6 @@ void Response::setServer()
 	setResponse(getResponse().insert(getResponse().length(), "Server: Nginx\n"));
 }
 
-void Response::setTransfetEncoding()
-{
-	// setResponse(getResponse().insert(getResponse().length(), "Transfer-Encoding: "));
-	// setResponse(getResponse().insert(getResponse().length(), msg));
-	// setResponse(getResponse().insert(getResponse().length(), "\n"));
-}
-
 void Response::setWWWAuthenticate(int statuCode)
 {
 	if (statuCode == 401)
@@ -303,28 +296,39 @@ void Response::setFirstLine(int statuCode)
 std::string Response::getContent(std::string path)
 {
 	std::string ret;
+	struct stat info;
 	int fd;
-	//int res;
-	if ((fd = open(path.c_str(), O_RDONLY)) < 0) throw Response::BuildResponseException();
+	int res;
+	int size;
+	if ((fd = open(path.c_str(), O_RDONLY | S_IRWXU)) < 0) throw Response::BuildResponseException();
 	//char line[2];
-	char *line;
-	while (get_next_line(fd, &line) > 0)
-	{
-		ret.insert(ret.length(), line);
-		ret.insert(ret.length(), "\n");
-		free(line);
-	}
-	//while ((res = read(fd, line, 1)) > 0)
+	fstat(fd, &info);
+	size = static_cast<int>(info.st_size);
+	char line[2];
+
+	//while (get_next_line(fd, &line) > 0)
 	//{
-	//	line[1] = '\0';;
 	//	ret.insert(ret.length(), line);
-	//	//ret.insert(ret.length(), "\n");
+	//	ret.insert(ret.length(), "\n");
+	//	free(line);
 	//}
+	while ((res = read(fd, line, 1)) == 1)
+	{
+		line[1] = '\0';
+	//sleep(5);
+		ret.insert(ret.length(), line);
+		//ret.insert(ret.length(), "\n");
+	}
+	if (res > 0)
+	{
+		//line[res] = '\0';
+		ret.insert(ret.length(), line);
+	}
+	//ret.resize(count);
 	close(fd);
-		//line[1] = '\0';
-	if (!line) throw Response::BuildResponseException();
-	ret.insert(ret.length(), line);
-	free(line);
+	//line[1] = '\0';
+	//if (!line) throw Response::BuildResponseException();
+	//free(line);
 	return (ret);
 }
 
@@ -373,7 +377,6 @@ void Response::getMethod(std::string file, Server *serv, Request *req, int statu
 	setLocation(file, statuCode);
 	setRetryAfer(statuCode);
 	setServer();
-	setTransfetEncoding();
 	setWWWAuthenticate(statuCode);
 	setContentLanguage(req);
 	setContentLength(content);
@@ -381,8 +384,6 @@ void Response::getMethod(std::string file, Server *serv, Request *req, int statu
 	setContentType(www, req);
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 	setResponse(getResponse().insert(getResponse().length(), content));
-	std::cout<< "la\n";
-
 }
 
 void Response::head_method()

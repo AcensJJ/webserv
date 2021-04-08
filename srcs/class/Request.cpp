@@ -135,6 +135,13 @@ void Request::set_line_config(char *line)
 	free(line);
 }
 
+void Request::setTransfetEncoding()
+{
+	// setResponse(getResponse().insert(getResponse().length(), "Transfer-Encoding: "));
+	// setResponse(getResponse().insert(getResponse().length(), msg));
+	// setResponse(getResponse().insert(getResponse().length(), "\n"));
+}
+
 void Request::config_request(int fd)
 {
 	char *line;

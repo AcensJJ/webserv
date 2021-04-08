@@ -31,6 +31,7 @@ class Request {
 		std::string getHost() const;
 		std::string getUserAgent() const;
 		int			getTime() const;
+		void setTransfetEncoding();
 
 		void config_request(int fd);
 		void set_line_config(char *line);

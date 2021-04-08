@@ -30,7 +30,6 @@ class Response {
 		void	setLocation(std::string file, int statuCode);
 		void	setRetryAfer(int statuCode);
 		void	setServer();
-		void	setTransfetEncoding();
 		void	setWWWAuthenticate(int statuCode);
 		
 		void	setConnectionClose();
