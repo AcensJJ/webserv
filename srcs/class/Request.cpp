@@ -61,6 +61,16 @@ void Request::setUserAgent(std::string value)
 	this->_userAgent = value;
 }
 
+void Request::setTransferEncoding(std::string value)
+{
+	this->_transferEncoding = value;
+}
+
+void Request::setReferer(std::string value)
+{
+	this->_transferEncoding = value;
+}
+
 void Request::setTime(int value)
 {
 	this->_time = value;
@@ -101,6 +111,11 @@ std::string Request::getUserAgent() const
 	return(this->_userAgent);
 }
 
+std::string Request::getTransferEncoding() const
+{
+	return(this->_transferEncoding);
+}
+
 int			Request::getTime() const
 {
 	return(this->_time);
@@ -128,18 +143,17 @@ void Request::set_line_config(char *line)
 		temp = (char *)"Host:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))
 			setHost(line);
-		temp = (char *)"User_Agent:";
+		temp = (char *)"User-Agent:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))
 			setUserAgent(line);
+		temp = (char *)"Transfer-Encoding:";
+		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+			setTransferEncoding(line);
+		temp = (char *)"Referer:";
+		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+			setReferer(line);
 	}
 	free(line);
-}
-
-void Request::setTransfetEncoding()
-{
-	// setResponse(getResponse().insert(getResponse().length(), "Transfer-Encoding: "));
-	// setResponse(getResponse().insert(getResponse().length(), msg));
-	// setResponse(getResponse().insert(getResponse().length(), "\n"));
 }
 
 void Request::config_request(int fd)

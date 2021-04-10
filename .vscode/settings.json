@@ -63,6 +63,13 @@
 		"__functional_03": "cpp",
 		"memory_resource": "cpp",
 		"__memory": "cpp",
-		"bit": "cpp"
+		"bit": "cpp",
+		"__tree": "cpp",
+		"deque": "cpp",
+		"fstream": "cpp",
+		"iomanip": "cpp",
+		"map": "cpp",
+		"stack": "cpp",
+		"filesystem": "cpp"
 	}
 }

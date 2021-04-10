@@ -1,4 +1,6 @@
 #include "../../includes/class/Response.hpp"
+#include <iostream>
+//#include <fstream>
 
 Response::Response()
 {
@@ -305,7 +307,6 @@ std::string Response::getContent(std::string path)
 	fstat(fd, &info);
 	size = static_cast<int>(info.st_size);
 	char line[2];
-
 	//while (get_next_line(fd, &line) > 0)
 	//{
 	//	ret.insert(ret.length(), line);
@@ -315,7 +316,6 @@ std::string Response::getContent(std::string path)
 	while ((res = read(fd, line, 1)) == 1)
 	{
 		line[1] = '\0';
-	//sleep(5);
 		ret.insert(ret.length(), line);
 		//ret.insert(ret.length(), "\n");
 	}
