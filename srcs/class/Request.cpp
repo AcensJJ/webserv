@@ -168,5 +168,5 @@ void Request::config_request(int fd)
 
 const char* Request::GNLMallocException::what() const throw ()
 {
-	return ("\033[1;31m   Error: \033[0;31m GNL malloc failed\033[0m");
+	return ("\033[1;31m   Error: \033[0;3ii1m GNL malloc failed\033[0m");
 }

@@ -48,8 +48,10 @@ void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds, Req
 		{
 			Response res;
 			res.config_response(req, &serv);
-			if (send(new_socket, res.getResponse().c_str(),res.getResponse().length(), 0) < 0)
+			ssize_t len = 0;
+			if ((len = send(new_socket, res.getResponse().c_str(),res.getResponse().length(), 0)) < 0)
 				std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
+			std::cout << "Len is |" << len << "|\n";
 			throw "Timeout request!";
 		}
 		catch(const std::exception& e)
@@ -67,8 +69,10 @@ void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds, Req
 				req->config_request(request_fd);
 				Response res;
 				res.config_response(req, &serv);
-				if (send(new_socket, res.getResponse().c_str(), res.getResponse().length(), 0) < 0)
+				ssize_t len2 = 0;
+				if ((len2 = send(new_socket, res.getResponse().c_str(), res.getResponse().length(), 0)) < 0)
 					std::cout << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
+				std::cout << "Len2 is |" << len2 << "|\n";
 			}
 			catch(const std::exception& e)
 			{
