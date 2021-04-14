@@ -54,7 +54,7 @@ class Request {
 		std::string _host;
 		std::string _userAgent;
 		std::string _transferEncoding;
-		std::string _Referer;
+		std::string _referer;
 		int			_time;
 };
 

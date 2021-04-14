@@ -68,7 +68,7 @@ void Request::setTransferEncoding(std::string value)
 
 void Request::setReferer(std::string value)
 {
-	this->_transferEncoding = value;
+	this->_referer = value;
 }
 
 void Request::setTime(int value)
@@ -114,6 +114,11 @@ std::string Request::getUserAgent() const
 std::string Request::getTransferEncoding() const
 {
 	return(this->_transferEncoding);
+}
+
+std::string Request::getReferer() const
+{
+	return(this->_referer);
 }
 
 int			Request::getTime() const

@@ -247,21 +247,13 @@ void Response::setLocation()
 	}
 }
 
-void Response::setRetryAfer()
+void Response::setRetryAfer(Request *req)
 {
-	if (getStatusCode() == 503 || getStatusCode() == 429 || getStatusCode() == 301)
+	if (getStatusCode() == 503 || getStatusCode() == 429 || (getStatusCode() >= 300 && getStatusCode() <= 399))
 	{
-		// std::string date;
-		// setResponse(getResponse().insert(getResponse().length(), "Retry-After: "));
-		// setResponse(getResponse().insert(getResponse().length(), date));
-		// setResponse(getResponse().insert(getResponse().length(), "\n"));
 		setResponse(getResponse().insert(getResponse().length(), "Retry-After: "));
-		// std::string msg;
-		// if (getStatusCode() == 503) msg = ;
-		// else if (getStatusCode() == 429) msg = ;
-		// else if (getStatusCode() == 301) msg = ;
-		// setResponse(getResponse().insert(getResponse().length(), msg));
-		setResponse(getResponse().insert(getResponse().length(), "\n"));
+		setResponse(getResponse().insert(getResponse().length(), req->getDate()));
+		setResponse(getResponse().insert(getResponse().length(), "\nRetry-After: 120\n"));
 	}
 }
 
@@ -347,7 +339,7 @@ void Response::setFirstLine()
 std::string Response::getContent(std::string path)
 {
 	std::string ret;
-	//struct stat info;
+
 	int fd;
 	int res;
 	if ((fd = open(path.c_str(), O_RDONLY)) < 0) throw Response::BuildResponseException();
@@ -366,7 +358,7 @@ int Response::statu_code(std::string path, std::vector<Routes> *routes, std::str
 	if (routes && !method.empty())
 	{
 		int sep[2];
-		sep[0] = path.find("getWww()") + 3;
+		sep[0] = path.find("www") + 3;
 		sep[1] = path.rfind("/");
 		std::string dir;
 		if (sep[0] == sep[1]) dir = "/";
@@ -376,20 +368,30 @@ int Response::statu_code(std::string path, std::vector<Routes> *routes, std::str
 	return (200);
 }
 
-void Response::getMethod(Server *serv, Request *req, int statuCode)
+void Response::getMethod(Request *req, int statuCode)
 {
-	std::string content;
+	(void)statuCode;
 	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
 	setBase("./server/www");
 	setWww(getBase());
-	setWww(getWww().insert(getWww().length(), getFile()));
-	std::cout << "url : " << getWww() << std::endl;
-	if (!statuCode) setStatusCode(statu_code(getWww(), serv->_routes, "get"));
+	setWww(getBase().insert(getBase().length(), getFile()));
+	setStatusCode(statu_code(getWww(), getServer()._routes, "get"));
+	head_method(req, getStatusCode());
+	setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
+}
+
+void Response::head_method(Request *req, int statuCode)
+{
+	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
+	setBase("./server/www");
+	setWww(getBase());
+	setWww(getBase().insert(getBase().length(), getFile()));
+	if (!statuCode) setStatusCode(statu_code(getWww(), getServer()._routes, "head"));
 	setFirstLine();
 	if (getStatusCode() >= 400 && getStatusCode() < 500) {
 		char *statuChar = ft_itoa(getStatusCode());
 		if (!statuChar) throw Response::BuildResponseException();
-		setWww(serv->getErrorPage(statuChar));
+		setWww(getServer().getErrorPage(statuChar));
 		if (getWww().empty())
 		{
 			setWww("./server/default/error");
@@ -399,22 +401,20 @@ void Response::getMethod(Server *serv, Request *req, int statuCode)
 		free(statuChar);
 		if (statu_code(getWww(), NULL, "") == 404) throw Response::BuildResponseException();
 	}
-	content = getContent(getWww());
 	setDate();
 	setLastModified(getWww());
 	setLocation();
-	setRetryAfer();
+	setRetryAfer(req);
 	setServerNginx();
 	setWWWAuthenticate();
 	setContentLanguage(req);
-	setContentLength(content);
+	setContentLength(getContent(getWww()));
 	setContentLocation();
 	setContentType(req);
-	setResponse(getResponse().insert(getResponse().length(), "\n"));
-	setResponse(getResponse().insert(getResponse().length(), content));
+	setResponse(getResponse().insert(getResponse().length(), "\n")); 
 }
 
-void Response::head_method()
+void Response::post_method()
 {
 	;
 }
@@ -424,14 +424,44 @@ void Response::put_method()
 	;
 }
 
-void Response::delete_method()
+void Response::delete_method(int statuCode)
 {
-	;
+	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
+	setBase("./server/www");
+	setWww(getBase());
+	setWww(getWww().insert(getWww().length(), getFile()));
+	if (!statuCode) setStatusCode(statu_code(getWww(), getServer()._routes, "delete"));
+	setFirstLine();
+	if (getStatusCode() >= 400 && getStatusCode() < 500) {
+		char *statuChar = ft_itoa(getStatusCode());
+		if (!statuChar) throw Response::BuildResponseException();
+		setWww(getServer().getErrorPage(statuChar));
+		if (getWww().empty())
+		{
+			setWww("./server/default/error");
+			setWww(getWww().insert(getWww().length(), statuChar));
+			setWww(getWww().insert(getWww().length(), ".html"));
+		}
+		free(statuChar);
+		if (statu_code(getWww(), NULL, "") == 404) throw Response::BuildResponseException();
+	}
+	if (unlink(getWww().c_str()))
+		write(1, strerror(errno), ft_strlen(strerror(errno)));
 }
 
 void Response::connect_method()
 {
-	;
+	// https://stackoverflow.com/questions/43264266/c-socket-send-and-connect
+	//	int server_fd, opt = 1;
+	//if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) exit_err("socket failed", NULL, -1, -1);
+	//if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) exit_err("setsockopt failed", NULL, -1, server_fd);
+	//struct sockaddr_in address;
+	//address.sin_family = AF_INET;
+	//if (strcmp(serv.getHost().c_str(), "localhost"))
+	//	address.sin_addr.s_addr = inet_addr(serv.getHost().c_str());
+	//else
+	//	address.sin_addr.s_addr = inet_addr("127.0.0.1");
+	//address.sin_port = htons( serv.getPort() );
 }
 
 void Response::options_method()
@@ -451,6 +481,7 @@ void Response::config_response(Request *req, Server *serv)
 	std::string request(req->getFirstLine());
 	int sep[2];
 	std::string method;
+	setServer(*serv);
 	if (!request.empty())
 	{
 		sep[0] = request.find(' ');
@@ -462,10 +493,10 @@ void Response::config_response(Request *req, Server *serv)
 	if (time.tv_sec - req->getTime() > 30){
 		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m timeout\033[0m" << std::endl;
 		setFile("error408.html");
-		getMethod(serv, req, 408);
+		getMethod(req, 408);
 	}
 	else {	
-		if (req->getHost().empty()) getMethod(serv, req, 400);
+		if (req->getHost().empty()) getMethod(req, 400);
 		else 
 		{
 			std::string host;
@@ -477,16 +508,16 @@ void Response::config_response(Request *req, Server *serv)
 			host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
 			if (!strcmp(host.c_str(), "localhost") || !strcmp(host.c_str(), "127.0.0.1"))
 			{
-				if (serv->getPort() != ft_atoi(port.c_str())) getMethod(serv, req, 400);
-				else if (strcmp("localhost", serv->getHost().c_str()) && strcmp("127.0.0.1", serv->getHost().c_str())) getMethod(serv, req, 400);
+				if (getServer().getPort() != ft_atoi(port.c_str())) getMethod(req, 400);
+				else if (strcmp("localhost", getServer().getHost().c_str()) && strcmp("127.0.0.1", getServer().getHost().c_str())) getMethod(req, 400);
 			}
-			else if (strcmp(host.c_str(), serv->getHost().c_str()) || serv->getPort() != ft_atoi(port.c_str())) getMethod(serv, req, 400);
+			else if (strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) getMethod(req, 400);
 			if (getResponse().empty())
 			{
-				if (!ft_strcmp(method.c_str(), "GET")) getMethod(serv, req, 0);
-				else if (!ft_strcmp(method.c_str(), "HEAD")) head_method();
+				if (!ft_strcmp(method.c_str(), "GET")) getMethod(req, 0);
+				else if (!ft_strcmp(method.c_str(), "HEAD")) head_method(req, 0);
 				else if (!ft_strcmp(method.c_str(), "PUT")) put_method();
-				else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method();
+				else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method(0);
 				else if (!ft_strcmp(method.c_str(), "CONNECT")) connect_method();
 				else if (!ft_strcmp(method.c_str(), "OPTIONS")) options_method();
 				else if (!ft_strcmp(method.c_str(), "TRACE")) trace_method();
