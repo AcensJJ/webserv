@@ -9,57 +9,84 @@ void		exit_err(std::string err, char *freevar, int new_socket, int server_fd)
 	exit(EXIT_FAILURE);
 }
 
-int			accept_one_client(int server_fd, sockaddr_in *address, Request *req)
+int			accept_one_client(int server_fd, sockaddr_in *address)
 {
 	int new_socket, addrlen = sizeof(address);
-	struct timeval time;
-	gettimeofday(&time, NULL);
-	req->setTime(time.tv_sec);
+	std::cout << std::endl << "\033[1;33m   Waiting: \033[0;33m trying to accept one client\033[0m" << std::endl; 
 	if ((new_socket = accept(server_fd, (struct sockaddr *)address, (socklen_t*)&addrlen)) < 0) 
 		std::cout << "\033[1;31m   Error: \033[0;31m accept failed\033[0m" << std::endl; 
 	else
-	{
-		std::cout << "\033[1;32m   Connection: \033[0m accepted" << std::endl;
 		fcntl(new_socket, F_SETFL, O_NONBLOCK);
-	}
 	return (new_socket);
 }
 
-static void config_client(fd_set *readfds, fd_set *writefds, int server_fd)
+static void config_client(fd_set *readfds, fd_set *writefds, int fd)
 {
 	FD_ZERO(readfds);
-	FD_SET(server_fd , readfds);
+	FD_SET(fd, readfds);
 	FD_ZERO(writefds);
-	FD_SET(server_fd , writefds);
+	FD_SET(fd, writefds);
 }
 
 void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 {
-	fd_set readfds, writefds;
+	fd_set readfds, writefds, rfd, wfd;
 	config_client(&readfds, &writefds, server_fd);
-	std::map<int, Client> clientmap;
-	while (select(server_fd + 1, &readfds, &writefds, NULL, NULL) > 0)
+	rfd = readfds;
+	wfd = writefds;
+	Client *allclient[FD_SETSIZE];
+	for (int i = 1; i < FD_SETSIZE; i++)
+		allclient[i] = NULL;
+	while (select(FD_SETSIZE, &rfd, &wfd, NULL, NULL) > 0)
 	{
-		if (FD_ISSET(server_fd, &readfds)) 
-        {
-			std::cout << "\033[1;35m   new Connection attempt: \033[0m" << std::endl;
-			int new_socket;
-			Request req;
-			if ((new_socket = accept_one_client(server_fd, address, &req)) >= 0)
-				one_client(serv, new_socket, server_fd, &readfds, &req);
-			close(new_socket);
-			std::cout << "\033[1;32m   Connection: \033[0m closed" << std::endl;
-		}
-		else if (FD_ISSET(server_fd, &writefds))
+		int new_socket;
+		for (int i = 1; i < FD_SETSIZE; i++)
 		{
-
+			if (FD_ISSET(i, &rfd)) 
+			{
+				if (i == server_fd)
+				{
+					if ((new_socket = accept_one_client(server_fd, address)) >= 0)
+					{
+						FD_SET(new_socket, &readfds);
+						FD_SET(new_socket, &writefds);
+						allclient[new_socket] = new Client(new_socket);
+						std::cout << "\033[1;35m   new Connection:\033[0m client (" << new_socket << ") accepted \033[0m" << std::endl;
+					}
+				}
+				else if (allclient[i] && !allclient[i]->getRecvEnd())
+					one_client_read(serv, &readfds, &writefds, allclient[i], allclient);
+			}
+			if (FD_ISSET(i, &wfd))
+			{
+				if (allclient[i] && allclient[i]->getRecvEnd() == 1)
+				{
+					one_client_send(serv, &readfds, &writefds, allclient[i], allclient);
+					unlink(allclient[i]->getDir().c_str());
+					close(i);
+					delete allclient[i];
+					allclient[i] = NULL;
+					std::cout << "\033[1;32m   Connection:\033[0m closed for (" << i << ")" << std::endl;
+					FD_CLR(i, &readfds);
+					FD_CLR(i, &writefds);
+				}
+			}
 		}
-		FD_CLR(server_fd, &readfds);
-		FD_CLR(server_fd, &writefds);
-		config_client(&readfds, &writefds, server_fd);
+		rfd = readfds;
+		wfd = writefds;
 	}
-	FD_CLR(server_fd, &readfds);
-	exit_err("select failed", NULL, -1, server_fd);
+	for (int i = 1; i < FD_SETSIZE; i++)
+	{
+		if (allclient[i]) 
+		{
+			delete allclient[i];
+			allclient[i] = NULL;
+		}
+		FD_CLR(i, &readfds);
+		FD_CLR(i, &writefds);
+		close(i);
+	}
+	exit_err("select failed", NULL, -1, -1);
 }
 
 void		launch_serv(Server serv)

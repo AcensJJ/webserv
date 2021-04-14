@@ -15,6 +15,7 @@ int		main(int ac, char **av)
 	std::cout << std::endl << "\033[1;34m   Parsing file:\033[0m " << str << std::endl;
 	if (parse_conf(str.c_str(), all))
 		return (-1);
+
 	for (std::vector<Server>::iterator itr = all->begin(); itr != all->end(); itr++)
 	{
 		Server serv(*itr);

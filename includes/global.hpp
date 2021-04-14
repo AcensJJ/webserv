@@ -3,7 +3,7 @@
 
 #define FALSE 0
 #define TRUE 1
-#define RECV_BUFF 40000
+#define RECV_BUFF 40001
 
 #include <unistd.h> 
 #include <stdio.h>

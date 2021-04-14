@@ -367,8 +367,6 @@ void Response::getMethod(std::string file, Server *serv, Request *req, int statu
 	setContentType(www, req);
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 	setResponse(getResponse().insert(getResponse().length(), content));
-	std::cout<< "la\n";
-
 }
 
 void Response::head_method()
@@ -417,10 +415,8 @@ void Response::config_response(Request *req, Server *serv)
 		file = request.substr(sep[0] + 1, sep[1] - (sep[0] + 1));
 		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << method << " on " << file << "\033[0m" << std::endl;
 	}
-	if (time.tv_sec - req->getTime() > 30){
-		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m timeout\033[0m" << std::endl;
+	if (time.tv_sec - req->getTime() > TIMEOUT)
 		getMethod("error408.html", serv, req, 408);
-	}
 	else {	
 		if (req->getHost().empty()) getMethod(file, serv, req, 400);
 		else 

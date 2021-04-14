@@ -7,11 +7,14 @@ Request::Request()
 
 Request::Request(const Request &other)
 {
-	_acceptCharsets = other.getAcceptCharsets();
-	_acceptLanguage = other.getAcceptLanguage();
-	_authorization = other.getAuthorization();
-	_date = other.getDate();
-	_host = other.getHost();
+	if (!other.getFirstLine().empty()) _firstLine = other.getFirstLine();
+	if (!other.getAcceptCharsets().empty()) _acceptCharsets = other.getAcceptCharsets();
+	if (!other.getAcceptLanguage().empty()) _acceptLanguage = other.getAcceptLanguage();
+	if (!other.getAuthorization().empty()) _authorization = other.getAuthorization();
+	if (!other.getUserAgent().empty()) _userAgent = other.getUserAgent();
+	if (!other.getDate().empty()) _date = other.getDate();
+	if (!other.getHost().empty()) _host = other.getHost();
+	if (other.getTime()) _time = other.getTime();
 }
 
 Request::~Request()
@@ -108,10 +111,13 @@ int			Request::getTime() const
 
 void Request::set_line_config(char *line)
 {
-	char	*temp;
-	
+	char *temp;
+
 	if (getFirstLine().empty())
+	{
+		std::cout << line << std::endl;
 		setFirstLine(line);
+	}
 	else {
 		temp = (char *)"Accept-Charset:";
 		if (!ft_strncmp(line, temp, ft_strlen(temp)))

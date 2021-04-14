@@ -3,12 +3,14 @@
 
 class Server;
 class Request;
+class Client;
 
 /***
  *** server_data.cpp
 ***/
-int		config_data_serv(Server serv, int server_fd, int new_socket, int fd_opt, fd_set *readfds);
-void	one_client(Server serv, int new_socket, int server_fd, fd_set *readfds, Request *req);
+int		config_data_serv(Server serv, int new_socket, int fd_opt, fd_set *readfds, fd_set *writefds, Client *allclient[FD_SETSIZE]);
+void	one_client_read(Server serv, fd_set *readfds, fd_set *writefds, Client *client, Client *allclient[FD_SETSIZE]);
+void	one_client_send(Server serv, fd_set *readfds, fd_set *writefds, Client *client, Client *allclient[FD_SETSIZE]);
 
 /***
  *** server_fnct.cpp

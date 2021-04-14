@@ -8,6 +8,7 @@
 
 #include "Request.hpp"
 #include "Server.hpp"
+#define TIMEOUT 500
 
 class Response {
 	public:
