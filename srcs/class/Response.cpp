@@ -368,25 +368,22 @@ int Response::statu_code(std::string path, std::vector<Routes> *routes, std::str
 	return (200);
 }
 
-void Response::getMethod(Request *req, int statuCode)
+void Response::getMethod(Request *req)
 {
-	(void)statuCode;
 	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
-	setBase("./server/www");
 	setWww(getBase());
 	setWww(getBase().insert(getBase().length(), getFile()));
-	setStatusCode(statu_code(getWww(), getServer()._routes, "get"));
-	head_method(req, getStatusCode());
+	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes, "get"));
+	head_method(req);
 	setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
 }
 
-void Response::head_method(Request *req, int statuCode)
+void Response::head_method(Request *req)
 {
 	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
-	setBase("./server/www");
 	setWww(getBase());
 	setWww(getBase().insert(getBase().length(), getFile()));
-	if (!statuCode) setStatusCode(statu_code(getWww(), getServer()._routes, "head"));
+	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes, "head"));
 	setFirstLine();
 	if (getStatusCode() >= 400 && getStatusCode() < 500) {
 		char *statuChar = ft_itoa(getStatusCode());
@@ -411,7 +408,8 @@ void Response::head_method(Request *req, int statuCode)
 	setContentLength(getContent(getWww()));
 	setContentLocation();
 	setContentType(req);
-	setResponse(getResponse().insert(getResponse().length(), "\n")); 
+	setConnectionClose();
+	setResponse(getResponse().insert(getResponse().length(), "\n"));
 }
 
 void Response::post_method()
@@ -424,13 +422,12 @@ void Response::put_method()
 	;
 }
 
-void Response::delete_method(int statuCode)
+void Response::delete_method()
 {
 	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
-	setBase("./server/www");
 	setWww(getBase());
 	setWww(getWww().insert(getWww().length(), getFile()));
-	if (!statuCode) setStatusCode(statu_code(getWww(), getServer()._routes, "delete"));
+	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes, "delete"));
 	setFirstLine();
 	if (getStatusCode() >= 400 && getStatusCode() < 500) {
 		char *statuChar = ft_itoa(getStatusCode());
@@ -482,6 +479,7 @@ void Response::config_response(Request *req, Server *serv)
 	int sep[2];
 	std::string method;
 	setServer(*serv);
+	setBase("./server/www/");
 	if (!request.empty())
 	{
 		sep[0] = request.find(' ');
@@ -490,12 +488,16 @@ void Response::config_response(Request *req, Server *serv)
 		setFile(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
 		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << method << " on " << getFile() << "\033[0m" << std::endl;
 	}
-	if (time.tv_sec - req->getTime() > 30){
+	if (time.tv_sec - req->getTime() < TIMEOUT){
 		setFile("error408.html");
-		getMethod(req, 408);
+		setStatusCode(408);
+		getMethod(req);
 	}
 	else {	
-		if (req->getHost().empty()) getMethod(req, 400);
+		if (req->getHost().empty()) {
+				setStatusCode(400);
+				getMethod(req);
+		}
 		else 
 		{
 			std::string host;
@@ -505,18 +507,20 @@ void Response::config_response(Request *req, Server *serv)
 			if (sep[1] != -1) port = req->getHost().substr(sep[1] + 1);
 			if (sep[1] == -1) sep[1] = req->getHost().length();
 			host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
+			setStatusCode(400);
 			if (!strcmp(host.c_str(), "localhost") || !strcmp(host.c_str(), "127.0.0.1"))
 			{
-				if (getServer().getPort() != ft_atoi(port.c_str())) getMethod(req, 400);
-				else if (strcmp("localhost", getServer().getHost().c_str()) && strcmp("127.0.0.1", getServer().getHost().c_str())) getMethod(req, 400);
+				if (getServer().getPort() != ft_atoi(port.c_str())) getMethod(req);
+				else if (strcmp("localhost", getServer().getHost().c_str()) && strcmp("127.0.0.1", getServer().getHost().c_str())) getMethod(req);
 			}
-			else if (strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) getMethod(req, 400);
+			else if (strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) getMethod(req);
 			if (getResponse().empty())
 			{
-				if (!ft_strcmp(method.c_str(), "GET")) getMethod(req, 0);
-				else if (!ft_strcmp(method.c_str(), "HEAD")) head_method(req, 0);
+				setStatusCode(0);
+				if (!ft_strcmp(method.c_str(), "GET")) getMethod(req);
+				else if (!ft_strcmp(method.c_str(), "HEAD")) head_method(req);
 				else if (!ft_strcmp(method.c_str(), "PUT")) put_method();
-				else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method(0);
+				else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method();
 				else if (!ft_strcmp(method.c_str(), "CONNECT")) connect_method();
 				else if (!ft_strcmp(method.c_str(), "OPTIONS")) options_method();
 				else if (!ft_strcmp(method.c_str(), "TRACE")) trace_method();

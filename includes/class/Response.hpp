@@ -52,12 +52,11 @@ class Response {
 		std::string	getContent(std::string path);
 		int			statu_code(std::string path, std::vector<Routes> *routes, std::string method);
 
-		void	getMethod(Request *req, int statuCode);
-
-		void	head_method(Request *req, int statuCode);
+		void	getMethod(Request *req);
+		void	head_method(Request *req);
 		void	post_method();
 		void	put_method();
-		void	delete_method(int statuCode);
+		void	delete_method();
 		void	connect_method();
 		void	options_method();
 		void	trace_method();
