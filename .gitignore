@@ -4,3 +4,4 @@
 Webserv
 objs/*
 server/dataServ/*
+*/.DS_Store

@@ -20,6 +20,8 @@ class Request {
 		void setDate(std::string value);
 		void setHost(std::string value);
 		void setUserAgent(std::string value);
+		void setTransferEncoding(std::string value);
+		void setReferer(std::string value);
 		void setTime(int value);
 
 		std::string getFirstLine() const;
@@ -30,6 +32,8 @@ class Request {
 		std::string getDate() const;
 		std::string getHost() const;
 		std::string getUserAgent() const;
+		std::string getTransferEncoding() const;
+		std::string getReferer() const;
 		int			getTime() const;
 
 		void config_request(int fd);
@@ -49,6 +53,8 @@ class Request {
 		std::string _date;
 		std::string _host;
 		std::string _userAgent;
+		std::string _transferEncoding;
+		std::string _referer;
 		int			_time;
 };
 

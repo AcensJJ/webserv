@@ -65,6 +65,11 @@
 		"__memory": "cpp",
 		"bit": "cpp",
 		"__tree": "cpp",
-		"map": "cpp"
+		"deque": "cpp",
+		"fstream": "cpp",
+		"iomanip": "cpp",
+		"map": "cpp",
+		"stack": "cpp",
+		"filesystem": "cpp"
 	}
 }

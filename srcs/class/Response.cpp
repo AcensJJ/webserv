@@ -1,4 +1,6 @@
 #include "../../includes/class/Response.hpp"
+#include <iostream>
+//#include <fstream>
 
 Response::Response()
 {
@@ -32,6 +34,55 @@ std::string Response::getResponse() const
 	return(this->_response);
 }
 
+void Response::setFile(std::string value)
+{
+	this->_file = value;
+}
+
+std::string Response::getFile() const
+{
+	return(this->_file);
+}
+
+void Response::setBase(std::string value)
+{
+	this->_base = value;
+}
+
+std::string Response::getBase() const
+{
+	return(this->_base);
+}
+
+void Response::setWww(std::string value)
+{
+	this->_www = value;
+}
+
+std::string Response::getWww() const
+{
+	return(this->_www);
+}
+
+void Response::setServer(Server value)
+{
+	this->_server = value;
+}
+
+Server Response::getServer() const
+{
+	return(this->_server);
+}
+
+void Response::setStatusCode(int value)
+{
+	this->_status = value;
+}
+
+int Response::getStatusCode() const
+{
+	return(this->_status);
+}
 
 void Response::setDate()
 {
@@ -72,17 +123,17 @@ void Response::setContentLength(std::string content)
 	free(len);
 }
 
-void Response::setContentLocation(std::string file)
+void Response::setContentLocation()
 {
 	setResponse(getResponse().insert(getResponse().length(), "Content-Location: "));
-	setResponse(getResponse().insert(getResponse().length(), file));
+	setResponse(getResponse().insert(getResponse().length(), getFile()));
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 }
 
-void Response::setContentType(std::string path, Request *req)
+void Response::setContentType(Request *req)
 {
-	size_t nb = path.find_last_of(".");
-	std::string type = path;
+	size_t nb = getWww().find_last_of(".");
+	std::string type = getWww();
 	type.erase(0, nb);
 	if (!ft_strcmp(type.c_str() , ".aac"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: audio/aac\n"));
 	if (!ft_strcmp(type.c_str() , ".abw"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-abiword\n"));
@@ -186,131 +237,117 @@ void Response::setLastModified(std::string path)
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 }
 
-void Response::setLocation(std::string file, int statuCode)
+void Response::setLocation()
 {
-	if ((statuCode >= 301 && statuCode <= 308) || statuCode == 201)
+	if ((getStatusCode() >= 301 && getStatusCode() <= 308) || getStatusCode() == 201)
 	{
 		setResponse(getResponse().insert(getResponse().length(), "Location: "));
-		setResponse(getResponse().insert(getResponse().length(), file));
+		setResponse(getResponse().insert(getResponse().length(), getFile()));
 		setResponse(getResponse().insert(getResponse().length(), "\n"));
 	}
 }
 
-void Response::setRetryAfer(int statuCode)
+void Response::setRetryAfer(Request *req)
 {
-	if (statuCode == 503 || statuCode == 429 || statuCode == 301)
+	if (getStatusCode() == 503 || getStatusCode() == 429 || (getStatusCode() >= 300 && getStatusCode() <= 399))
 	{
-		// std::string date;
-		// setResponse(getResponse().insert(getResponse().length(), "Retry-After: "));
-		// setResponse(getResponse().insert(getResponse().length(), date));
-		// setResponse(getResponse().insert(getResponse().length(), "\n"));
 		setResponse(getResponse().insert(getResponse().length(), "Retry-After: "));
-		// std::string msg;
-		// if (statuCode == 503) msg = ;
-		// else if (statuCode == 429) msg = ;
-		// else if (statuCode == 301) msg = ;
-		// setResponse(getResponse().insert(getResponse().length(), msg));
-		setResponse(getResponse().insert(getResponse().length(), "\n"));
+		setResponse(getResponse().insert(getResponse().length(), req->getDate()));
+		setResponse(getResponse().insert(getResponse().length(), "\nRetry-After: 120\n"));
 	}
 }
 
-void Response::setServer()
+void Response::setServerNginx()
 {
 	setResponse(getResponse().insert(getResponse().length(), "Server: Nginx\n"));
 }
 
-void Response::setTransfetEncoding()
+void Response::setWWWAuthenticate()
 {
-	// setResponse(getResponse().insert(getResponse().length(), "Transfer-Encoding: "));
-	// setResponse(getResponse().insert(getResponse().length(), msg));
-	// setResponse(getResponse().insert(getResponse().length(), "\n"));
-}
-
-void Response::setWWWAuthenticate(int statuCode)
-{
-	if (statuCode == 401)
+	if (getStatusCode() == 401)
 	{
-		setResponse(getResponse().insert(getResponse().length(), "WWW-Authenticate: "));
+		setResponse(getResponse().insert(getResponse().length(), "getWww()-Authenticate: "));
 		// setResponse(getResponse().insert(getResponse().length(), msg));
 		setResponse(getResponse().insert(getResponse().length(), "\n"));
 	}
 }
 
-void Response::setFirstLine(int statuCode)
+void Response::setConnectionClose()
+{
+	setResponse(getResponse().insert(getResponse().length(), "Connection: close\n"));
+}
+
+void Response::setFirstLine()
 {
 	setResponse("HTTP/1.1");
-	if      (statuCode == 100) setResponse(getResponse().insert(getResponse().length(), " 100 Continue\n"));
-	else if (statuCode == 101) setResponse(getResponse().insert(getResponse().length(), " 200 Switching Protocols\n"));
-	else if (statuCode == 103) setResponse(getResponse().insert(getResponse().length(), " 200 Ear;y Hints\n"));
-	else if (statuCode == 200) setResponse(getResponse().insert(getResponse().length(), " 200 OK\n"));
-	else if (statuCode == 201) setResponse(getResponse().insert(getResponse().length(), " 201 Created\n"));
-	else if (statuCode == 202) setResponse(getResponse().insert(getResponse().length(), " 202 Accepted\n"));
-	else if (statuCode == 203) setResponse(getResponse().insert(getResponse().length(), " 203 Non-Authoritative Information\n"));
-	else if (statuCode == 204) setResponse(getResponse().insert(getResponse().length(), " 204 No Content\n"));
-	else if (statuCode == 205) setResponse(getResponse().insert(getResponse().length(), " 205 Reset Content\n"));
-	else if (statuCode == 206) setResponse(getResponse().insert(getResponse().length(), " 206 Partial Content\n"));
-	else if (statuCode == 300) setResponse(getResponse().insert(getResponse().length(), " 300 Multiple Choices\n"));
-	else if (statuCode == 301) setResponse(getResponse().insert(getResponse().length(), " 301 Moved Permanently\n"));
-	else if (statuCode == 302) setResponse(getResponse().insert(getResponse().length(), " 302 Found\n"));
-	else if (statuCode == 303) setResponse(getResponse().insert(getResponse().length(), " 303 See Other\n"));
-	else if (statuCode == 304) setResponse(getResponse().insert(getResponse().length(), " 304 Not Modified\n"));
-	else if (statuCode == 307) setResponse(getResponse().insert(getResponse().length(), " 307 Temporary Redirect\n"));
-	else if (statuCode == 308) setResponse(getResponse().insert(getResponse().length(), " 308 Permanent Redirect\n"));
-	else if (statuCode == 400) setResponse(getResponse().insert(getResponse().length(), " 400 Bad Request\n"));
-	else if (statuCode == 401) setResponse(getResponse().insert(getResponse().length(), " 401 Unauthoriwed\n"));
-	else if (statuCode == 402) setResponse(getResponse().insert(getResponse().length(), " 402 Payment Required\n"));
-	else if (statuCode == 403) setResponse(getResponse().insert(getResponse().length(), " 403 Forbidden\n"));
-	else if (statuCode == 404) setResponse(getResponse().insert(getResponse().length(), " 404 Not Found\n"));
-	else if (statuCode == 405) setResponse(getResponse().insert(getResponse().length(), " 405 Method Not Allowed\n"));
-	else if (statuCode == 406) setResponse(getResponse().insert(getResponse().length(), " 406 Not Acceptable\n"));
-	else if (statuCode == 407) setResponse(getResponse().insert(getResponse().length(), " 407 Proxy Authentication Required\n"));
-	else if (statuCode == 408) setResponse(getResponse().insert(getResponse().length(), " 408 Request Timeout\n"));
-	else if (statuCode == 409) setResponse(getResponse().insert(getResponse().length(), " 409 Conflict\n"));
-	else if (statuCode == 410) setResponse(getResponse().insert(getResponse().length(), " 410 Gone\n"));
-	else if (statuCode == 411) setResponse(getResponse().insert(getResponse().length(), " 411 Length Required\n"));
-	else if (statuCode == 412) setResponse(getResponse().insert(getResponse().length(), " 412 Precondition Failed\n"));
-	else if (statuCode == 413) setResponse(getResponse().insert(getResponse().length(), " 413 Payload Too Large\n"));
-	else if (statuCode == 414) setResponse(getResponse().insert(getResponse().length(), " 414 URI Too Long\n"));
-	else if (statuCode == 415) setResponse(getResponse().insert(getResponse().length(), " 415 Unsupported Media Type\n"));
-	else if (statuCode == 416) setResponse(getResponse().insert(getResponse().length(), " 416 Range Not Satisfiable\n"));
-	else if (statuCode == 417) setResponse(getResponse().insert(getResponse().length(), " 417 Expectation Failed\n"));
-	else if (statuCode == 418) setResponse(getResponse().insert(getResponse().length(), " 418 I'm a teapot\n"));
-	else if (statuCode == 422) setResponse(getResponse().insert(getResponse().length(), " 422 Unprocessable Entity\n"));
-	else if (statuCode == 425) setResponse(getResponse().insert(getResponse().length(), " 425 Too Early\n"));
-	else if (statuCode == 426) setResponse(getResponse().insert(getResponse().length(), " 426 Upgrade Required\n"));
-	else if (statuCode == 428) setResponse(getResponse().insert(getResponse().length(), " 428 Precondition Required\n"));
-	else if (statuCode == 429) setResponse(getResponse().insert(getResponse().length(), " 429 Too Many Requests\n"));
-	else if (statuCode == 431) setResponse(getResponse().insert(getResponse().length(), " 431 Request Header Fields Too Large\n"));
-	else if (statuCode == 451) setResponse(getResponse().insert(getResponse().length(), " 451 Unavailable For Legal Reasons\n"));
-	else if (statuCode == 500) setResponse(getResponse().insert(getResponse().length(), " 500 Internal Server Error\n"));
-	else if (statuCode == 501) setResponse(getResponse().insert(getResponse().length(), " 501 Not Implemented\n"));
-	else if (statuCode == 502) setResponse(getResponse().insert(getResponse().length(), " 502 Bad Gateway\n"));
-	else if (statuCode == 503) setResponse(getResponse().insert(getResponse().length(), " 503 Service Unavailable\n"));
-	else if (statuCode == 504) setResponse(getResponse().insert(getResponse().length(), " 504 Gateway Timeout\n"));
-	else if (statuCode == 505) setResponse(getResponse().insert(getResponse().length(), " 505 HTTP Version Not Supported\n"));
-	else if (statuCode == 506) setResponse(getResponse().insert(getResponse().length(), " 506 Variant Also Negotiates\n"));
-	else if (statuCode == 507) setResponse(getResponse().insert(getResponse().length(), " 507 Insufficient Sotrage\n"));
-	else if (statuCode == 508) setResponse(getResponse().insert(getResponse().length(), " 508 Loop Detected\n"));
-	else if (statuCode == 510) setResponse(getResponse().insert(getResponse().length(), " 510 Not Extended\n"));
-	else if (statuCode == 511) setResponse(getResponse().insert(getResponse().length(), " 511 Network Authentication Required\n"));
+	if      (getStatusCode() == 100) setResponse(getResponse().insert(getResponse().length(), " 100 Continue\n"));
+	else if (getStatusCode() == 101) setResponse(getResponse().insert(getResponse().length(), " 200 Switching Protocols\n"));
+	else if (getStatusCode() == 103) setResponse(getResponse().insert(getResponse().length(), " 200 Ear;y Hints\n"));
+	else if (getStatusCode() == 200) setResponse(getResponse().insert(getResponse().length(), " 200 OK\n"));
+	else if (getStatusCode() == 201) setResponse(getResponse().insert(getResponse().length(), " 201 Created\n"));
+	else if (getStatusCode() == 202) setResponse(getResponse().insert(getResponse().length(), " 202 Accepted\n"));
+	else if (getStatusCode() == 203) setResponse(getResponse().insert(getResponse().length(), " 203 Non-Authoritative Information\n"));
+	else if (getStatusCode() == 204) setResponse(getResponse().insert(getResponse().length(), " 204 No Content\n"));
+	else if (getStatusCode() == 205) setResponse(getResponse().insert(getResponse().length(), " 205 Reset Content\n"));
+	else if (getStatusCode() == 206) setResponse(getResponse().insert(getResponse().length(), " 206 Partial Content\n"));
+	else if (getStatusCode() == 300) setResponse(getResponse().insert(getResponse().length(), " 300 Multiple Choices\n"));
+	else if (getStatusCode() == 301) setResponse(getResponse().insert(getResponse().length(), " 301 Moved Permanently\n"));
+	else if (getStatusCode() == 302) setResponse(getResponse().insert(getResponse().length(), " 302 Found\n"));
+	else if (getStatusCode() == 303) setResponse(getResponse().insert(getResponse().length(), " 303 See Other\n"));
+	else if (getStatusCode() == 304) setResponse(getResponse().insert(getResponse().length(), " 304 Not Modified\n"));
+	else if (getStatusCode() == 307) setResponse(getResponse().insert(getResponse().length(), " 307 Temporary Redirect\n"));
+	else if (getStatusCode() == 308) setResponse(getResponse().insert(getResponse().length(), " 308 Permanent Redirect\n"));
+	else if (getStatusCode() == 400) setResponse(getResponse().insert(getResponse().length(), " 400 Bad Request\n"));
+	else if (getStatusCode() == 401) setResponse(getResponse().insert(getResponse().length(), " 401 Unauthoriwed\n"));
+	else if (getStatusCode() == 402) setResponse(getResponse().insert(getResponse().length(), " 402 Payment Required\n"));
+	else if (getStatusCode() == 403) setResponse(getResponse().insert(getResponse().length(), " 403 Forbidden\n"));
+	else if (getStatusCode() == 404) setResponse(getResponse().insert(getResponse().length(), " 404 Not Found\n"));
+	else if (getStatusCode() == 405) setResponse(getResponse().insert(getResponse().length(), " 405 Method Not Allowed\n"));
+	else if (getStatusCode() == 406) setResponse(getResponse().insert(getResponse().length(), " 406 Not Acceptable\n"));
+	else if (getStatusCode() == 407) setResponse(getResponse().insert(getResponse().length(), " 407 Proxy Authentication Required\n"));
+	else if (getStatusCode() == 408) setResponse(getResponse().insert(getResponse().length(), " 408 Request Timeout\n"));
+	else if (getStatusCode() == 409) setResponse(getResponse().insert(getResponse().length(), " 409 Conflict\n"));
+	else if (getStatusCode() == 410) setResponse(getResponse().insert(getResponse().length(), " 410 Gone\n"));
+	else if (getStatusCode() == 411) setResponse(getResponse().insert(getResponse().length(), " 411 Length Required\n"));
+	else if (getStatusCode() == 412) setResponse(getResponse().insert(getResponse().length(), " 412 Precondition Failed\n"));
+	else if (getStatusCode() == 413) setResponse(getResponse().insert(getResponse().length(), " 413 Payload Too Large\n"));
+	else if (getStatusCode() == 414) setResponse(getResponse().insert(getResponse().length(), " 414 URI Too Long\n"));
+	else if (getStatusCode() == 415) setResponse(getResponse().insert(getResponse().length(), " 415 Unsupported Media Type\n"));
+	else if (getStatusCode() == 416) setResponse(getResponse().insert(getResponse().length(), " 416 Range Not Satisfiable\n"));
+	else if (getStatusCode() == 417) setResponse(getResponse().insert(getResponse().length(), " 417 Expectation Failed\n"));
+	else if (getStatusCode() == 418) setResponse(getResponse().insert(getResponse().length(), " 418 I'm a teapot\n"));
+	else if (getStatusCode() == 422) setResponse(getResponse().insert(getResponse().length(), " 422 Unprocessable Entity\n"));
+	else if (getStatusCode() == 425) setResponse(getResponse().insert(getResponse().length(), " 425 Too Early\n"));
+	else if (getStatusCode() == 426) setResponse(getResponse().insert(getResponse().length(), " 426 Upgrade Required\n"));
+	else if (getStatusCode() == 428) setResponse(getResponse().insert(getResponse().length(), " 428 Precondition Required\n"));
+	else if (getStatusCode() == 429) setResponse(getResponse().insert(getResponse().length(), " 429 Too Many Requests\n"));
+	else if (getStatusCode() == 431) setResponse(getResponse().insert(getResponse().length(), " 431 Request Header Fields Too Large\n"));
+	else if (getStatusCode() == 451) setResponse(getResponse().insert(getResponse().length(), " 451 Unavailable For Legal Reasons\n"));
+	else if (getStatusCode() == 500) setResponse(getResponse().insert(getResponse().length(), " 500 Internal Server Error\n"));
+	else if (getStatusCode() == 501) setResponse(getResponse().insert(getResponse().length(), " 501 Not Implemented\n"));
+	else if (getStatusCode() == 502) setResponse(getResponse().insert(getResponse().length(), " 502 Bad Gateway\n"));
+	else if (getStatusCode() == 503) setResponse(getResponse().insert(getResponse().length(), " 503 Service Unavailable\n"));
+	else if (getStatusCode() == 504) setResponse(getResponse().insert(getResponse().length(), " 504 Gateway Timeout\n"));
+	else if (getStatusCode() == 505) setResponse(getResponse().insert(getResponse().length(), " 505 HTTP Version Not Supported\n"));
+	else if (getStatusCode() == 506) setResponse(getResponse().insert(getResponse().length(), " 506 Variant Also Negotiates\n"));
+	else if (getStatusCode() == 507) setResponse(getResponse().insert(getResponse().length(), " 507 Insufficient Sotrage\n"));
+	else if (getStatusCode() == 508) setResponse(getResponse().insert(getResponse().length(), " 508 Loop Detected\n"));
+	else if (getStatusCode() == 510) setResponse(getResponse().insert(getResponse().length(), " 510 Not Extended\n"));
+	else if (getStatusCode() == 511) setResponse(getResponse().insert(getResponse().length(), " 511 Network Authentication Required\n"));
 }
 
 std::string Response::getContent(std::string path)
 {
 	std::string ret;
+
 	int fd;
+	int res;
 	if ((fd = open(path.c_str(), O_RDONLY)) < 0) throw Response::BuildResponseException();
-	char *line;
-	while (get_next_line(fd, &line) > 0)
-	{
-		ret.insert(ret.length(), line);
-		ret.insert(ret.length(), "\n");
-		free(line);
-	}
+	char line[1];
+
+	while ((res = read(fd, line, 1)) == 1)
+		ret.insert(ret.length(), line, 1);
 	close(fd);
-	if (!line) throw Response::BuildResponseException();
-	ret.insert(ret.length(), line);
-	free(line);
 	return (ret);
 }
 
@@ -331,45 +368,53 @@ int Response::statu_code(std::string path, std::vector<Routes> *routes, std::str
 	return (200);
 }
 
-void Response::getMethod(std::string file, Server *serv, Request *req, int statuCode)
+void Response::getMethod(Request *req, int statuCode)
 {
-	std::string content;
-	if (file[file.length() - 1] == '/') file.insert(file.length(), "index.html");
-	std::string base = "./server/www";
-	std::string www = base;
-	www.insert(www.length(), file);
-	if (!statuCode) statuCode = statu_code(www, serv->_routes, "get");
-	setFirstLine(statuCode);
-	if (statuCode >= 400 && statuCode < 500) {
-		char *statuChar = ft_itoa(statuCode);
-		if (!statuChar) throw Response::BuildResponseException();
-		www = serv->getErrorPage(statuChar);
-		if (www.empty())
-		{
-			www = "./server/default/error";
-			www.insert(www.length(), statuChar);
-			www.insert(www.length(), ".html");
-		}
-		free(statuChar);
-		if (statu_code(www, NULL, "") == 404) throw Response::BuildResponseException();
-	}
-	content = getContent(www);
-	setDate();
-	setLastModified(www);
-	setLocation(file, statuCode);
-	setRetryAfer(statuCode);
-	setServer();
-	setTransfetEncoding();
-	setWWWAuthenticate(statuCode);
-	setContentLanguage(req);
-	setContentLength(content);
-	setContentLocation(file);
-	setContentType(www, req);
-	setResponse(getResponse().insert(getResponse().length(), "\n"));
-	setResponse(getResponse().insert(getResponse().length(), content));
+	(void)statuCode;
+	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
+	setBase("./server/www");
+	setWww(getBase());
+	setWww(getBase().insert(getBase().length(), getFile()));
+	setStatusCode(statu_code(getWww(), getServer()._routes, "get"));
+	head_method(req, getStatusCode());
+	setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
 }
 
-void Response::head_method()
+void Response::head_method(Request *req, int statuCode)
+{
+	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
+	setBase("./server/www");
+	setWww(getBase());
+	setWww(getBase().insert(getBase().length(), getFile()));
+	if (!statuCode) setStatusCode(statu_code(getWww(), getServer()._routes, "head"));
+	setFirstLine();
+	if (getStatusCode() >= 400 && getStatusCode() < 500) {
+		char *statuChar = ft_itoa(getStatusCode());
+		if (!statuChar) throw Response::BuildResponseException();
+		setWww(getServer().getErrorPage(statuChar));
+		if (getWww().empty())
+		{
+			setWww("./server/default/error");
+			setWww(getWww().insert(getWww().length(), statuChar));
+			setWww(getWww().insert(getWww().length(), ".html"));
+		}
+		free(statuChar);
+		if (statu_code(getWww(), NULL, "") == 404) throw Response::BuildResponseException();
+	}
+	setDate();
+	setLastModified(getWww());
+	setLocation();
+	setRetryAfer(req);
+	setServerNginx();
+	setWWWAuthenticate();
+	setContentLanguage(req);
+	setContentLength(getContent(getWww()));
+	setContentLocation();
+	setContentType(req);
+	setResponse(getResponse().insert(getResponse().length(), "\n")); 
+}
+
+void Response::post_method()
 {
 	;
 }
@@ -379,14 +424,44 @@ void Response::put_method()
 	;
 }
 
-void Response::delete_method()
+void Response::delete_method(int statuCode)
 {
-	;
+	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
+	setBase("./server/www");
+	setWww(getBase());
+	setWww(getWww().insert(getWww().length(), getFile()));
+	if (!statuCode) setStatusCode(statu_code(getWww(), getServer()._routes, "delete"));
+	setFirstLine();
+	if (getStatusCode() >= 400 && getStatusCode() < 500) {
+		char *statuChar = ft_itoa(getStatusCode());
+		if (!statuChar) throw Response::BuildResponseException();
+		setWww(getServer().getErrorPage(statuChar));
+		if (getWww().empty())
+		{
+			setWww("./server/default/error");
+			setWww(getWww().insert(getWww().length(), statuChar));
+			setWww(getWww().insert(getWww().length(), ".html"));
+		}
+		free(statuChar);
+		if (statu_code(getWww(), NULL, "") == 404) throw Response::BuildResponseException();
+	}
+	if (unlink(getWww().c_str()))
+		write(1, strerror(errno), ft_strlen(strerror(errno)));
 }
 
 void Response::connect_method()
 {
-	;
+	// https://stackoverflow.com/questions/43264266/c-socket-send-and-connect
+	//	int server_fd, opt = 1;
+	//if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) exit_err("socket failed", NULL, -1, -1);
+	//if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) exit_err("setsockopt failed", NULL, -1, server_fd);
+	//struct sockaddr_in address;
+	//address.sin_family = AF_INET;
+	//if (strcmp(serv.getHost().c_str(), "localhost"))
+	//	address.sin_addr.s_addr = inet_addr(serv.getHost().c_str());
+	//else
+	//	address.sin_addr.s_addr = inet_addr("127.0.0.1");
+	//address.sin_port = htons( serv.getPort() );
 }
 
 void Response::options_method()
@@ -406,19 +481,21 @@ void Response::config_response(Request *req, Server *serv)
 	std::string request(req->getFirstLine());
 	int sep[2];
 	std::string method;
-	std::string file;
+	setServer(*serv);
 	if (!request.empty())
 	{
 		sep[0] = request.find(' ');
 		sep[1] = request.rfind(' ');
 		method = request.substr(0, sep[0]);
-		file = request.substr(sep[0] + 1, sep[1] - (sep[0] + 1));
-		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << method << " on " << file << "\033[0m" << std::endl;
+		setFile(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
+		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << method << " on " << getFile() << "\033[0m" << std::endl;
 	}
-	if (time.tv_sec - req->getTime() > TIMEOUT)
-		getMethod("error408.html", serv, req, 408);
+	if (time.tv_sec - req->getTime() > 30){
+		setFile("error408.html");
+		getMethod(req, 408);
+	}
 	else {	
-		if (req->getHost().empty()) getMethod(file, serv, req, 400);
+		if (req->getHost().empty()) getMethod(req, 400);
 		else 
 		{
 			std::string host;
@@ -430,23 +507,23 @@ void Response::config_response(Request *req, Server *serv)
 			host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
 			if (!strcmp(host.c_str(), "localhost") || !strcmp(host.c_str(), "127.0.0.1"))
 			{
-				if (serv->getPort() != ft_atoi(port.c_str())) getMethod(file, serv, req, 400);
-				else if (strcmp("localhost", serv->getHost().c_str()) && strcmp("127.0.0.1", serv->getHost().c_str())) getMethod(file, serv, req, 400);
+				if (getServer().getPort() != ft_atoi(port.c_str())) getMethod(req, 400);
+				else if (strcmp("localhost", getServer().getHost().c_str()) && strcmp("127.0.0.1", getServer().getHost().c_str())) getMethod(req, 400);
 			}
-			else if (strcmp(host.c_str(), serv->getHost().c_str()) || serv->getPort() != ft_atoi(port.c_str())) getMethod(file, serv, req, 400);
+			else if (strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) getMethod(req, 400);
 			if (getResponse().empty())
 			{
-				if (!ft_strcmp(method.c_str(), "GET")) getMethod(file, serv, req, 0);
-				else if (!ft_strcmp(method.c_str(), "HEAD")) head_method();
+				if (!ft_strcmp(method.c_str(), "GET")) getMethod(req, 0);
+				else if (!ft_strcmp(method.c_str(), "HEAD")) head_method(req, 0);
 				else if (!ft_strcmp(method.c_str(), "PUT")) put_method();
-				else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method();
+				else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method(0);
 				else if (!ft_strcmp(method.c_str(), "CONNECT")) connect_method();
 				else if (!ft_strcmp(method.c_str(), "OPTIONS")) options_method();
 				else if (!ft_strcmp(method.c_str(), "TRACE")) trace_method();
 			}
 		}
 	}
-	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m{\033[3;36m" << getResponse() << "\033[0m}" << std::endl;
+	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m{" << getResponse() << "}" << std::endl;
 
 }
 
