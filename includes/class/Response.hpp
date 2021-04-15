@@ -19,6 +19,8 @@ class Response {
 		std::string getResponse() const;
 		void		setFile(std::string value);
 		std::string getFile() const;
+		void		setMethod(std::string value);
+		std::string getMethod() const;
 		void		setBase(std::string value);
 		std::string getBase() const;
 		void		setWww(std::string value);
@@ -40,7 +42,7 @@ class Response {
 		void	setLocation();
 		void	setRetryAfer(Request *req);
 		void	setServerNginx();
-		void	setWWWAuthenticate();
+		void	setWWWAuthenticate(Request *req);
 		
 		void	setConnectionClose();
 
@@ -48,7 +50,8 @@ class Response {
 
 
 		std::string	getContent(std::string path);
-		int			statu_code(std::string path, std::vector<Routes> *routes, std::string method);
+		int			check_exist(std::string path);
+		int			statu_code(std::string path, std::vector<Routes> *routes);
 
 		void	getMethod(Request *req);
 		void	head_method(Request *req);
@@ -70,6 +73,7 @@ class Response {
 	private:
 		std::string _response;
 		std::string _file;
+		std::string _method;
 		std::string _base;
 		std::string _www;
 		Server		_server;
