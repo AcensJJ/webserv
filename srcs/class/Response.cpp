@@ -479,7 +479,7 @@ void Response::config_response(Request *req, Server *serv)
 	int sep[2];
 	std::string method;
 	setServer(*serv);
-	setBase("./server/www/");
+	setBase(SERV_WWW);
 	if (!request.empty())
 	{
 		sep[0] = request.find(' ');
@@ -527,7 +527,7 @@ void Response::config_response(Request *req, Server *serv)
 			}
 		}
 	}
-	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m{" << getResponse() << "}" << std::endl;
+	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;
 
 }
 

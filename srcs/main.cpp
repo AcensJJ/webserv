@@ -1,5 +1,47 @@
 #include "global.hpp"
 
+static int remove_directory(const char *path)
+{
+	DIR *d = opendir(path);
+	size_t path_len = strlen(path);
+	int r = -1;
+
+	if (d)
+	{
+		struct dirent *p;
+
+		r = 0;
+		while (!r && (p=readdir(d))) 
+		{
+			int r2 = -1;
+			std::string buf;
+			size_t len;
+
+			/* Skip the names "." and ".." as we don't want to recurse on them. */
+			if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
+				continue;
+
+			len = path_len + strlen(p->d_name) + 2;
+			struct stat statbuf;
+			buf = path;
+			buf.push_back('/');
+			buf.insert(buf.length(), p->d_name);
+			if (!stat(buf.c_str(), &statbuf)) 
+			{
+				if (S_ISDIR(statbuf.st_mode))
+					r2 = remove_directory(buf.c_str());
+				else
+					r2 = unlink(buf.c_str());
+			}
+			r = r2;
+		}
+		closedir(d);
+	}
+	if (!r)
+		r = rmdir(path);
+	return (r);
+}
+
 int		main(int ac, char **av)
 {
 	std::cout << "\033[1;33m   Program starting\033[0m " << std::endl;
@@ -15,7 +57,7 @@ int		main(int ac, char **av)
 	std::cout << std::endl << "\033[1;34m   Parsing file:\033[0m " << str << std::endl;
 	if (parse_conf(str.c_str(), all))
 		return (-1);
-
+	remove_directory(DATA_SERV);
 	for (std::vector<Server>::iterator itr = all->begin(); itr != all->end(); itr++)
 	{
 		Server serv(*itr);

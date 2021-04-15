@@ -6,9 +6,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include "Request.hpp"
-#include "Server.hpp"
-#define TIMEOUT 500
+#include "global.hpp"
 
 class Response {
 	public:

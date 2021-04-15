@@ -4,6 +4,9 @@
 #define FALSE 0
 #define TRUE 1
 #define RECV_BUFF 40001
+#define TIMEOUT 500
+#define SERV_WWW "./server/www/"
+#define DATA_SERV "./server/dataServ/"
 
 #include <unistd.h> 
 #include <stdio.h>
@@ -19,6 +22,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <dirent.h>
 
 #include "../libft-cpp/include/libft.hpp"
 #include "../libft-cpp/include/get_next_line.hpp"
