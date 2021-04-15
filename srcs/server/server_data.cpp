@@ -2,7 +2,6 @@
 
 static void	clear_exit(Client *allclient[FD_SETSIZE], fd_set *readfds, fd_set *writefds, std::string msg)
 {
-
 	for (int i = 1; i < FD_SETSIZE; i++)
 	{
 		if (allclient[i]) 
@@ -21,9 +20,12 @@ int		config_data_serv(Server serv, Client *client, int fd_opt, fd_set *readfds, 
 {
 	int request_fd;
 	struct stat st;
+	if (stat("./server/dataServ", &st) == -1)
+		if (mkdir("./server/dataServ", 0700) == -1)
+			clear_exit(allclient, readfds, writefds, "mkdir failed");
 	if (client->getDir().empty())
 	{
-		std::string dataserv = "./server/dataServ/";
+		std::string dataserv = DATA_SERV;
 		dataserv.insert(dataserv.length(), serv.getServerName().c_str());
 		dataserv.insert(dataserv.length(), "_");	
 		char *nb = ft_itoa(client->getSocket());
@@ -33,9 +35,6 @@ int		config_data_serv(Server serv, Client *client, int fd_opt, fd_set *readfds, 
 		if ((request_fd = open(client->getDir().c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
 			clear_exit(allclient, readfds, writefds, "open failed");
 	}
-	if (stat("./server/dataServ", &st) == -1)
-		if (mkdir("./server/dataServ", 0700) == -1)
-			clear_exit(allclient, readfds, writefds, "mkdir failed");
 	if ((request_fd = open(client->getDir().c_str(), fd_opt, 0644)) < 0)
 		clear_exit(allclient, readfds, writefds, "open failed");
 	return (request_fd);
