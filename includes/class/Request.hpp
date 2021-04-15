@@ -55,6 +55,8 @@ class Request {
 		std::string _userAgent;
 		std::string _transferEncoding;
 		std::string _referer;
+		std::string _method;
+		std::string _file;
 		int			_time;
 };
 

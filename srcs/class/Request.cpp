@@ -131,37 +131,24 @@ int			Request::getTime() const
 
 void Request::set_line_config(char *line)
 {
-	char *temp;
-
 	if (getFirstLine().empty())
-	{
-		std::cout << line << std::endl;
 		setFirstLine(line);
-	}
 	else {
-		temp = (char *)"Accept-Charset:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		if (!ft_strncmp(line, "Accept-Charset:", ft_strlen("Accept-Charset:")))
 			setAcceptCharsets(line);
-		temp = (char *)"Accept-Language:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		else if (!ft_strncmp(line, "Accept-Language:", ft_strlen("Accept-Language:")))
 			setAcceptLanguage(line);
-		temp = (char *)"Authorization:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		else if (!ft_strncmp(line, "Authorization:", ft_strlen("Authorization:")))
 			setAuthorization(line);
-		temp = (char *)"Date:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		else if (!ft_strncmp(line, "Date:", ft_strlen("Date:")))
 			setDate(line);
-		temp = (char *)"Host:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		else if (!ft_strncmp(line, "Host:", ft_strlen("Host:")))
 			setHost(line);
-		temp = (char *)"User-Agent:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		else if (!ft_strncmp(line, "User-Agent:", ft_strlen("User-Agent:")))
 			setUserAgent(line);
-		temp = (char *)"Transfer-Encoding:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		else if (!ft_strncmp(line, "Transfer-Encoding:", ft_strlen("Transfer-Encoding:")))
 			setTransferEncoding(line);
-		temp = (char *)"Referer:";
-		if (!ft_strncmp(line, temp, ft_strlen(temp)))
+		else if (!ft_strncmp(line, "Referer:", ft_strlen("Referer:")))
 			setReferer(line);
 	}
 	free(line);
@@ -170,10 +157,19 @@ void Request::set_line_config(char *line)
 void Request::config_request(int fd)
 {
 	char *line;
-
+	_firstLine.clear();
+	_acceptCharsets.clear();
+	_acceptLanguage.clear();
+	_authorization.clear();
+	_date.clear();
+	_host.clear();
+	_userAgent.clear();
+	_transferEncoding.clear();
+	_referer.clear();
 	while (get_next_line(fd, &line) > 0)
 		set_line_config(line);
 	if (line) set_line_config(line);
+
 	else throw Request::GNLMallocException();
 }
 

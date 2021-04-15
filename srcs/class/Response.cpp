@@ -44,6 +44,16 @@ std::string Response::getFile() const
 	return(this->_file);
 }
 
+void Response::setMethod(std::string value)
+{
+	this->_method = value;
+}
+
+std::string Response::getMethod() const
+{
+	return(this->_method);
+}
+
 void Response::setBase(std::string value)
 {
 	this->_base = value;
@@ -209,7 +219,7 @@ void Response::setContentType(Request *req)
 		sep[0] = 15;
 		sep[1] = req->getAcceptCharsets().find(',');
 		if (sep[1] == -1) sep[1] = req->getAcceptCharsets().length();
-		std::string charset = req->getAcceptCharsets().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
+		std::string charset = req->getAcceptCharsets().substr(sep[0] + 2, sep[1] - (sep[0] + 1));
 		setResponse(getResponse().insert(getResponse().length() - 1, charset));
 	}
 }
@@ -262,13 +272,22 @@ void Response::setServerNginx()
 	setResponse(getResponse().insert(getResponse().length(), "Server: Nginx\n"));
 }
 
-void Response::setWWWAuthenticate()
+void Response::setWWWAuthenticate(Request *req)
 {
 	if (getStatusCode() == 401)
 	{
-		setResponse(getResponse().insert(getResponse().length(), "getWww()-Authenticate: "));
-		// setResponse(getResponse().insert(getResponse().length(), msg));
-		setResponse(getResponse().insert(getResponse().length(), "\n"));
+		setResponse(getResponse().insert(getResponse().length(), "WWW-Authenticate: Basic realm=\"Access to the staging site\"\n"));
+		if (!req->getAcceptCharsets().empty())
+		{
+			setResponse(getResponse().insert(getResponse().length() - 1, ", charset=\""));
+			int sep[2];
+			sep[0] = 15;
+			sep[1] = req->getAcceptCharsets().find(',');
+			if (sep[1] == -1) sep[1] = req->getAcceptCharsets().length();
+			std::string charset = req->getAcceptCharsets().substr(sep[0] + 2, sep[1] - (sep[0] + 1));
+			setResponse(getResponse().insert(getResponse().length() - 1, charset));
+			setResponse(getResponse().insert(getResponse().length() - 1, "\""));
+		}
 	}
 }
 
@@ -298,7 +317,7 @@ void Response::setFirstLine()
 	else if (getStatusCode() == 307) setResponse(getResponse().insert(getResponse().length(), " 307 Temporary Redirect\n"));
 	else if (getStatusCode() == 308) setResponse(getResponse().insert(getResponse().length(), " 308 Permanent Redirect\n"));
 	else if (getStatusCode() == 400) setResponse(getResponse().insert(getResponse().length(), " 400 Bad Request\n"));
-	else if (getStatusCode() == 401) setResponse(getResponse().insert(getResponse().length(), " 401 Unauthoriwed\n"));
+	else if (getStatusCode() == 401) setResponse(getResponse().insert(getResponse().length(), " 401 Unauthorized\n"));
 	else if (getStatusCode() == 402) setResponse(getResponse().insert(getResponse().length(), " 402 Payment Required\n"));
 	else if (getStatusCode() == 403) setResponse(getResponse().insert(getResponse().length(), " 403 Forbidden\n"));
 	else if (getStatusCode() == 404) setResponse(getResponse().insert(getResponse().length(), " 404 Not Found\n"));
@@ -351,11 +370,19 @@ std::string Response::getContent(std::string path)
 	return (ret);
 }
 
-int Response::statu_code(std::string path, std::vector<Routes> *routes, std::string method)
+int Response::check_exist(std::string path)
 {
 	struct stat	sb;
+	if (stat(path.c_str(), &sb) == -1) return (-1);
+	return (0);
+}
+
+int Response::statu_code(std::string path, std::vector<Routes> *routes)
+{
+	struct stat	sb;
+	//if (get)
 	if (stat(path.c_str(), &sb) == -1) return (404);
-	if (routes && !method.empty())
+	if (routes && !getMethod().empty())
 	{
 		int sep[2];
 		sep[0] = path.find("www") + 3;
@@ -373,7 +400,7 @@ void Response::getMethod(Request *req)
 	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
 	setWww(getBase());
 	setWww(getBase().insert(getBase().length(), getFile()));
-	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes, "get"));
+	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes));
 	head_method(req);
 	setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
 }
@@ -383,7 +410,7 @@ void Response::head_method(Request *req)
 	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
 	setWww(getBase());
 	setWww(getBase().insert(getBase().length(), getFile()));
-	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes, "head"));
+	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes));
 	setFirstLine();
 	if (getStatusCode() >= 400 && getStatusCode() < 500) {
 		char *statuChar = ft_itoa(getStatusCode());
@@ -396,14 +423,14 @@ void Response::head_method(Request *req)
 			setWww(getWww().insert(getWww().length(), ".html"));
 		}
 		free(statuChar);
-		if (statu_code(getWww(), NULL, "") == 404) throw Response::BuildResponseException();
+		if (check_exist(getWww())) throw Response::BuildResponseException();
 	}
 	setDate();
 	setLastModified(getWww());
 	setLocation();
 	setRetryAfer(req);
 	setServerNginx();
-	setWWWAuthenticate();
+	setWWWAuthenticate(req);
 	setContentLanguage(req);
 	setContentLength(getContent(getWww()));
 	setContentLocation();
@@ -427,7 +454,7 @@ void Response::delete_method()
 	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
 	setWww(getBase());
 	setWww(getWww().insert(getWww().length(), getFile()));
-	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes, "delete"));
+	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes));
 	setFirstLine();
 	if (getStatusCode() >= 400 && getStatusCode() < 500) {
 		char *statuChar = ft_itoa(getStatusCode());
@@ -440,7 +467,7 @@ void Response::delete_method()
 			setWww(getWww().insert(getWww().length(), ".html"));
 		}
 		free(statuChar);
-		if (statu_code(getWww(), NULL, "") == 404) throw Response::BuildResponseException();
+		if (check_exist(getWww())) throw Response::BuildResponseException();
 	}
 	if (unlink(getWww().c_str()))
 		write(1, strerror(errno), ft_strlen(strerror(errno)));
@@ -477,16 +504,15 @@ void Response::config_response(Request *req, Server *serv)
 	gettimeofday(&time, NULL);
 	std::string request(req->getFirstLine());
 	int sep[2];
-	std::string method;
 	setServer(*serv);
 	setBase("./server/www/");
 	if (!request.empty())
 	{
 		sep[0] = request.find(' ');
 		sep[1] = request.rfind(' ');
-		method = request.substr(0, sep[0]);
+		setMethod(request.substr(0, sep[0]));
 		setFile(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
-		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << method << " on " << getFile() << "\033[0m" << std::endl;
+		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;
 	}
 	if (time.tv_sec - req->getTime() < TIMEOUT){
 		setFile("error408.html");
@@ -517,13 +543,13 @@ void Response::config_response(Request *req, Server *serv)
 			if (getResponse().empty())
 			{
 				setStatusCode(0);
-				if (!ft_strcmp(method.c_str(), "GET")) getMethod(req);
-				else if (!ft_strcmp(method.c_str(), "HEAD")) head_method(req);
-				else if (!ft_strcmp(method.c_str(), "PUT")) put_method();
-				else if (!ft_strcmp(method.c_str(), "DELETE")) delete_method();
-				else if (!ft_strcmp(method.c_str(), "CONNECT")) connect_method();
-				else if (!ft_strcmp(method.c_str(), "OPTIONS")) options_method();
-				else if (!ft_strcmp(method.c_str(), "TRACE")) trace_method();
+				if (!ft_strcmp(getMethod().c_str(), "GET")) getMethod(req);
+				else if (!ft_strcmp(getMethod().c_str(), "HEAD")) head_method(req);
+				else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method();
+				else if (!ft_strcmp(getMethod().c_str(), "DELETE")) delete_method();
+				else if (!ft_strcmp(getMethod().c_str(), "CONNECT")) connect_method();
+				else if (!ft_strcmp(getMethod().c_str(), "OPTIONS")) options_method();
+				else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method();
 			}
 		}
 	}
