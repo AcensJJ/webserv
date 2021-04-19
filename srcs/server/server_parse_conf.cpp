@@ -244,13 +244,7 @@ static int		set_value(char **line, std::vector<Server> *all)
 		}
 		else if (!ft_strncmp(&line[j][i], "name_server=", 12))
 			set_server_name(all, line, i, j);
-<<<<<<< HEAD
 		else if (!strncmp(&line[j][i], "error_page=", 11))
-=======
-		else if (!ft_strncmp(&line[j][i], "limit_client_body=", 18))
-			set_limit_client_body(all, line, i, j);
-		else if (!ft_strncmp(&line[j][i], "error_page=", 11))
->>>>>>> 718b483aff52098efa679aa56a080981d3208497
 			set_error_page(all, line, i, j);
 		else if (!ft_strncmp(&line[j][i], "location", 8))
 			if ((j = set_location(all, line, i, j)) < 0)
