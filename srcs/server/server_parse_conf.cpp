@@ -85,54 +85,54 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 			i++;
 	while (line[j] && line[j][i] != '}')
 	{
-		if (!strncmp(&line[j][i], "GET", 3) || !strncmp(&line[j][i], "HEAD", 4) ||
-		!strncmp(&line[j][i], "POST", 4) || !strncmp(&line[j][i], "PUT", 3) ||
-		!strncmp(&line[j][i], "DELETE", 6) || !strncmp(&line[j][i], "CONNECT", 6) ||
-		!strncmp(&line[j][i], "OPTIONS", 7) || !strncmp(&line[j][i], "TRACE", 5) ||
-		!strncmp(&line[j][i], "PATCH", 5))
+		if (!ft_strncmp(&line[j][i], "GET", 3) || !ft_strncmp(&line[j][i], "HEAD", 4) ||
+		!ft_strncmp(&line[j][i], "POST", 4) || !ft_strncmp(&line[j][i], "PUT", 3) ||
+		!ft_strncmp(&line[j][i], "DELETE", 6) || !ft_strncmp(&line[j][i], "CONNECT", 6) ||
+		!ft_strncmp(&line[j][i], "OPTIONS", 7) || !ft_strncmp(&line[j][i], "TRACE", 5) ||
+		!ft_strncmp(&line[j][i], "PATCH", 5))
 		{
-				while (&line[j][i] && (!strncmp(&line[j][i], "GET", 3) || !strncmp(&line[j][i], "HEAD", 4) ||
-				!strncmp(&line[j][i], "POST", 4) || !strncmp(&line[j][i], "PUT", 3) ||
-				!strncmp(&line[j][i], "DELETE", 6) || !strncmp(&line[j][i], "CONNECT", 6) ||
-				!strncmp(&line[j][i], "OPTIONS", 7) || !strncmp(&line[j][i], "TRACE", 5) ||
-				!strncmp(&line[j][i], "PATCH", 5)))
+				while (&line[j][i] && (!ft_strncmp(&line[j][i], "GET", 3) || !ft_strncmp(&line[j][i], "HEAD", 4) ||
+				!ft_strncmp(&line[j][i], "POST", 4) || !ft_strncmp(&line[j][i], "PUT", 3) ||
+				!ft_strncmp(&line[j][i], "DELETE", 6) || !ft_strncmp(&line[j][i], "CONNECT", 6) ||
+				!ft_strncmp(&line[j][i], "OPTIONS", 7) || !ft_strncmp(&line[j][i], "TRACE", 5) ||
+				!ft_strncmp(&line[j][i], "PATCH", 5)))
 				{
 					std::string method;
-					if (!strncmp(&line[j][i], "GET", 3))
+					if (!ft_strncmp(&line[j][i], "GET", 3))
 						method = "GET";
-					else if (!strncmp(&line[j][i], "HEAD", 4))
+					else if (!ft_strncmp(&line[j][i], "HEAD", 4))
 						method = "HEAD";
-					else if (!strncmp(&line[j][i], "POST", 4))
+					else if (!ft_strncmp(&line[j][i], "POST", 4))
 						method = "POST";
-					else if (!strncmp(&line[j][i], "PUT", 3))
+					else if (!ft_strncmp(&line[j][i], "PUT", 3))
 						method = "PUT";
-					else if (!strncmp(&line[j][i], "DELETE", 6))
+					else if (!ft_strncmp(&line[j][i], "DELETE", 6))
 						method = "DELETE";
-					else if (!strncmp(&line[j][i], "CONNECT", 7))
+					else if (!ft_strncmp(&line[j][i], "CONNECT", 7))
 						method = "CONNECT";
-					else if (!strncmp(&line[j][i], "TRACE", 5))
+					else if (!ft_strncmp(&line[j][i], "TRACE", 5))
 						method = "TRACE";
-					else if (!strncmp(&line[j][i], "PATCH", 5))
+					else if (!ft_strncmp(&line[j][i], "PATCH", 5))
 						method = "PATCH";
 					all->rbegin()->_routes->rbegin()->_http_method->push_back(method);
 					i++;
 				}
 
 		}
-		else if (!strncmp(&line[j][i], "auto_index ", 12))
+		else if (!ft_strncmp(&line[j][i], "auto_index ", 12))
 		{
 			i++;
 			while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 				i++;
 			all->rbegin()->_routes->rbegin()->setListen(FALSE);
-			if (!strncmp(&line[j][i], "on", 2))
+			if (!ft_strncmp(&line[j][i], "on", 2))
 				all->rbegin()->_routes->rbegin()->setListen(TRUE);
 		}
-		else if (!strncmp(&line[j][i], "cgi_extension ", 14))
+		else if (!ft_strncmp(&line[j][i], "cgi_extension ", 14))
 			all->rbegin()->_routes->rbegin()->setGCIExtension(&line[j][i + 14]);
-		else if (!strncmp(&line[j][i], "cgi_path ", 9))
+		else if (!ft_strncmp(&line[j][i], "cgi_path ", 9))
 			all->rbegin()->_routes->rbegin()->setGCIPath(&line[j][i + 9]);
-		else if (!strncmp(&line[j][i], "root ", 5))
+		else if (!ft_strncmp(&line[j][i], "root ", 5))
 			all->rbegin()->_routes->rbegin()->setLocation(&line[j][i + 5]);
 		else if (!strncmp(&line[j][i], "limit_client_body=", 18))
 			set_limit_client_body(all, line, i, j);
@@ -147,14 +147,14 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 	i++;
 	while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 		i++;
-	while (line[j] && line[j][i] != '}' && strncmp(&line[j][i], "location ", 9))
+	while (line[j] && line[j][i] != '}' && ft_strncmp(&line[j][i], "location ", 9))
 	{
 		i = 0;
 		j++;
 		while (line[j] && line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 			i++;
 	}
-	if (line[j] && (line[j][i] == '}' || !strncmp(&line[j][i], "location ", 9)))
+	if (line[j] && (line[j][i] == '}' || !ft_strncmp(&line[j][i], "location ", 9)))
 		return (--j);
 	std::cout << "\033[1;31m   Norme error\033[0m" << std::endl;
 	return (-1);
@@ -221,15 +221,15 @@ static int		set_value(char **line, std::vector<Server> *all)
 		int i(0);
 		while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 			i++;
-		if (!strncmp(&line[j][i], "}", 1))
-			while (line[j] && !strncmp(&line[j][i], "server", 6))
+		if (!ft_strncmp(&line[j][i], "}", 1))
+			while (line[j] && !ft_strncmp(&line[j][i], "server", 6))
 			{
 				j++;
 				i=0;
 				while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 					i++;
 			}
-		if (!strncmp(&line[j][i], "server", 6))
+		if (!ft_strncmp(&line[j][i], "server", 6))
 		{
 			if (check_bef_serv(line, j))
 				return (-1);
@@ -237,16 +237,22 @@ static int		set_value(char **line, std::vector<Server> *all)
 			if (check_aft_serv(line, i, j) < 0)
 				return (-1);
 		}
-		else if (!strncmp(&line[j][i], "listen=", 7))
+		else if (!ft_strncmp(&line[j][i], "listen=", 7))
 		{
 			if (set_listen(all, line, i, j))
 				return (-1);
 		}
-		else if (!strncmp(&line[j][i], "name_server=", 12))
+		else if (!ft_strncmp(&line[j][i], "name_server=", 12))
 			set_server_name(all, line, i, j);
+<<<<<<< HEAD
 		else if (!strncmp(&line[j][i], "error_page=", 11))
+=======
+		else if (!ft_strncmp(&line[j][i], "limit_client_body=", 18))
+			set_limit_client_body(all, line, i, j);
+		else if (!ft_strncmp(&line[j][i], "error_page=", 11))
+>>>>>>> 718b483aff52098efa679aa56a080981d3208497
 			set_error_page(all, line, i, j);
-		else if (!strncmp(&line[j][i], "location", 8))
+		else if (!ft_strncmp(&line[j][i], "location", 8))
 			if ((j = set_location(all, line, i, j)) < 0)
 				return (-1);
 	}

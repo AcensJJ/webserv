@@ -97,7 +97,7 @@ void		launch_serv(Server serv)
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) exit_err("setsockopt failed", NULL, -1, server_fd);
 	struct sockaddr_in address;
 	address.sin_family = AF_INET;
-	if (strcmp(serv.getHost().c_str(), "localhost"))
+	if (ft_strcmp(serv.getHost().c_str(), "localhost"))
 		address.sin_addr.s_addr = inet_addr(serv.getHost().c_str());
 	else
 		address.sin_addr.s_addr = inet_addr("127.0.0.1");

@@ -387,6 +387,42 @@ std::string Response::getContent(std::string path)
 	return (ret);
 }
 
+void Response::print_directory(const char *path)
+{
+	DIR *d = opendir(path);
+	size_t path_len = ft_strlen(path);
+
+	if (d)
+	{
+		struct dirent *p;
+
+		while ((p=readdir(d)))
+		{
+			std::string buf;
+			size_t len;
+
+			/* Skip the names "." and ".." as we don't want to recurse on them. */
+			if (!ft_strcmp(p->d_name, ".") || !ft_strcmp(p->d_name, ".."))
+				continue;
+
+			len = path_len + ft_strlen(p->d_name) + 2;
+			struct stat statbuf;
+			buf = path;
+			buf.push_back('/');
+			buf.insert(buf.length(), p->d_name);
+			if (!stat(buf.c_str(), &statbuf)) 
+			{
+				if (S_ISDIR(statbuf.st_mode))
+					std::cout << buf << "/\n";
+				else
+					std::cout << buf << "\n";
+				continue;
+			}
+		}
+		closedir(d);
+	}
+}
+
 int Response::check_exist(std::string path)
 {
 	struct stat	sb;
@@ -484,7 +520,7 @@ void Response::connect_method()
 	//if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) exit_err("setsockopt failed", NULL, -1, server_fd);
 	//struct sockaddr_in address;
 	//address.sin_family = AF_INET;
-	//if (strcmp(serv.getHost().c_str(), "localhost"))
+	//if (ft_strcmp(serv.getHost().c_str(), "localhost"))
 	//	address.sin_addr.s_addr = inet_addr(serv.getHost().c_str());
 	//else
 	//	address.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -543,12 +579,12 @@ void Response::config_response(Request *req, Server *serv)
 			if (sep[1] == -1) sep[1] = req->getHost().length();
 			host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
 			setStatusCode(400);
-			if (!strcmp(host.c_str(), "localhost") || !strcmp(host.c_str(), "127.0.0.1"))
+			if (!ft_strcmp(host.c_str(), "localhost") || !ft_strcmp(host.c_str(), "127.0.0.1"))
 			{
 				if (getServer().getPort() != ft_atoi(port.c_str())) getMethod(req);
-				else if (strcmp("localhost", getServer().getHost().c_str()) && strcmp("127.0.0.1", getServer().getHost().c_str())) getMethod(req);
+				else if (ft_strcmp("localhost", getServer().getHost().c_str()) && ft_strcmp("127.0.0.1", getServer().getHost().c_str())) getMethod(req);
 			}
-			else if (strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) getMethod(req);
+			else if (ft_strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) getMethod(req);
 			if (getResponse().empty())
 			{
 				setStatusCode(0);
