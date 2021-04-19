@@ -48,8 +48,8 @@ class Response {
 
 		void	setFirstLine();
 
-
 		std::string	getContent(std::string path);
+		void		print_directory(const char *path);
 		int			check_exist(std::string path);
 		int			statu_code(std::string path, std::vector<Routes> *routes);
 

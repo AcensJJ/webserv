@@ -3,7 +3,7 @@
 static int remove_directory(const char *path)
 {
 	DIR *d = opendir(path);
-	size_t path_len = strlen(path);
+	size_t path_len = ft_strlen(path);
 	int r = -1;
 
 	if (d)
@@ -18,10 +18,10 @@ static int remove_directory(const char *path)
 			size_t len;
 
 			/* Skip the names "." and ".." as we don't want to recurse on them. */
-			if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
+			if (!ft_strcmp(p->d_name, ".") || !ft_strcmp(p->d_name, ".."))
 				continue;
 
-			len = path_len + strlen(p->d_name) + 2;
+			len = path_len + ft_strlen(p->d_name) + 2;
 			struct stat statbuf;
 			buf = path;
 			buf.push_back('/');
