@@ -23,6 +23,7 @@ class Routes {
 		void setLocation(std::string value);
 		void setGCIPath(std::string value);
 		void setGCIExtension(std::string value);
+		void setLimitClientBody(std::string value);
 
 		std::string getDirFile() const;
 		bool getListen() const;
@@ -30,15 +31,17 @@ class Routes {
 		std::string getLocation() const;
 		std::string getGCIPath() const;
 		std::string getGCIExtension() const;
+		std::string getLimitClientBody() const;
 
 		std::list<std::string>	*_http_method;
 	private:
-		std::string				_dir_file;
-		bool					_listen;
-		std::string				_default;
-		std::string				_location;
-		std::string				_gci_path;
-		std::string				_gci_extension;
+		std::string		_dir_file;
+		bool			_listen;
+		std::string		_default;
+		std::string		_location;
+		std::string		_gci_path;
+		std::string		_gci_extension;
+		std::string		_limit_client_body;
 };
 
 #endif // !ROUTES_HPP

@@ -62,13 +62,14 @@ void		waiting_client(Server serv, int server_fd, sockaddr_in *address)
 				if (allclient[i] && allclient[i]->getRecvEnd() == 1)
 				{
 					one_client_send(serv, &readfds, &writefds, allclient[i], allclient);
-					unlink(allclient[i]->getDir().c_str());
+					FD_CLR(i, &readfds);
+					FD_CLR(i, &writefds);
 					close(i);
+					unlink(allclient[i]->getDir().c_str());
+					close(allclient[i]->getSocket());
 					delete allclient[i];
 					allclient[i] = NULL;
 					std::cout << "\033[1;32m   Connection:\033[0m closed for (" << i << ")" << std::endl;
-					FD_CLR(i, &readfds);
-					FD_CLR(i, &writefds);
 				}
 			}
 		}

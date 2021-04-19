@@ -23,11 +23,13 @@
 #include <list>
 #include <map>
 #include <dirent.h>
+#include <algorithm>
 
 #include "../libft-cpp/include/libft.hpp"
 #include "../libft-cpp/include/get_next_line.hpp"
 #include "includes.hpp"
 
+#include "class/Routes.hpp"
 #include "class/Server.hpp"
 #include "class/Request.hpp"
 #include "class/Response.hpp"

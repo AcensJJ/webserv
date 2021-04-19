@@ -50,7 +50,7 @@ static void	set_limit_client_body(std::vector<Server> *all, char **line, int i, 
 		i++;
 	char *add;
 	add = &line[j][i];
-	all->rbegin()->setLimitClientBody(add);
+	all->rbegin()->_routes->rbegin()->setLimitClientBody(add);
 }
 
 static void	set_error_page(std::vector<Server> *all, char **line, int i, int j)
@@ -68,32 +68,16 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 	i += 9;
 	Routes _new;
 	all->rbegin()->_routes->push_back(_new);
-	char **split;
-	if (!(split = ft_split(&line[j][i], ' ')) || !split[0])
+	int sep;
+	std::string str = &line[j][i];
+	sep = str.rfind(' ');
+	std::string norme = &str[sep];
+	if (norme.find("{") == std::string::npos)
 	{
-		std::cout << "\033[1;31m   Error malloc\033[0m" << std::endl;
+		std::cout << "\033[1;31m   Norme error\033[0m" << std::endl;
 		return (-1);
 	}
-	int k(0);
-	int l = 0;
-	while (split[k] && split[k][l] != '{')
-	{
-		l=0;
-		while (split[k] && ((split[k][l] >= 9 && split[k][l] <= 13) || split[k][l] == 32))
-			l++;
-		if (split[k][l] != '{')
-			k++;
-	}
-	if (!split[k])
-	{
-		std::cout << "\033[1;31m   File is not normed\033[0m" << std::endl;
-		return (-1);
-	}
-	all->rbegin()->_routes->rbegin()->setDirFile(split[0]);
-	i = -1;
-	for (int k = 0; split[k]; k++)
-		free(split[k]);
-	free(split);
+	all->rbegin()->_routes->rbegin()->setDirFile(str.substr(0, sep));
 	all->rbegin()->_routes->rbegin()->_http_method = new std::list<std::string>;
 	j++;
 	i = 0;
@@ -150,6 +134,8 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 			all->rbegin()->_routes->rbegin()->setGCIPath(&line[j][i + 9]);
 		else if (!strncmp(&line[j][i], "root ", 5))
 			all->rbegin()->_routes->rbegin()->setLocation(&line[j][i + 5]);
+		else if (!strncmp(&line[j][i], "limit_client_body=", 18))
+			set_limit_client_body(all, line, i, j);
 		j++;
 		i = 0;
 		while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
@@ -258,8 +244,6 @@ static int		set_value(char **line, std::vector<Server> *all)
 		}
 		else if (!strncmp(&line[j][i], "name_server=", 12))
 			set_server_name(all, line, i, j);
-		else if (!strncmp(&line[j][i], "limit_client_body=", 18))
-			set_limit_client_body(all, line, i, j);
 		else if (!strncmp(&line[j][i], "error_page=", 11))
 			set_error_page(all, line, i, j);
 		else if (!strncmp(&line[j][i], "location", 8))

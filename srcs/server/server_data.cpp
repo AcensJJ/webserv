@@ -31,9 +31,11 @@ int		config_data_serv(Server serv, Client *client, int fd_opt, fd_set *readfds, 
 		char *nb = ft_itoa(client->getSocket());
 		if (!nb) clear_exit(allclient, readfds, writefds, "malloc failed");
 		dataserv.insert(dataserv.length(), nb);
+		free(nb);
 		client->setDir(dataserv);
 		if ((request_fd = open(client->getDir().c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
 			clear_exit(allclient, readfds, writefds, "open failed");
+		close(request_fd);
 	}
 	if ((request_fd = open(client->getDir().c_str(), fd_opt, 0644)) < 0)
 		clear_exit(allclient, readfds, writefds, "open failed");
@@ -61,26 +63,21 @@ void	one_client_read(Server serv, fd_set *readfds, fd_set *writefds, Client *cli
 void	one_client_send(Server serv, fd_set *readfds, fd_set *writefds, Client *client, Client *allclient[FD_SETSIZE])
 {
 	int request_fd = config_data_serv(serv, client, O_RDONLY, readfds, writefds, allclient);
-	if (request_fd != -1)
+	try
 	{
-		try
-		{
-			std::cout << std::endl << "\033[0;33m   Working on socket\033[0m(" << client->getSocket() << ")" << std::endl;
-			Response res;
-			Request req = *client->getRequest();
-			req.setTime(client->getRequest()->getTime());
-			client->setRequest(&req);
-			client->getRequest()->config_request(request_fd);
-			res.config_response(&req, &serv);
-			if (send(client->getSocket(), res.getResponse().c_str(), res.getResponse().length(), 0) < 0)
-				throw "\033[1;31m   Error: \033[0;31m send failed\033[0m";
-		}
-		catch(const std::exception& e)
-		{
-			std::cerr << e.what() << std::endl;
-		}
-		close(request_fd);
+		std::cout << std::endl << "\033[0;33m   Working on socket\033[0m(" << client->getSocket() << ")" << std::endl;
+		Response res;
+		Request req = *client->getRequest();
+		req.setTime(client->getRequest()->getTime());
+		client->setRequest(&req);
+		client->getRequest()->config_request(request_fd);
+		res.config_response(&req, &serv);
+		if (send(client->getSocket(), res.getResponse().c_str(), res.getResponse().length(), 0) < 0)
+			throw "\033[1;31m   Error: \033[0;31m send failed\033[0m";
 	}
-	else
-		clear_exit(allclient, readfds, writefds, "open failed");
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
+	close(request_fd);
 }

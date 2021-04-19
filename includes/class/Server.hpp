@@ -8,6 +8,7 @@
 #include "../../libft-cpp/include/libft.hpp"
 #include "../../libft-cpp/include/get_next_line.hpp"
 #include "Routes.hpp"
+#include <algorithm>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -24,7 +25,6 @@ class Server {
 		void setPort(int value);
 		void setHost(std::string value);
 		void setServerName(std::string value);
-		void setLimitClientBody(std::string value);
 		void setErrorPages(std::list<std::string> value);
 		void setRoutes(std::vector<Routes> value);
 		
@@ -32,7 +32,7 @@ class Server {
 		int getPort() const;
 		std::string getHost() const;
 		std::string getServerName() const;
-		std::string getLimitClientBody() const;
+		Routes getRoute(std::string dir) const;
 		
 		std::string getErrorPage(std::string err) const;
 		void check_config();
@@ -62,7 +62,6 @@ class Server {
 		int				_port;
 		std::string		_host;
 		std::string		_server_name;
-		std::string		_limit_client_body;
 };
 
 #endif // !SERVER_HPP

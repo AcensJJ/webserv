@@ -10,6 +10,13 @@ Response::Response()
 Response::Response(const Response &other)
 {
 	_response = other.getResponse();
+	_file = other.getFile();
+	_method = other.getMethod();
+	_base = other.getBase();
+	_www = other.getWww();
+	_server = other.getServer();
+	_status = other.getStatusCode();
+	_routes = other._routes;
 }
 
 Response::~Response()
@@ -92,6 +99,16 @@ void Response::setStatusCode(int value)
 int Response::getStatusCode() const
 {
 	return(this->_status);
+}
+
+void Response::setRoutes(Routes *value)
+{
+	this->_routes = value;
+}
+
+Routes *Response::getRoutes() const
+{
+	return(this->_routes);
 }
 
 void Response::setDate()
@@ -380,7 +397,6 @@ int Response::check_exist(std::string path)
 int Response::statu_code(std::string path, std::vector<Routes> *routes)
 {
 	struct stat	sb;
-	//if (get)
 	if (stat(path.c_str(), &sb) == -1) return (404);
 	if (routes && !getMethod().empty())
 	{
@@ -390,27 +406,18 @@ int Response::statu_code(std::string path, std::vector<Routes> *routes)
 		std::string dir;
 		if (sep[0] == sep[1]) dir = "/";
 		else dir = path.substr(sep[0], sep[1] - (sep[0]));
-		(void)routes;
 	}
 	return (200);
 }
 
 void Response::getMethod(Request *req)
 {
-	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
-	setWww(getBase());
-	setWww(getBase().insert(getBase().length(), getFile()));
-	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes));
 	head_method(req);
 	setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
 }
 
 void Response::head_method(Request *req)
 {
-	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
-	setWww(getBase());
-	setWww(getBase().insert(getBase().length(), getFile()));
-	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes));
 	setFirstLine();
 	if (getStatusCode() >= 400 && getStatusCode() < 500) {
 		char *statuChar = ft_itoa(getStatusCode());
@@ -451,10 +458,6 @@ void Response::put_method()
 
 void Response::delete_method()
 {
-	if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
-	setWww(getBase());
-	setWww(getWww().insert(getWww().length(), getFile()));
-	if (!getStatusCode()) setStatusCode(statu_code(getWww(), getServer()._routes));
 	setFirstLine();
 	if (getStatusCode() >= 400 && getStatusCode() < 500) {
 		char *statuChar = ft_itoa(getStatusCode());
@@ -512,6 +515,12 @@ void Response::config_response(Request *req, Server *serv)
 		sep[1] = request.rfind(' ');
 		setMethod(request.substr(0, sep[0]));
 		setFile(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
+		Routes tmp = serv->getRoute(getFile());
+		this->setRoutes(&tmp);
+		if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
+		setWww(getBase());
+		setWww(getBase().insert(getBase().length(), getFile()));
+		setStatusCode(statu_code(getWww(), getServer()._routes));
 		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;
 	}
 	if (time.tv_sec - req->getTime() < TIMEOUT){

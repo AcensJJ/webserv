@@ -6,7 +6,7 @@ Server::Server()
 }
 
 Server::Server(const Server &other) : _error_pages(other._error_pages), _port(other._port), _host(other._host),
-_server_name(other._server_name), _limit_client_body(other._limit_client_body)
+_server_name(other._server_name)
 {
 	_routes = other._routes;
 }
@@ -43,11 +43,6 @@ void Server::setServerName(std::string value)
 	this->_server_name = value;
 }
 
-void Server::setLimitClientBody(std::string value)
-{
-	this->_limit_client_body = value;
-}
-
 void Server::setErrorPages(std::list<std::string> value)
 {
 	this->_error_pages = &value;
@@ -78,9 +73,37 @@ std::string Server::getServerName() const
 	return(this->_server_name);
 }
 
-std::string Server::getLimitClientBody() const
+Routes Server::getRoute(std::string dir) const
 {
-	return(this->_limit_client_body);
+	Routes tmp;
+	int pnt = 0;
+	for (std::__1::vector<Routes>::iterator itr = _routes->begin(); itr != _routes->end(); itr++)
+	{
+		int len = itr->getDirFile().length() > dir.length() ? dir.length() : itr->getDirFile().length();
+		if (ft_strncmp(itr->getDirFile().c_str(), dir.c_str(), len))
+		{
+			if (itr->getDirFile().length() == dir.length())
+				return (*itr);
+			if (tmp.getDirFile().empty()) {
+				tmp = *itr;
+				for (int i = 0; itr->getDirFile()[i]; i++)
+					if (itr->getDirFile()[i] == '/') pnt += 2;
+				if (itr->getDirFile()[itr->getDirFile().length()] != '/' ) pnt++;
+			}
+			else {
+				int cmp = 0;
+				for (int i = 0; itr->getDirFile()[i]; i++)
+					if (itr->getDirFile()[i] == '/') cmp += 2;
+				if (itr->getDirFile()[itr->getDirFile().length()] != '/' ) cmp++;
+				if (cmp > pnt)
+				{
+					tmp = *itr;
+				 	pnt = cmp;
+				}
+			}
+		}
+	}
+	return (tmp);
 }
 
 void Server::check_config()
