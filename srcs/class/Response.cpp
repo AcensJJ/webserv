@@ -435,7 +435,7 @@ int Response::statu_code(std::string path)
 	if (stat(path.c_str(), &sb) == -1) return (404);
 	for (std::list<std::string>::iterator it = getRoutes()._http_method.begin() ; it != getRoutes()._http_method.end(); ++it)
     {
-		if (!ft_strncmp(it->c_str(), getMethod().c_str(), 3))
+		if (!ft_strcmp(it->c_str(), getMethod().c_str()))
 			return (200);
 		if (it->empty())
 			return (405);
