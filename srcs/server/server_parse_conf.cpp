@@ -119,7 +119,7 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 				}
 
 		}
-		else if (!ft_strncmp(&line[j][i], "auto_index ", 12))
+		if (!ft_strncmp(&line[j][i], "auto_index ", 11))
 		{
 			i++;
 			while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
@@ -136,6 +136,8 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 			all->rbegin()->_routes->rbegin()->setLocation(&line[j][i + 5]);
 		else if (!strncmp(&line[j][i], "limit_client_body=", 18))
 			set_limit_client_body(all, line, i, j);
+		else
+			all->rbegin()->_routes->rbegin()->setDefault(&line[j][i]);
 		j++;
 		i = 0;
 		while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
