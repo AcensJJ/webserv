@@ -378,9 +378,9 @@ std::string Response::getContent(std::string path)
 
 	int fd;
 	int res;
+	std::cout << getStatusCode() << "\n";
 	if ((fd = open(path.c_str(), O_RDONLY)) < 0) throw Response::BuildResponseException();
 	char line[1];
-
 	while ((res = read(fd, line, 1)) == 1)
 		ret.insert(ret.length(), line, 1);
 	close(fd);
@@ -454,6 +454,7 @@ void Response::getMethod(Request *req)
 
 void Response::head_method(Request *req)
 {
+
 	setFirstLine();
 	if (getStatusCode() >= 400 && getStatusCode() < 500) {
 		char *statuChar = ft_itoa(getStatusCode());
@@ -556,17 +557,16 @@ void Response::config_response(Request *req, Server *serv)
 		if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
 		setWww(getBase());
 		setWww(getBase().insert(getBase().length(), getFile()));
-		setStatusCode(statu_code(getWww()));
 		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;
-	}
+	};
 	if (time.tv_sec - req->getTime() < TIMEOUT){
 		setFile("error408.html");
 		setStatusCode(408);
 		getMethod(req);
 	}
 	else {	
+		setStatusCode(400);
 		if (req->getHost().empty()) {
-				setStatusCode(400);
 				getMethod(req);
 		}
 		else 
@@ -578,7 +578,6 @@ void Response::config_response(Request *req, Server *serv)
 			if (sep[1] != -1) port = req->getHost().substr(sep[1] + 1);
 			if (sep[1] == -1) sep[1] = req->getHost().length();
 			host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
-			setStatusCode(400);
 			if (!ft_strcmp(host.c_str(), "localhost") || !ft_strcmp(host.c_str(), "127.0.0.1"))
 			{
 				if (getServer().getPort() != ft_atoi(port.c_str())) getMethod(req);
@@ -587,7 +586,7 @@ void Response::config_response(Request *req, Server *serv)
 			else if (ft_strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) getMethod(req);
 			if (getResponse().empty())
 			{
-				setStatusCode(0);
+				setStatusCode(statu_code(getWww()));
 				if (!ft_strcmp(getMethod().c_str(), "GET")) getMethod(req);
 				else if (!ft_strcmp(getMethod().c_str(), "HEAD")) head_method(req);
 				else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method();
