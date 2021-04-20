@@ -47,3 +47,7 @@
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Length ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Location ✅
 		- https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Content-Type ✅
+
+[CGI]:
+	- https://en.wikipedia.org/wiki/Common_Gateway_Interface
+	- https://www.tutorialspoint.com/python/python_cgi_programming.htm
