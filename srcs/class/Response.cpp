@@ -101,12 +101,12 @@ int Response::getStatusCode() const
 	return(this->_status);
 }
 
-void Response::setRoutes(Routes *value)
+void Response::setRoutes(Routes value)
 {
 	this->_routes = value;
 }
 
-Routes *Response::getRoutes() const
+Routes Response::getRoutes() const
 {
 	return(this->_routes);
 }
@@ -378,7 +378,6 @@ std::string Response::getContent(std::string path)
 
 	int fd;
 	int res;
-	std::cout << getStatusCode() << "\n";
 	if ((fd = open(path.c_str(), O_RDONLY)) < 0) throw Response::BuildResponseException();
 	char line[1];
 	while ((res = read(fd, line, 1)) == 1)
@@ -434,16 +433,14 @@ int Response::statu_code(std::string path)
 {
 	struct stat	sb;
 	if (stat(path.c_str(), &sb) == -1) return (404);
-	if (!getMethod().empty())
-	{
-		int sep[2];
-		sep[0] = path.find("www") + 3;
-		sep[1] = path.rfind("/");
-		std::string dir;
-		if (sep[0] == sep[1]) dir = "/";
-		else dir = path.substr(sep[0], sep[1] - (sep[0]));
+	for (std::list<std::string>::iterator it = getRoutes()._http_method.begin() ; it != getRoutes()._http_method.end(); ++it)
+    {
+		if (!ft_strncmp(it->c_str(), getMethod().c_str(), 3))
+			return (200);
+		if (it->empty())
+			return (405);
 	}
-	return (200);
+	return (405);
 }
 
 void Response::getMethod(Request *req)
@@ -550,10 +547,9 @@ void Response::config_response(Request *req, Server *serv)
 		sep[1] = request.rfind(' ');
 		setMethod(request.substr(0, sep[0]));
 		setFile(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
-		Routes tmp = serv->getRoute(getFile());
-		this->setRoutes(&tmp);
+		this->setRoutes(serv->getRoute(getFile()));
 		setServer(*serv);
-		setBase(getRoutes()->getLocation());
+		setBase(getRoutes().getLocation());
 		if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
 		setWww(getBase());
 		setWww(getBase().insert(getBase().length(), getFile()));

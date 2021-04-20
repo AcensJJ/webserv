@@ -31,8 +31,8 @@ class Response {
 		Server		getServer() const;
 		void		setStatusCode(int value);
 		int 		getStatusCode() const;
-		void		setRoutes(Routes *value);
-		Routes 		*getRoutes() const;
+		void		setRoutes(Routes value);
+		Routes 		getRoutes() const;
 
 		// HEADER GENERAL
 		void	setDate();
@@ -82,7 +82,7 @@ class Response {
 		std::string _www;
 		Server		_server;
 		int			_status;
-		Routes		*_routes;
+		Routes		_routes;
 };
 
 #endif // !RESPONSE_HPP
