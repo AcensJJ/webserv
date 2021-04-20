@@ -8,6 +8,7 @@ Server::Server()
 Server::Server(const Server &other) : _error_pages(other._error_pages), _port(other._port), _host(other._host),
 _server_name(other._server_name)
 {
+	_listen = other.getListen();
 	_routes = other._routes;
 }
 
@@ -45,12 +46,12 @@ void Server::setServerName(std::string value)
 
 void Server::setErrorPages(std::list<std::string> value)
 {
-	this->_error_pages = &value;
+	this->_error_pages = value;
 }
 
 void Server::setRoutes(std::vector<Routes> value)
 {
-	this->_routes = &value;
+	this->_routes = value;
 }
 
 std::string Server::getListen() const
@@ -77,7 +78,7 @@ Routes Server::getRoute(std::string dir) const
 {
 	Routes tmp;
 	int pnt = 0;
-	for (std::__1::vector<Routes>::iterator itr = _routes->begin(); itr != _routes->end(); itr++)
+	for (std::__1::vector<Routes>::const_iterator itr = _routes.begin(); itr != _routes.end(); itr++)
 	{
 		int len = itr->getDirFile().length() > dir.length() ? dir.length() : itr->getDirFile().length();
 		if (!ft_strncmp(itr->getDirFile().c_str(), dir.c_str(), len))
@@ -119,9 +120,8 @@ void Server::check_config()
 
 std::string Server::getErrorPage(std::string err) const
 {
-	std::list<std::string>::iterator itr;
 	std::string errpath;
-	for (itr = this->_error_pages->begin(); itr != this->_error_pages->end(); itr++)
+	for (std::list<std::string>::const_iterator itr = _error_pages.begin(); itr != _error_pages.end(); itr++)
 	{
 		if (!ft_strncmp(err.c_str(), itr->c_str(), err.length()))
 		{

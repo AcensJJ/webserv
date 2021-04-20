@@ -430,11 +430,11 @@ int Response::check_exist(std::string path)
 	return (0);
 }
 
-int Response::statu_code(std::string path, std::vector<Routes> *routes)
+int Response::statu_code(std::string path)
 {
 	struct stat	sb;
 	if (stat(path.c_str(), &sb) == -1) return (404);
-	if (routes && !getMethod().empty())
+	if (!getMethod().empty())
 	{
 		int sep[2];
 		sep[0] = path.find("www") + 3;
@@ -552,11 +552,11 @@ void Response::config_response(Request *req, Server *serv)
 		Routes tmp = serv->getRoute(getFile());
 		this->setRoutes(&tmp);
 		setServer(*serv);
-		setBase(SERV_WWW);
+		setBase(getRoutes()->getLocation());
 		if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
 		setWww(getBase());
 		setWww(getBase().insert(getBase().length(), getFile()));
-		setStatusCode(statu_code(getWww(), getServer()._routes));
+		setStatusCode(statu_code(getWww()));
 		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;
 	}
 	if (time.tv_sec - req->getTime() < TIMEOUT){

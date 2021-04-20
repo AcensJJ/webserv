@@ -4,8 +4,10 @@ static void	set_server(std::vector<Server> *all)
 {
 	Server _new;
 	all->push_back(_new);
-	all->rbegin()->_routes =  new std::vector<Routes>;
-	all->rbegin()->_error_pages = new std::list<std::string>;
+	std::vector<Routes> route;
+	std::list<std::string> error;
+	all->rbegin()->_routes = route;
+	all->rbegin()->_error_pages = error;
 }
 
 static int		set_listen(std::vector<Server> *all, char **line, int i, int j)
@@ -50,7 +52,55 @@ static void	set_limit_client_body(std::vector<Server> *all, char **line, int i, 
 		i++;
 	char *add;
 	add = &line[j][i];
-	all->rbegin()->_routes->rbegin()->setLimitClientBody(add);
+	all->rbegin()->_routes.rbegin()->setLimitClientBody(add);
+}
+
+static void	set_routes_listen(std::vector<Server> *all, char **line, int i, int j)
+{
+	i += 11;
+	i++;
+	while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
+		i++;
+	all->rbegin()->_routes.rbegin()->setListen(FALSE);
+	if (!ft_strncmp(&line[j][i], "on", 2))
+		all->rbegin()->_routes.rbegin()->setListen(TRUE);
+}
+
+static void	set_routes_cgi_ext(std::vector<Server> *all, char **line, int i, int j)
+{
+	i += 14;
+	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
+		i++;
+	char *add;
+	add = &line[j][i];
+	all->rbegin()->_routes.rbegin()->setGCIExtension(add);
+}
+
+static void	set_routes_cgi_path(std::vector<Server> *all, char **line, int i, int j)
+{
+	i += 9;
+	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
+		i++;
+	char *add;
+	add = &line[j][i];
+	all->rbegin()->_routes.rbegin()->setGCIPath(add);
+}
+
+static void	set_routes_location(std::vector<Server> *all, char **line, int i, int j)
+{
+	i += 5;
+	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
+		i++;
+	char *add;
+	add = &line[j][i];
+	all->rbegin()->_routes.rbegin()->setLocation(add);
+}
+
+static void	set_routes_default(std::vector<Server> *all, char **line, int i, int j)
+{
+	char *add;
+	add = &line[j][i];
+	all->rbegin()->_routes.rbegin()->setDefault(add);
 }
 
 static void	set_error_page(std::vector<Server> *all, char **line, int i, int j)
@@ -60,14 +110,14 @@ static void	set_error_page(std::vector<Server> *all, char **line, int i, int j)
 		i++;
 	char *add;
 	add = &line[j][i];
-	all->rbegin()->_error_pages->push_back(add);
+	all->rbegin()->_error_pages.push_back(add);
 }
 
 static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 {
 	i += 9;
 	Routes _new;
-	all->rbegin()->_routes->push_back(_new);
+	all->rbegin()->_routes.push_back(_new);
 	int sep;
 	std::string str = &line[j][i];
 	sep = str.rfind(' ');
@@ -77,8 +127,9 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 		std::cout << "\033[1;31m   Norme error\033[0m" << std::endl;
 		return (-1);
 	}
-	all->rbegin()->_routes->rbegin()->setDirFile(str.substr(0, sep));
-	all->rbegin()->_routes->rbegin()->_http_method = new std::list<std::string>;
+	all->rbegin()->_routes.rbegin()->setDirFile(str.substr(0, sep));
+	std::list<std::string> method;
+	all->rbegin()->_routes.rbegin()->_http_method = method;
 	j++;
 	i = 0;
 	while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
@@ -114,30 +165,23 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 						method = "TRACE";
 					else if (!ft_strncmp(&line[j][i], "PATCH", 5))
 						method = "PATCH";
-					all->rbegin()->_routes->rbegin()->_http_method->push_back(method);
+					all->rbegin()->_routes.rbegin()->_http_method.push_back(method);
 					i++;
 				}
 
 		}
 		if (!ft_strncmp(&line[j][i], "auto_index ", 11))
-		{
-			i++;
-			while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
-				i++;
-			all->rbegin()->_routes->rbegin()->setListen(FALSE);
-			if (!ft_strncmp(&line[j][i], "on", 2))
-				all->rbegin()->_routes->rbegin()->setListen(TRUE);
-		}
+			set_routes_listen(all, line, i, j);
 		else if (!ft_strncmp(&line[j][i], "cgi_extension ", 14))
-			all->rbegin()->_routes->rbegin()->setGCIExtension(&line[j][i + 14]);
+			set_routes_cgi_ext(all, line, i, j);
 		else if (!ft_strncmp(&line[j][i], "cgi_path ", 9))
-			all->rbegin()->_routes->rbegin()->setGCIPath(&line[j][i + 9]);
+			set_routes_cgi_path(all, line, i, j);
 		else if (!ft_strncmp(&line[j][i], "root ", 5))
-			all->rbegin()->_routes->rbegin()->setLocation(&line[j][i + 5]);
+			set_routes_location(all, line, i, j);
 		else if (!strncmp(&line[j][i], "limit_client_body=", 18))
 			set_limit_client_body(all, line, i, j);
 		else
-			all->rbegin()->_routes->rbegin()->setDefault(&line[j][i]);
+			set_routes_default(all, line, i, j);
 		j++;
 		i = 0;
 		while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
@@ -259,15 +303,12 @@ static int		set_value(char **line, std::vector<Server> *all)
 
 int		parse_conf(const char *path, std::vector<Server> *all)
 {
-	// open file
 	int conf;
 	if ((conf = open(path, O_RDONLY)) < 0)
 	{
 		std::cout << "\033[1;31m   No such file:  \033[0;35m" << path << "\033[0m" << std::endl;
 		return (-1);
 	}
-
-	// compte line of the file
 	unsigned long long nb_line(1);
 	char *line;
 	while (get_next_line(conf, &line) > 0 && ++nb_line)
@@ -276,15 +317,11 @@ int		parse_conf(const char *path, std::vector<Server> *all)
 	if (line) free(line);
 	line = NULL;
 	close(conf);
-
-	// reopen the file
 	if ((conf = open(path, O_RDONLY)) < 0)
 	{
 		std::cout << "\033[1;31m   Error: \033[0;31m openning file an 2nd time\033[0m" << std::endl;
 		return (-1);
 	}
-
-	// config all line
 	char **all_line;
 	if (!(all_line = (char **)malloc(sizeof(all_line) * nb_line)))
 	{

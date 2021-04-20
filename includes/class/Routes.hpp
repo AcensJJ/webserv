@@ -33,7 +33,7 @@ class Routes {
 		std::string getGCIExtension() const;
 		std::string getLimitClientBody() const;
 
-		std::list<std::string>	*_http_method;
+		std::list<std::string>	_http_method;
 	private:
 		std::string		_dir_file;
 		bool			_listen;

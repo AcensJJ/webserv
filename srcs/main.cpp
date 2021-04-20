@@ -45,7 +45,7 @@ static int remove_directory(const char *path)
 int		main(int ac, char **av)
 {
 	std::cout << "\033[1;33m   Program starting\033[0m " << std::endl;
-	std::vector<Server> *all = new std::vector<Server>;
+	std::vector<Server> all;
 	std::string str = "./server/conf/server.conf";
 	if (RECV_BUFF <= 1)
 	{
@@ -55,10 +55,10 @@ int		main(int ac, char **av)
 	if (ac > 1)
 		str = av[1];
 	std::cout << std::endl << "\033[1;34m   Parsing file:\033[0m " << str << std::endl;
-	if (parse_conf(str.c_str(), all))
+	if (parse_conf(str.c_str(), &all))
 		return (-1);
 	remove_directory(DATA_SERV);
-	for (std::vector<Server>::iterator itr = all->begin(); itr != all->end(); itr++)
+	for (std::vector<Server>::iterator itr = all.begin(); itr != all.end(); itr++)
 	{
 		Server serv(*itr);
 		std::cout << std::endl << "\033[0;35m   New serv:\033[0m " << serv.getServerName() << std::endl;
@@ -66,7 +66,7 @@ int		main(int ac, char **av)
 		{
 			serv.check_config();
 			std::vector<Server>::iterator itrcheck = itr;
-			while (all->begin() != itr && ++itrcheck != all->begin())
+			while (all.begin() != itr && ++itrcheck != all.begin())
 				if (!ft_strcmp(serv.getServerName().c_str(), itrcheck->getServerName().c_str()))
 					throw Server::SameServerNameException();
 			launch_serv(serv);

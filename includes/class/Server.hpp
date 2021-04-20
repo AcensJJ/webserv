@@ -55,8 +55,8 @@ class Server {
 				virtual const char* what () const throw();
 		};
 
-		std::list<std::string>		*_error_pages;
-		std::vector<Routes>	*_routes;
+		std::list<std::string>		_error_pages;
+		std::vector<Routes>	_routes;
 	private:
 		std::string		_listen;
 		int				_port;
