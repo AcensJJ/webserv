@@ -80,25 +80,28 @@ Routes Server::getRoute(std::string dir) const
 	for (std::__1::vector<Routes>::iterator itr = _routes->begin(); itr != _routes->end(); itr++)
 	{
 		int len = itr->getDirFile().length() > dir.length() ? dir.length() : itr->getDirFile().length();
-		if (ft_strncmp(itr->getDirFile().c_str(), dir.c_str(), len))
+		if (!ft_strncmp(itr->getDirFile().c_str(), dir.c_str(), len))
 		{
-			if (itr->getDirFile().length() == dir.length())
-				return (*itr);
-			if (tmp.getDirFile().empty()) {
-				tmp = *itr;
-				for (int i = 0; itr->getDirFile()[i]; i++)
-					if (itr->getDirFile()[i] == '/') pnt += 2;
-				if (itr->getDirFile()[itr->getDirFile().length()] != '/' ) pnt++;
-			}
-			else {
-				int cmp = 0;
-				for (int i = 0; itr->getDirFile()[i]; i++)
-					if (itr->getDirFile()[i] == '/') cmp += 2;
-				if (itr->getDirFile()[itr->getDirFile().length()] != '/' ) cmp++;
-				if (cmp > pnt)
-				{
+			if (!(itr->getDirFile().length() > dir.length() && itr->getDirFile()[dir.length()] != '\0' && itr->getDirFile()[dir.length()] != '/'))
+			{
+				if (itr->getDirFile().length() == dir.length())
+					return (*itr);
+				if (tmp.getDirFile().empty()) {
 					tmp = *itr;
-				 	pnt = cmp;
+					for (int i = 0; itr->getDirFile()[i]; i++)
+						if (itr->getDirFile()[i] == '/') pnt += 2;
+					if (itr->getDirFile()[itr->getDirFile().length()] != '/' ) pnt++;
+				}
+				else {
+					int cmp = 0;
+					for (int i = 0; itr->getDirFile()[i]; i++)
+						if (itr->getDirFile()[i] == '/') cmp += 2;
+					if (itr->getDirFile()[itr->getDirFile().length()] != '/' ) cmp++;
+					if (cmp > pnt)
+					{
+						tmp = *itr;
+						pnt = cmp;
+					}
 				}
 			}
 		}

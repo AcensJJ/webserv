@@ -543,8 +543,6 @@ void Response::config_response(Request *req, Server *serv)
 	gettimeofday(&time, NULL);
 	std::string request(req->getFirstLine());
 	int sep[2];
-	setServer(*serv);
-	setBase(SERV_WWW);
 	if (!request.empty())
 	{
 		sep[0] = request.find(' ');
@@ -553,6 +551,9 @@ void Response::config_response(Request *req, Server *serv)
 		setFile(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
 		Routes tmp = serv->getRoute(getFile());
 		this->setRoutes(&tmp);
+		std::cout << getRoutes()->getDirFile() << "= dir"<< std::endl;
+		setServer(*serv);
+		setBase(SERV_WWW);
 		if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
 		setWww(getBase());
 		setWww(getBase().insert(getBase().length(), getFile()));
