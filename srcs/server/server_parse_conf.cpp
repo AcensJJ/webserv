@@ -57,7 +57,7 @@ static void	set_limit_client_body(std::vector<Server> *all, char **line, int i, 
 
 static void	set_routes_listen(std::vector<Server> *all, char **line, int i, int j)
 {
-	i += 11;
+	i += 10;
 	i++;
 	while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 		i++;

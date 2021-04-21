@@ -112,6 +112,30 @@ Routes Response::getRoutes() const
 	return(this->_routes);
 }
 
+void Response::configDefault()
+{
+	std::map<std::string, std::string> mymap;
+	std::string str = getRoutes().getDefault();
+	int sep;
+	int i = 0;
+	while (!i)
+	{
+		while (str[i] && ((str[i] >= 9 && str[i] <= 13) || str[i] == 32))
+			i++;
+		str = &str[i];
+		i = 0;
+		sep = str.find(' ');
+		if (sep == -1) {
+			sep = str.length();
+			i = -1;
+		}
+		std::string tmp = str.substr(0 , sep);
+		mymap.insert(std::pair<std::string, std::string>(tmp, tmp));
+		str = &str[sep + 1];
+	}
+	_default = mymap;
+}
+
 void Response::configMethod()
 {
 	std::map<std::string, std::string> mymap;
@@ -612,14 +636,13 @@ void Response::config_response(Request *req, Server *serv)
 		sep[1] = request.rfind(' ');
 		setMethod(request.substr(0, sep[0]));
 		setFile(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
+		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;			
 		this->setRoutes(serv->getRoute(getFile()));
 		configMethod();
 		setServer(*serv);
 		setBase(getRoutes().getLocation());
-		if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
 		setWww(getBase());
 		setWww(getBase().insert(getBase().length(), getFile()));
-		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;
 	};
 	if (time.tv_sec - req->getTime() < TIMEOUT){
 		setFile("error408.html");
@@ -648,7 +671,26 @@ void Response::config_response(Request *req, Server *serv)
 			else if (ft_strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) getMethod(req);
 			if (getResponse().empty())
 			{
-				setStatusCode(statu_code(getWww()));
+				if (!getRoutes().getListen() && getFile()[getFile().length() - 1] == '/')
+				{
+					configDefault();
+					setStatusCode(404);
+					for (std::map<std::string, std::string>::iterator it = _default.begin() ; it != _default.end() && getStatusCode() == 404; ++it)
+					{
+						std::string tmp = getFile();
+						tmp.insert(tmp.length(), it->second);
+						if (!check_exist(getWww().insert(getWww().length(), tmp)))
+						{
+							setFile(tmp);
+							setStatusCode(statu_code(getWww().insert(getWww().length(), tmp)));
+						}
+					}
+					setWww(getBase().insert(getBase().length(), getFile()));
+				}
+				else {
+					setWww(getBase().insert(getBase().length(), getFile()));
+					setStatusCode(statu_code(getWww()));
+				}
 				if (!ft_strcmp(getMethod().c_str(), "GET")) getMethod(req);
 				else if (!ft_strcmp(getMethod().c_str(), "HEAD")) head_method(req);
 				else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method();
