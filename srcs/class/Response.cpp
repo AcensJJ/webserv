@@ -112,6 +112,16 @@ Routes Response::getRoutes() const
 	return(this->_routes);
 }
 
+void Response::setListingContent(std::string value)
+{
+	this->_listingContent = value;
+}
+
+std::string Response::getListingContent() const
+{
+	return(this->_listingContent);
+}
+
 void Response::configDefault()
 {
 	std::map<std::string, std::string> mymap;
@@ -256,6 +266,7 @@ void Response::setContentType(Request *req)
 	size_t nb = getWww().find_last_of(".");
 	std::string type = getWww();
 	type.erase(0, nb);
+	if (!getListingContent().empty()) type = ".html";
 	if (!ft_strcmp(type.c_str() , ".aac"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: audio/aac\n"));
 	if (!ft_strcmp(type.c_str() , ".abw"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-abiword\n"));
 	if (!ft_strcmp(type.c_str() , ".arc"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/octet-stream\n"));
@@ -469,7 +480,7 @@ void Response::setFirstLine()
 std::string Response::getContent(std::string path)
 {
 	std::string ret;
-
+	if (!getListingContent().empty()) return (getListingContent());
 	int fd;
 	int res;
 	if ((fd = open(path.c_str(), O_RDONLY)) < 0) throw Response::BuildResponseException();
@@ -505,10 +516,15 @@ void Response::print_directory(const char *path)
 			buf.insert(buf.length(), p->d_name);
 			if (!stat(buf.c_str(), &statbuf)) 
 			{
-				if (S_ISDIR(statbuf.st_mode))
-					std::cout << buf << "/\n";
-				else
-					std::cout << buf << "\n";
+				buf = buf.erase(0, getWww().length() + 1);
+				if (S_ISDIR(statbuf.st_mode)) {
+					buf.insert(buf.length(), "/");
+				}
+				setListingContent(getListingContent().insert(getListingContent().length(), "<li><a href=\""));
+				setListingContent(getListingContent().insert(getListingContent().length(), buf));
+				setListingContent(getListingContent().insert(getListingContent().length(), "\">"));
+				setListingContent(getListingContent().insert(getListingContent().length(), buf));
+				setListingContent(getListingContent().insert(getListingContent().length(), "</a></li>\n"));
 				continue;
 			}
 		}
@@ -642,7 +658,6 @@ void Response::config_response(Request *req, Server *serv)
 		setServer(*serv);
 		setBase(getRoutes().getLocation());
 		setWww(getBase());
-		setWww(getBase().insert(getBase().length(), getFile()));
 		setStatusCode(0);
 	}
 	if (time.tv_sec - req->getTime() < TIMEOUT)
@@ -681,6 +696,12 @@ void Response::config_response(Request *req, Server *serv)
 					}
 				}
 				setWww(getBase().insert(getBase().length(), getFile()));
+			}
+			else if (getRoutes().getListen() && getFile()[getFile().length() - 1] == '/' && !getStatusCode())
+			{
+				setWww(getBase().insert(getBase().length(), getFile()));
+				setListingContent("<H1>Auto-index</H1>\n\n");
+				print_directory(getWww().c_str());
 			}
 			else {
 				setWww(getBase().insert(getBase().length(), getFile()));

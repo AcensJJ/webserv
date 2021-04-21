@@ -33,6 +33,8 @@ class Response {
 		int 		getStatusCode() const;
 		void		setRoutes(Routes value);
 		Routes 		getRoutes() const;
+		void		setListingContent(std::string value);
+		std::string getListingContent() const;
 
 		void 		configDefault();
 		void 		configMethod();
@@ -78,7 +80,6 @@ class Response {
 				virtual const char* what () const throw();
 		};
 
-
 		std::map<std::string, std::string>	_http_method;
 		std::map<std::string, std::string>	_default;
 	private:
@@ -90,6 +91,8 @@ class Response {
 		Server		_server;
 		int			_status;
 		Routes		_routes;
+		std::string _listingContent;
+
 };
 
 #endif // !RESPONSE_HPP
