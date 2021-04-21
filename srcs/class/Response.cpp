@@ -643,16 +643,13 @@ void Response::config_response(Request *req, Server *serv)
 		setBase(getRoutes().getLocation());
 		setWww(getBase());
 		setWww(getBase().insert(getBase().length(), getFile()));
-	};
-	if (time.tv_sec - req->getTime() < TIMEOUT){
-		setFile("error408.html");
-		setStatusCode(408);
-		getMethod(req);
+		setStatusCode(0);
 	}
+	if (time.tv_sec - req->getTime() < TIMEOUT)
+		setStatusCode(408);
 	else {	
-		setStatusCode(400);
 		if (req->getHost().empty()) {
-				getMethod(req);
+			setStatusCode(400);
 		}
 		else 
 		{
@@ -665,40 +662,37 @@ void Response::config_response(Request *req, Server *serv)
 			host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
 			if (!ft_strcmp(host.c_str(), "localhost") || !ft_strcmp(host.c_str(), "127.0.0.1"))
 			{
-				if (getServer().getPort() != ft_atoi(port.c_str())) getMethod(req);
-				else if (ft_strcmp("localhost", getServer().getHost().c_str()) && ft_strcmp("127.0.0.1", getServer().getHost().c_str())) getMethod(req);
+				if (getServer().getPort() != ft_atoi(port.c_str())) setStatusCode(400);
+				else if (ft_strcmp("localhost", getServer().getHost().c_str()) && ft_strcmp("127.0.0.1", getServer().getHost().c_str())) setStatusCode(400);
 			}
-			else if (ft_strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) getMethod(req);
-			if (getResponse().empty())
+			else if (ft_strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) setStatusCode(400);;
+			if (!getRoutes().getListen() && getFile()[getFile().length() - 1] == '/' && !getStatusCode())
 			{
-				if (!getRoutes().getListen() && getFile()[getFile().length() - 1] == '/')
+				configDefault();
+				setStatusCode(404);
+				for (std::map<std::string, std::string>::iterator it = _default.begin() ; it != _default.end() && getStatusCode() == 404; ++it)
 				{
-					configDefault();
-					setStatusCode(404);
-					for (std::map<std::string, std::string>::iterator it = _default.begin() ; it != _default.end() && getStatusCode() == 404; ++it)
+					std::string tmp = getFile();
+					tmp.insert(tmp.length(), it->second);
+					if (!check_exist(getWww().insert(getWww().length(), tmp)))
 					{
-						std::string tmp = getFile();
-						tmp.insert(tmp.length(), it->second);
-						if (!check_exist(getWww().insert(getWww().length(), tmp)))
-						{
-							setFile(tmp);
-							setStatusCode(statu_code(getWww().insert(getWww().length(), tmp)));
-						}
+						setFile(tmp);
+						setStatusCode(statu_code(getWww().insert(getWww().length(), tmp)));
 					}
-					setWww(getBase().insert(getBase().length(), getFile()));
 				}
-				else {
-					setWww(getBase().insert(getBase().length(), getFile()));
-					setStatusCode(statu_code(getWww()));
-				}
-				if (!ft_strcmp(getMethod().c_str(), "GET")) getMethod(req);
-				else if (!ft_strcmp(getMethod().c_str(), "HEAD")) head_method(req);
-				else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method();
-				else if (!ft_strcmp(getMethod().c_str(), "DELETE")) delete_method();
-				else if (!ft_strcmp(getMethod().c_str(), "CONNECT")) connect_method();
-				else if (!ft_strcmp(getMethod().c_str(), "OPTIONS")) options_method();
-				else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method();
+				setWww(getBase().insert(getBase().length(), getFile()));
 			}
+			else {
+				setWww(getBase().insert(getBase().length(), getFile()));
+				if (!getStatusCode()) setStatusCode(statu_code(getWww()));
+			}
+			if (!ft_strcmp(getMethod().c_str(), "GET")) getMethod(req);
+			else if (!ft_strcmp(getMethod().c_str(), "HEAD")) head_method(req);
+			else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method();
+			else if (!ft_strcmp(getMethod().c_str(), "DELETE")) delete_method();
+			else if (!ft_strcmp(getMethod().c_str(), "CONNECT")) connect_method();
+			else if (!ft_strcmp(getMethod().c_str(), "OPTIONS")) options_method();
+			else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method();
 		}
 	}
 	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;
