@@ -34,6 +34,7 @@ class Response {
 		void		setRoutes(Routes value);
 		Routes 		getRoutes() const;
 
+		void 		configDefault();
 		void 		configMethod();
 
 		// HEADER GENERAL
@@ -79,6 +80,7 @@ class Response {
 
 
 		std::map<std::string, std::string>	_http_method;
+		std::map<std::string, std::string>	_default;
 	private:
 		std::string _response;
 		std::string _file;
