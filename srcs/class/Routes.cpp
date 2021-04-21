@@ -6,12 +6,13 @@ Routes::Routes()
 	
 }
 
-Routes::Routes(const Routes &other)  : _http_method(other._http_method), _dir_file(other._dir_file),
- _listen(other._listen),  _default(other._default), _limit_client_body(other._limit_client_body)
+Routes::Routes(const Routes &other)  : _dir_file(other._dir_file),  _listen(other._listen), 
+_default(other._default), _limit_client_body(other._limit_client_body)
 {
 	_location = other.getLocation();
 	_gci_path = other.getGCIPath();
 	_gci_extension = other.getGCIExtension();
+	_method = other.getMethod();
 }
 
 Routes::~Routes()
@@ -62,6 +63,11 @@ void Routes::setLimitClientBody(std::string value)
 	this->_limit_client_body = value;
 }
 
+void Routes::setMethod(std::string value)
+{
+	this->_method = value;
+}
+
 // GET
 std::string Routes::getDirFile() const
 {
@@ -96,4 +102,9 @@ std::string Routes::getGCIExtension() const
 std::string Routes::getLimitClientBody() const
 {
 	return(this->_limit_client_body);
+}
+
+std::string Routes::getMethod() const
+{
+	return(this->_method);
 }

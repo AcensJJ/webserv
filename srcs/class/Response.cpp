@@ -16,7 +16,8 @@ Response::Response(const Response &other)
 	_www = other.getWww();
 	_server = other.getServer();
 	_status = other.getStatusCode();
-	_routes = other._routes;
+	_routes = other.getRoutes();
+	configMethod();
 }
 
 Response::~Response()
@@ -111,6 +112,55 @@ Routes Response::getRoutes() const
 	return(this->_routes);
 }
 
+void Response::configMethod()
+{
+	std::map<std::string, std::string> mymap;
+
+	int i = 0;
+	std::string str = getRoutes().getMethod();
+	while (str[i])
+	{
+		while (str[i] && ((str[i] >= 9 && str[i] <= 13) || str[i] == 32))
+			i++;
+		std::string method;
+		if (!ft_strncmp(&str[i], "GET", 3)) {
+			mymap.insert(std::pair<std::string, std::string>("GET", "GET"));
+			i += 3;	
+		}
+		else if (!ft_strncmp(&str[i], "HEAD", 4)) {
+			mymap.insert(std::pair<std::string, std::string>("HEAD", "HEAD"));
+			i += 4;
+		}
+		else if (!ft_strncmp(&str[i], "POST", 4)) {
+			mymap.insert(std::pair<std::string, std::string>("POST", "POST"));
+			i += 4;
+		}
+		else if (!ft_strncmp(&str[i], "PUT", 3)) {
+			mymap.insert(std::pair<std::string, std::string>("PUT", "PUT"));
+			i += 3;
+		}
+		else if (!ft_strncmp(&str[i], "DELETE", 6)) {
+			mymap.insert(std::pair<std::string, std::string>("DELETE", "DELETE"));
+			i += 6;
+		}
+		else if (!ft_strncmp(&str[i], "CONNECT", 7)) {
+			mymap.insert(std::pair<std::string, std::string>("CONNECT", "CONNECT"));
+			i += 7;
+		}
+		else if (!ft_strncmp(&str[i], "TRACE", 5)) {
+			mymap.insert(std::pair<std::string, std::string>("TRACE", "TRACE"));
+			i += 5;
+		}
+		else if (!ft_strncmp(&str[i], "PATCH", 5)) {
+			mymap.insert(std::pair<std::string, std::string>("PATCH", "PATCH"));
+			i += 5;
+		}
+		_http_method = mymap;
+		i++;
+	}
+	
+}
+
 void Response::setDate()
 {
 	char buf[30];
@@ -125,7 +175,27 @@ void Response::setDate()
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 }
 
-void	Response::setContentLanguage(Request *req)
+void Response::setAllow()
+{
+	int i = 0;
+	if (getStatusCode() == 405)
+	{
+		std::cout << _http_method.size() << "\n";
+		setResponse(getResponse().insert(getResponse().length(), "Allow:"));
+		for (std::map<std::string, std::string>::iterator it = _http_method.begin() ; it != _http_method.end(); ++it)
+		{
+			if (i) setResponse(getResponse().insert(getResponse().length(), ", "));
+			else {
+				setResponse(getResponse().insert(getResponse().length(), " "));
+				i++;
+			}
+			setResponse(getResponse().insert(getResponse().length(), it->second));
+		}
+		setResponse(getResponse().insert(getResponse().length(), "\n"));
+	}
+}
+
+void Response::setContentLanguage(Request *req)
 {
 	if (!req->getAcceptLanguage().empty())
 	{
@@ -433,13 +503,7 @@ int Response::statu_code(std::string path)
 {
 	struct stat	sb;
 	if (stat(path.c_str(), &sb) == -1) return (404);
-	for (std::list<std::string>::iterator it = getRoutes()._http_method.begin() ; it != getRoutes()._http_method.end(); ++it)
-    {
-		if (!ft_strcmp(it->c_str(), getMethod().c_str()))
-			return (200);
-		if (it->empty())
-			return (405);
-	}
+	if (_http_method.find(getMethod()) != _http_method.end()) return (200);
 	return (405);
 }
 
@@ -472,6 +536,7 @@ void Response::head_method(Request *req)
 	setRetryAfer(req);
 	setServerNginx();
 	setWWWAuthenticate(req);
+	setAllow();
 	setContentLanguage(req);
 	setContentLength(getContent(getWww()));
 	setContentLocation();
@@ -548,6 +613,7 @@ void Response::config_response(Request *req, Server *serv)
 		setMethod(request.substr(0, sep[0]));
 		setFile(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
 		this->setRoutes(serv->getRoute(getFile()));
+		configMethod();
 		setServer(*serv);
 		setBase(getRoutes().getLocation());
 		if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));

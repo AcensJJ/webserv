@@ -2,7 +2,7 @@
 #define ROUTES_HPP
 
 #include <string>
-#include <list>
+#include <vector>
 #include <iostream>
 #include "../../libft-cpp/include/libft.hpp"
 #include "../../libft-cpp/include/get_next_line.hpp"
@@ -24,6 +24,7 @@ class Routes {
 		void setGCIPath(std::string value);
 		void setGCIExtension(std::string value);
 		void setLimitClientBody(std::string value);
+		void setMethod(std::string value);
 
 		std::string getDirFile() const;
 		bool getListen() const;
@@ -32,8 +33,8 @@ class Routes {
 		std::string getGCIPath() const;
 		std::string getGCIExtension() const;
 		std::string getLimitClientBody() const;
+		std::string getMethod() const;
 
-		std::list<std::string>	_http_method;
 	private:
 		std::string		_dir_file;
 		bool			_listen;
@@ -42,6 +43,7 @@ class Routes {
 		std::string		_gci_path;
 		std::string		_gci_extension;
 		std::string		_limit_client_body;
+		std::string		_method;
 };
 
 #endif // !ROUTES_HPP

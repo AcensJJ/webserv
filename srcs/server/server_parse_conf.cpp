@@ -128,12 +128,10 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 		return (-1);
 	}
 	all->rbegin()->_routes.rbegin()->setDirFile(str.substr(0, sep));
-	std::list<std::string> method;
-	all->rbegin()->_routes.rbegin()->_http_method = method;
 	j++;
 	i = 0;
 	while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
-			i++;
+		i++;
 	while (line[j] && line[j][i] != '}')
 	{
 		if (!ft_strncmp(&line[j][i], "GET", 3) || !ft_strncmp(&line[j][i], "HEAD", 4) ||
@@ -141,35 +139,7 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 		!ft_strncmp(&line[j][i], "DELETE", 6) || !ft_strncmp(&line[j][i], "CONNECT", 6) ||
 		!ft_strncmp(&line[j][i], "OPTIONS", 7) || !ft_strncmp(&line[j][i], "TRACE", 5) ||
 		!ft_strncmp(&line[j][i], "PATCH", 5))
-		{
-				while (&line[j][i] && (!ft_strncmp(&line[j][i], "GET", 3) || !ft_strncmp(&line[j][i], "HEAD", 4) ||
-				!ft_strncmp(&line[j][i], "POST", 4) || !ft_strncmp(&line[j][i], "PUT", 3) ||
-				!ft_strncmp(&line[j][i], "DELETE", 6) || !ft_strncmp(&line[j][i], "CONNECT", 6) ||
-				!ft_strncmp(&line[j][i], "OPTIONS", 7) || !ft_strncmp(&line[j][i], "TRACE", 5) ||
-				!ft_strncmp(&line[j][i], "PATCH", 5)))
-				{
-					std::string method;
-					if (!ft_strncmp(&line[j][i], "GET", 3))
-						method = "GET";
-					else if (!ft_strncmp(&line[j][i], "HEAD", 4))
-						method = "HEAD";
-					else if (!ft_strncmp(&line[j][i], "POST", 4))
-						method = "POST";
-					else if (!ft_strncmp(&line[j][i], "PUT", 3))
-						method = "PUT";
-					else if (!ft_strncmp(&line[j][i], "DELETE", 6))
-						method = "DELETE";
-					else if (!ft_strncmp(&line[j][i], "CONNECT", 7))
-						method = "CONNECT";
-					else if (!ft_strncmp(&line[j][i], "TRACE", 5))
-						method = "TRACE";
-					else if (!ft_strncmp(&line[j][i], "PATCH", 5))
-						method = "PATCH";
-					all->rbegin()->_routes.rbegin()->_http_method.push_back(method);
-					i++;
-				}
-
-		}
+			all->rbegin()->_routes.rbegin()->setMethod(&line[j][i]);
 		if (!ft_strncmp(&line[j][i], "auto_index ", 11))
 			set_routes_listen(all, line, i, j);
 		else if (!ft_strncmp(&line[j][i], "cgi_extension ", 14))

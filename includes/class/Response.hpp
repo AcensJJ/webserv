@@ -34,9 +34,12 @@ class Response {
 		void		setRoutes(Routes value);
 		Routes 		getRoutes() const;
 
+		void 		configMethod();
+
 		// HEADER GENERAL
 		void	setDate();
 		// HEADER ENTITY
+		void	setAllow();
 		void	setContentLanguage(Request *req);
 		void	setContentLength(std::string content);
 		void	setContentLocation();
@@ -74,6 +77,8 @@ class Response {
 				virtual const char* what () const throw();
 		};
 
+
+		std::map<std::string, std::string>	_http_method;
 	private:
 		std::string _response;
 		std::string _file;

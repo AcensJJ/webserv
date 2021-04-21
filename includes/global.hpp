@@ -24,7 +24,7 @@
 #include <map>
 #include <dirent.h>
 #include <algorithm>
-
+# include <cstdlib>
 #include "../libft-cpp/include/libft.hpp"
 #include "../libft-cpp/include/get_next_line.hpp"
 #include "includes.hpp"
