@@ -490,7 +490,7 @@ std::string Response::getContent(std::string path)
 	return (ret);
 }
 
-void Response::print_directory(const char *path)
+int Response::print_directory(const char *path)
 {
 	DIR *d = opendir(path);
 	size_t path_len = ft_strlen(path);
@@ -528,7 +528,9 @@ void Response::print_directory(const char *path)
 			}
 		}
 		closedir(d);
+		return (0);
 	}
+	return (-1);
 }
 
 int Response::check_exist(std::string path)
@@ -707,7 +709,10 @@ void Response::config_response(Request *req, Server *serv)
 			{
 				setWww(getBase().insert(getBase().length(), getFile()));
 				setListingContent("<H1>Auto-index</H1>\n\n");
-				print_directory(getWww().c_str());
+				if (print_directory(getWww().c_str())){
+					setListingContent("");
+					setStatusCode(404);
+				}
 			}
 			else {
 				setWww(getBase().insert(getBase().length(), getFile()));
