@@ -60,11 +60,11 @@ class Response {
 		int			check_exist(std::string path);
 		int			statu_code(std::string path);
 
-		void	getMethod(Request *req);
+		void	get_method(Request *req);
 		void	head_method(Request *req);
 		void	post_method();
 		void	put_method();
-		void	delete_method();
+		void	delete_method(Request *req);
 		void	connect_method();
 		void	options_method();
 		void	trace_method();

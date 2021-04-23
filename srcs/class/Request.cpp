@@ -151,7 +151,7 @@ void Request::set_line_config(char *line)
 		else if (!ft_strncmp(line, "Referer:", ft_strlen("Referer:")))
 			setReferer(line);
 	}
-	free(line);
+	if (line) free(line);
 }
 
 void Request::config_request(int fd)
@@ -167,9 +167,10 @@ void Request::config_request(int fd)
 	_transferEncoding.clear();
 	_referer.clear();
 	while (get_next_line(fd, &line) > 0)
+	{
 		set_line_config(line);
+	}
 	if (line) set_line_config(line);
-
 	else throw Request::GNLMallocException();
 }
 
