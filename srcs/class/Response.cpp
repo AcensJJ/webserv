@@ -1,6 +1,5 @@
 #include "../../includes/class/Response.hpp"
 #include <iostream>
-//#include <fstream>
 
 Response::Response()
 {
@@ -110,6 +109,40 @@ void Response::setRoutes(Routes value)
 Routes Response::getRoutes() const
 {
 	return(this->_routes);
+}
+
+void Response::setListingContent(std::string value)
+{
+	this->_listingContent = value;
+}
+
+std::string Response::getListingContent() const
+{
+	return(this->_listingContent);
+}
+
+void Response::configDefault()
+{
+	std::map<std::string, std::string> mymap;
+	std::string str = getRoutes().getDefault();
+	int sep;
+	int i = 0;
+	while (!i)
+	{
+		while (str[i] && ((str[i] >= 9 && str[i] <= 13) || str[i] == 32))
+			i++;
+		str = &str[i];
+		i = 0;
+		sep = str.find(' ');
+		if (sep == -1) {
+			sep = str.length();
+			i = -1;
+		}
+		std::string tmp = str.substr(0 , sep);
+		mymap.insert(std::pair<std::string, std::string>(tmp, tmp));
+		str = &str[sep + 1];
+	}
+	_default = mymap;
 }
 
 void Response::configMethod()
@@ -232,6 +265,7 @@ void Response::setContentType(Request *req)
 	size_t nb = getWww().find_last_of(".");
 	std::string type = getWww();
 	type.erase(0, nb);
+	if (!getListingContent().empty()) type = ".html";
 	if (!ft_strcmp(type.c_str() , ".aac"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: audio/aac\n"));
 	if (!ft_strcmp(type.c_str() , ".abw"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-abiword\n"));
 	if (!ft_strcmp(type.c_str() , ".arc"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/octet-stream\n"));
@@ -445,7 +479,7 @@ void Response::setFirstLine()
 std::string Response::getContent(std::string path)
 {
 	std::string ret;
-
+	if (!getListingContent().empty()) return (getListingContent());
 	int fd;
 	int res;
 	if ((fd = open(path.c_str(), O_RDONLY)) < 0) throw Response::BuildResponseException();
@@ -481,10 +515,15 @@ void Response::print_directory(const char *path)
 			buf.insert(buf.length(), p->d_name);
 			if (!stat(buf.c_str(), &statbuf)) 
 			{
-				if (S_ISDIR(statbuf.st_mode))
-					std::cout << buf << "/\n";
-				else
-					std::cout << buf << "\n";
+				buf = buf.erase(0, getWww().length() + 1);
+				if (S_ISDIR(statbuf.st_mode)) {
+					buf.insert(buf.length(), "/");
+				}
+				setListingContent(getListingContent().insert(getListingContent().length(), "<li><a href=\""));
+				setListingContent(getListingContent().insert(getListingContent().length(), buf));
+				setListingContent(getListingContent().insert(getListingContent().length(), "\">"));
+				setListingContent(getListingContent().insert(getListingContent().length(), buf));
+				setListingContent(getListingContent().insert(getListingContent().length(), "</a></li>\n"));
 				continue;
 			}
 		}
@@ -619,24 +658,19 @@ void Response::config_response(Request *req, Server *serv)
 		sep[1] = request.rfind(' ');
 		setMethod(request.substr(0, sep[0]));
 		setFile(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
+		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;			
 		this->setRoutes(serv->getRoute(getFile()));
 		configMethod();
 		setServer(*serv);
 		setBase(getRoutes().getLocation());
-		if (getFile()[getFile().length() - 1] == '/') setFile(getFile().insert(getFile().length(), "index.html"));
 		setWww(getBase());
-		setWww(getBase().insert(getBase().length(), getFile()));
-		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;
-	};
-	if (time.tv_sec - req->getTime() < TIMEOUT){
-		setFile("error408.html");
-		setStatusCode(408);
-		get_method(req);
+		setStatusCode(0);
 	}
+	if (time.tv_sec - req->getTime() < TIMEOUT)
+		setStatusCode(408);
 	else {	
-		setStatusCode(400);
 		if (req->getHost().empty()) {
-				get_method(req);
+			setStatusCode(400);
 		}
 		else 
 		{
@@ -649,21 +683,43 @@ void Response::config_response(Request *req, Server *serv)
 			host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
 			if (!ft_strcmp(host.c_str(), "localhost") || !ft_strcmp(host.c_str(), "127.0.0.1"))
 			{
-				if (getServer().getPort() != ft_atoi(port.c_str())) get_method(req);
-				else if (ft_strcmp("localhost", getServer().getHost().c_str()) && ft_strcmp("127.0.0.1", getServer().getHost().c_str())) get_method(req);
+				if (getServer().getPort() != ft_atoi(port.c_str())) setStatusCode(400);
+				else if (ft_strcmp("localhost", getServer().getHost().c_str()) && ft_strcmp("127.0.0.1", getServer().getHost().c_str())) setStatusCode(400);
 			}
-			else if (ft_strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) get_method(req);
-			if (getResponse().empty())
+			else if (ft_strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) setStatusCode(400);;
+			if (!getRoutes().getListen() && getFile()[getFile().length() - 1] == '/' && !getStatusCode())
 			{
-				setStatusCode(statu_code(getWww()));
-				if (!ft_strcmp(getMethod().c_str(), "GET")) get_method(req);
-				else if (!ft_strcmp(getMethod().c_str(), "HEAD")) head_method(req);
-				else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method();
-				else if (!ft_strcmp(getMethod().c_str(), "DELETE")) delete_method(req);
-				else if (!ft_strcmp(getMethod().c_str(), "CONNECT")) connect_method();
-				else if (!ft_strcmp(getMethod().c_str(), "OPTIONS")) options_method();
-				else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method();
+				configDefault();
+				setStatusCode(404);
+				for (std::map<std::string, std::string>::iterator it = _default.begin() ; it != _default.end() && getStatusCode() == 404; ++it)
+				{
+					std::string tmp = getFile();
+					tmp.insert(tmp.length(), it->second);
+					if (!check_exist(getWww().insert(getWww().length(), tmp)))
+					{
+						setFile(tmp);
+						setStatusCode(statu_code(getWww().insert(getWww().length(), tmp)));
+					}
+				}
+				setWww(getBase().insert(getBase().length(), getFile()));
 			}
+			else if (getRoutes().getListen() && getFile()[getFile().length() - 1] == '/' && !getStatusCode())
+			{
+				setWww(getBase().insert(getBase().length(), getFile()));
+				setListingContent("<H1>Auto-index</H1>\n\n");
+				print_directory(getWww().c_str());
+			}
+			else {
+				setWww(getBase().insert(getBase().length(), getFile()));
+				if (!getStatusCode()) setStatusCode(statu_code(getWww()));
+			}
+			if (!ft_strcmp(getMethod().c_str(), "GET")) get_method(req);
+			else if (!ft_strcmp(getMethod().c_str(), "HEAD")) head_method(req);
+			else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method();
+			else if (!ft_strcmp(getMethod().c_str(), "DELETE")) delete_method(req);
+			else if (!ft_strcmp(getMethod().c_str(), "CONNECT")) connect_method();
+			else if (!ft_strcmp(getMethod().c_str(), "OPTIONS")) options_method();
+			else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method();
 		}
 	}
 	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;

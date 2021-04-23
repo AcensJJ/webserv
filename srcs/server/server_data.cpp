@@ -62,9 +62,9 @@ void	one_client_read(Server serv, fd_set *readfds, fd_set *writefds, Client *cli
 
 void	one_client_send(Server serv, fd_set *readfds, fd_set *writefds, Client *client, Client *allclient[FD_SETSIZE])
 {
-	int request_f = config_data_serv(serv, client, O_RDONLY, readfds, writefds, allclient);
-	(void)request_f;
-	int request_fd = open("./server/fake_request/delete", O_RDONLY, 0644);
+	int request_fd = config_data_serv(serv, client, O_RDONLY, readfds, writefds, allclient);
+	//(void)request_f;
+	//int request_fd = open("./server/fake_request/delete", O_RDONLY, 0644);
 	try
 	{
 		std::cout << std::endl << "\033[0;33m   Working on socket\033[0m(" << client->getSocket() << ")" << std::endl;
