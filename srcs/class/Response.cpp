@@ -245,6 +245,7 @@ void Response::setContentLanguage(Request *req)
 
 void Response::setContentLength(std::string content)
 {
+
 	char* len;
 	if (!(len = ft_itoa(content.length()))) throw Response::BuildResponseException();
 	setResponse(getResponse().insert(getResponse().length(), "Content-Length: "));
@@ -421,8 +422,8 @@ void Response::setFirstLine()
 {
 	setResponse("HTTP/1.1");
 	if      (getStatusCode() == 100) setResponse(getResponse().insert(getResponse().length(), " 100 Continue\n"));
-	else if (getStatusCode() == 101) setResponse(getResponse().insert(getResponse().length(), " 200 Switching Protocols\n"));
-	else if (getStatusCode() == 103) setResponse(getResponse().insert(getResponse().length(), " 200 Ear;y Hints\n"));
+	else if (getStatusCode() == 101) setResponse(getResponse().insert(getResponse().length(), " 101 Switching Protocols\n"));
+	else if (getStatusCode() == 103) setResponse(getResponse().insert(getResponse().length(), " 103 Early Hints\n"));
 	else if (getStatusCode() == 200) setResponse(getResponse().insert(getResponse().length(), " 200 OK\n"));
 	else if (getStatusCode() == 201) setResponse(getResponse().insert(getResponse().length(), " 201 Created\n"));
 	else if (getStatusCode() == 202) setResponse(getResponse().insert(getResponse().length(), " 202 Accepted\n"));
@@ -548,6 +549,32 @@ int Response::statu_code(std::string path)
 	return (405);
 }
 
+void Response::setAllHeader(Request *req)
+{
+	if (getStatusCode() == 200 && !getRoutes().getLimitClientBody().empty() && (int)getContent(getWww()).length() > ft_atoi(getRoutes().getLimitClientBody().c_str()))
+	{
+		setResponse("");
+		setListingContent("");
+		setStatusCode(413);
+		check_method(req);
+	}
+	else {
+		setDate();
+		setLastModified(getWww());
+		setLocation();
+		setRetryAfer(req);
+		setServerNginx();
+		setWWWAuthenticate(req);
+		setAllow();
+		setContentLanguage(req);
+		setContentLength(getContent(getWww()));
+		setContentLocation();
+		setContentType(req);
+		setConnectionClose();
+		setResponse(getResponse().insert(getResponse().length(), "\n"));
+	}
+}
+
 void Response::get_method(Request *req)
 {
 	head_method(req);
@@ -571,19 +598,7 @@ void Response::head_method(Request *req)
 		free(statuChar);
 		if (check_exist(getWww())) throw Response::BuildResponseException();
 	}
-	setDate();
-	setLastModified(getWww());
-	setLocation();
-	setRetryAfer(req);
-	setServerNginx();
-	setWWWAuthenticate(req);
-	setAllow();
-	setContentLanguage(req);
-	setContentLength(getContent(getWww()));
-	setContentLocation();
-	setContentType(req);
-	setConnectionClose();
-	setResponse(getResponse().insert(getResponse().length(), "\n"));
+	setAllHeader(req);
 }
 
 void Response::post_method()
@@ -648,6 +663,17 @@ void Response::trace_method()
 	;
 }
 
+void Response::check_method(Request *req)
+{
+	if (!ft_strcmp(getMethod().c_str(), "GET")) get_method(req);
+	else if (!ft_strcmp(getMethod().c_str(), "HEAD")) head_method(req);
+	else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method();
+	else if (!ft_strcmp(getMethod().c_str(), "DELETE")) delete_method(req);
+	else if (!ft_strcmp(getMethod().c_str(), "CONNECT")) connect_method();
+	else if (!ft_strcmp(getMethod().c_str(), "OPTIONS")) options_method();
+	else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method();
+}
+
 void Response::config_response(Request *req, Server *serv)
 {
 	struct timeval time;
@@ -665,6 +691,7 @@ void Response::config_response(Request *req, Server *serv)
 		configMethod();
 		setServer(*serv);
 		setBase(getRoutes().getLocation());
+		if (getBase().empty()) setBase(SERV_WWW);
 		setWww(getBase());
 		setStatusCode(0);
 	}
@@ -709,6 +736,7 @@ void Response::config_response(Request *req, Server *serv)
 			{
 				setWww(getBase().insert(getBase().length(), getFile()));
 				setListingContent("<H1>Auto-index</H1>\n\n");
+				if (!getStatusCode()) setStatusCode(statu_code(getWww()));
 				if (print_directory(getWww().c_str())){
 					setListingContent("");
 					setStatusCode(404);
@@ -718,13 +746,7 @@ void Response::config_response(Request *req, Server *serv)
 				setWww(getBase().insert(getBase().length(), getFile()));
 				if (!getStatusCode()) setStatusCode(statu_code(getWww()));
 			}
-			if (!ft_strcmp(getMethod().c_str(), "GET")) get_method(req);
-			else if (!ft_strcmp(getMethod().c_str(), "HEAD")) head_method(req);
-			else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method();
-			else if (!ft_strcmp(getMethod().c_str(), "DELETE")) delete_method(req);
-			else if (!ft_strcmp(getMethod().c_str(), "CONNECT")) connect_method();
-			else if (!ft_strcmp(getMethod().c_str(), "OPTIONS")) options_method();
-			else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method();
+			check_method(req);
 		}
 	}
 	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;

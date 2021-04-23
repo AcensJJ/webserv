@@ -52,6 +52,9 @@ lib:
 run: all
 	./$(NAME)
 
+tester: all
+	./$(NAME) ./server/conf/tester.conf
+	
 # Clean obj #
 clean			:
 	@rm -rf server/dataServ
@@ -69,4 +72,4 @@ fclean			:	clean
 
 re				:	fclean all
 
-.PHONY			:	all fclean clean re directories run
+.PHONY			:	all fclean clean re directories run tester

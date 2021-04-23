@@ -63,6 +63,8 @@ class Response {
 		int			check_exist(std::string path);
 		int			statu_code(std::string path);
 
+		void	setAllHeader(Request *req);
+
 		void	get_method(Request *req);
 		void	head_method(Request *req);
 		void	post_method();
@@ -72,6 +74,7 @@ class Response {
 		void	options_method();
 		void	trace_method();
 
+		void	check_method(Request *req);
 		void	config_response(Request *req, Server *serv);
 	
 		class BuildResponseException : public std::exception

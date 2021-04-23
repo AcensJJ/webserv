@@ -78,15 +78,20 @@ Routes Server::getRoute(std::string dir) const
 {
 	Routes tmp;
 	int pnt = 0;
+	int dot[2];
+	dot[0] = dir.rfind('.');
 	for (std::__1::vector<Routes>::const_iterator itr = _routes.begin(); itr != _routes.end(); itr++)
 	{
+		dot[1] = itr->getDirFile().rfind('.');
+		if (dot[1] >= 0 && !ft_strcmp(&dir[dot[0]], &itr->getDirFile()[dot[1]]))
+		{
+			return (*itr);
+		}
 		int len = itr->getDirFile().length() > dir.length() ? dir.length() : itr->getDirFile().length();
 		if (!ft_strncmp(itr->getDirFile().c_str(), dir.c_str(), len))
 		{
 			if (!(itr->getDirFile().length() > dir.length() && itr->getDirFile()[dir.length()] != '\0' && itr->getDirFile()[dir.length()] != '/'))
 			{
-				if (itr->getDirFile().length() == dir.length())
-					return (*itr);
 				if (tmp.getDirFile().empty()) {
 					tmp = *itr;
 					for (int i = 0; itr->getDirFile()[i]; i++)
