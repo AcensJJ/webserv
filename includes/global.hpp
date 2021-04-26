@@ -34,5 +34,6 @@
 #include "class/Request.hpp"
 #include "class/Response.hpp"
 #include "class/Client.hpp"
+#include "class/CGI.hpp"
 
 #endif

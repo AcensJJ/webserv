@@ -16,7 +16,7 @@ static void	clear_exit(Client *allclient[FD_SETSIZE], fd_set *readfds, fd_set *w
 	exit_err(msg, NULL, -1, -1);
 }
 
-int		config_data_serv(Server serv, Client *client, int fd_opt, fd_set *readfds, fd_set *writefds, Client *allclient[FD_SETSIZE])
+static int	config_data_serv(Server serv, Client *client, int fd_opt, fd_set *readfds, fd_set *writefds, Client *allclient[FD_SETSIZE])
 {
 	int request_fd;
 	struct stat st;
@@ -60,7 +60,7 @@ void	one_client_read(Server serv, fd_set *readfds, fd_set *writefds, Client *cli
 	}
 }
 
-void	one_client_send(Server serv, fd_set *readfds, fd_set *writefds, Client *client, Client *allclient[FD_SETSIZE])
+void	one_client_send(Server serv, fd_set *readfds, fd_set *writefds, Client *client, Client *allclient[FD_SETSIZE], char **env)
 {
 	int request_fd = config_data_serv(serv, client, O_RDONLY, readfds, writefds, allclient);
 	try
@@ -71,7 +71,7 @@ void	one_client_send(Server serv, fd_set *readfds, fd_set *writefds, Client *cli
 		req.setTime(client->getRequest()->getTime());
 		client->setRequest(&req);
 		client->getRequest()->config_request(request_fd);
-		res.config_response(&req, &serv);
+		res.config_response(&req, &serv, env);
 		if (send(client->getSocket(), res.getResponse().c_str(), res.getResponse().length(), 0) < 0)
 			throw "\033[1;31m   Error: \033[0;31m send failed\033[0m";
 	}

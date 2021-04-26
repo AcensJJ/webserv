@@ -16,6 +16,7 @@ Response::Response(const Response &other)
 	_server = other.getServer();
 	_status = other.getStatusCode();
 	_routes = other.getRoutes();
+	_env = other.getEnv();
 	configMethod();
 }
 
@@ -119,6 +120,16 @@ void Response::setListingContent(std::string value)
 std::string Response::getListingContent() const
 {
 	return(this->_listingContent);
+}
+
+void Response::setEnv(char **value)
+{
+	this->_env = value;
+}
+
+char** Response::getEnv() const
+{
+	return(this->_env);
 }
 
 void Response::configDefault()
@@ -674,8 +685,9 @@ void Response::check_method(Request *req)
 	else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method();
 }
 
-void Response::config_response(Request *req, Server *serv)
+void Response::config_response(Request *req, Server *serv, char **env)
 {
+	setEnv(env);
 	struct timeval time;
 	gettimeofday(&time, NULL);
 	std::string request(req->getFirstLine());
@@ -697,7 +709,7 @@ void Response::config_response(Request *req, Server *serv)
 	}
 	if (time.tv_sec - req->getTime() < TIMEOUT)
 		setStatusCode(408);
-	else {	
+	else {
 		if (req->getHost().empty()) {
 			setStatusCode(400);
 		}
@@ -746,9 +758,9 @@ void Response::config_response(Request *req, Server *serv)
 				setWww(getBase().insert(getBase().length(), getFile()));
 				if (!getStatusCode()) setStatusCode(statu_code(getWww()));
 			}
-			check_method(req);
-		}
+		}	
 	}
+	check_method(req);
 	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;
 
 }

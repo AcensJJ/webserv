@@ -35,6 +35,8 @@ class Response {
 		Routes 		getRoutes() const;
 		void		setListingContent(std::string value);
 		std::string getListingContent() const;
+		void		setEnv(char **value);
+		char 		**getEnv() const;
 
 		void 		configDefault();
 		void 		configMethod();
@@ -75,7 +77,7 @@ class Response {
 		void	trace_method();
 
 		void	check_method(Request *req);
-		void	config_response(Request *req, Server *serv);
+		void	config_response(Request *req, Server *serv, char **env);
 	
 		class BuildResponseException : public std::exception
 		{
@@ -95,6 +97,7 @@ class Response {
 		int			_status;
 		Routes		_routes;
 		std::string _listingContent;
+		char		**_env;
 
 };
 

@@ -42,7 +42,7 @@ static int remove_directory(const char *path)
 	return (r);
 }
 
-int		main(int ac, char **av)
+int		main(int ac, char **av, char **env)
 {
 	std::cout << "\033[1;33m   Program starting\033[0m " << std::endl;
 	std::vector<Server> all;
@@ -69,7 +69,7 @@ int		main(int ac, char **av)
 			while (all.begin() != itr && ++itrcheck != all.begin())
 				if (!ft_strcmp(serv.getServerName().c_str(), itrcheck->getServerName().c_str()))
 					throw Server::SameServerNameException();
-			launch_serv(serv);
+			launch_serv(serv, env);
 		}
 		catch (std::exception & e)
 		{
