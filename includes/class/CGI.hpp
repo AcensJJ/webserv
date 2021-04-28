@@ -7,9 +7,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <list>
 #include "class/Routes.hpp"
 #include "class/Server.hpp"
-#include "class/Request.hpp"
+#include "class/Client.hpp"
 
 class CGI {
     public:
@@ -20,66 +21,31 @@ class CGI {
 
 		void			setEnv(char **value);
 		char 			**getEnv() const;
-		void			setAuthType(std::string value);
-		std::string 	getAuthType() const;
-		void			setContentLength(std::string value);
-		std::string 	getContentLength() const;
-		void			setContentType(std::string value);
-		std::string 	getContentType() const;
-		void			setGatewayInterface(std::string value);
-		std::string 	getGatewayInterface() const;
-		void			setPathInfo(std::string value);
-		std::string 	getPathInfo() const;
-		void			setPathTranslated(std::string value);
-		std::string 	getPathTranslated() const;
-		void			setQueryString(std::string value);
-		std::string 	getQueryString() const;
-		void			setRemoteAddr(std::string value);
-		std::string 	getRemoteAddr() const;
-		void			setRemoteIdent(std::string value);
-		std::string 	getRemoteIdent() const;
-		void			setRemoteUser(std::string value);
-		std::string 	getRemoteUser() const;
-		void			setRequestMethod(std::string value);
-		std::string 	getRequestMethod() const;
-		void			setRequestUri(std::string value);
-		std::string 	getRequestUri() const;
-		void			setScriptName(std::string value);
-		std::string 	getScriptName() const;
-		void			setServerName(std::string value);
-		std::string 	getServerName() const;
-		void			setServerPort(std::string value);
-		std::string 	getServerPort() const;
-		void			setServerProtocol(std::string value);
-		std::string 	getServerProtocol() const;
-		void			setServerSoftware(std::string value);
-		std::string 	getServerSoftware() const;
+		void			setRoutes(Routes value);
+		Routes 			getRoutes() const;
+		void			setServer(Server value);
+		Server 			getServer() const;
+		void			setMethod(std::string value);
+		std::string 	getMethod() const;
+		void			setFile(std::string value);
+		std::string 	getFile() const;
+		void			setContent(std::string value);
+		std::string 	getContent() const;
+		void			setClient(Client* value);
+		Client* 		getClient() const;
 
 		std::string		getType();
 
-		int			set_all_variable(Routes route, Server serv, std::string method, std::string file, std::string content);
+		int			set_all_variable(std::list<std::string> metavar);
 		int			free_cgi(char **tab, int err);
-		int			config_cgi(Routes route, Server serv, std::string method, std::string file, std::string content);
+		int			config_cgi(Routes route, Server serv, std::string method, std::string file, std::string content, Client *client);
 
 	private:
 		char **_env;
-		std::string _auth_type;
-		std::string _content_length;
-		std::string _content_type;
-		std::string _gateway_interface;
-		std::string _path_info;
-		std::string _path_translated;
-		std::string _query_string;
-		std::string _remote_addr;
-		std::string _remore_ident;
-		std::string _remote_user;
-		std::string _request_method;
-		std::string _request_uri;
-		std::string _script_name;
-		std::string _server_name;
-		std::string _server_port;
-		std::string _server_protocol;
-		std::string _server_software;
+		Routes _route;
+		Server _serv;
+		std::string _method, _file, _content;
+		Client* _client;
 };
 
 #endif // !CGI_HPP

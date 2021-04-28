@@ -8,23 +8,6 @@ CGI::CGI()
 CGI::CGI(const CGI &other)
 {
 	_env = other.getEnv();
-	_auth_type = other.getAuthType();
-	_content_length = other.getContentLength();
-	_content_type = other.getContentType();
-	_gateway_interface = other.getGatewayInterface();
-	_path_info = other.getPathInfo();
-	_path_translated = other.getPathTranslated();
-	_query_string = other.getQueryString();
-	_remote_addr = other.getRemoteAddr();
-	_remore_ident = other.getRemoteIdent();
-	_remote_user = other.getRemoteUser();
-	_request_method = other.getRequestMethod();
-	_request_uri = other.getRequestUri();
-	_script_name = other.getScriptName();
-	_server_name = other.getServerName();
-	_server_port = other.getServerPort();
-	_server_protocol = other.getServerProtocol();
-	_server_software = other.getServerSoftware();
 }
 
 CGI::~CGI()
@@ -49,177 +32,67 @@ char** CGI::getEnv() const
 	return(this->_env);
 }
 
-void			CGI::setAuthType(std::string value)
+void CGI::setRoutes(Routes value)
 {
-	_auth_type = value;
+	_route = value;
 }
 
-std::string 	CGI::getAuthType() const
+Routes CGI::getRoutes() const
 {
-	return (_auth_type);
+	return(_route);
 }
 
-void			CGI::setContentLength(std::string value)
+void CGI::setServer(Server value)
 {
-	_content_length = value;
+	_serv = value;
 }
 
-std::string 	CGI::getContentLength() const
+Server CGI::getServer() const
 {
-	return (_content_length);
+	return(_serv);
 }
 
-void			CGI::setContentType(std::string value)
+void CGI::setMethod(std::string value)
 {
-	_content_type = value;
+	_method = value;
 }
 
-std::string 	CGI::getContentType() const
+std::string CGI::getMethod() const
 {
-	return (_content_type);
+	return(_method);
 }
 
-void			CGI::setGatewayInterface(std::string value)
+void CGI::setFile(std::string value)
 {
-	_gateway_interface = value;
+	_file = value;
 }
 
-std::string 	CGI::getGatewayInterface() const
+std::string CGI::getFile() const
 {
-	return (_gateway_interface);
+	return(_file);
 }
 
-void			CGI::setPathInfo(std::string value)
+void CGI::setContent(std::string value)
 {
-	_path_info = value;
+	_content = value;
 }
 
-std::string 	CGI::getPathInfo() const
+std::string CGI::getContent() const
 {
-	return (_path_info);
+	return(_content);
 }
 
-void			CGI::setPathTranslated(std::string value)
+void CGI::setClient(Client* value)
 {
-	_path_translated = value;
+	_client = value;
 }
 
-std::string 	CGI::getPathTranslated() const
+Client* CGI::getClient() const
 {
-	return (_path_translated);
+	return(_client);
 }
 
-void			CGI::setQueryString(std::string value)
-{
-	_query_string = value;
-}
-
-std::string 	CGI::getQueryString() const
-{
-	return (_query_string);
-}
-
-void			CGI::setRemoteAddr(std::string value)
-{
-	_remote_addr = value;
-}
-
-std::string 	CGI::getRemoteAddr() const
-{
-	return (_remote_addr);
-}
-
-void			CGI::setRemoteIdent(std::string value)
-{
-	_remore_ident = value;
-}
-
-std::string 	CGI::getRemoteIdent() const
-{
-	return (_remore_ident);
-}
-
-void			CGI::setRemoteUser(std::string value)
-{
-	_remote_user = value;
-}
-
-std::string 	CGI::getRemoteUser() const
-{
-	return (_remote_user);
-}
-
-void			CGI::setRequestMethod(std::string value)
-{
-	_request_method = value;
-}
-
-std::string 	CGI::getRequestMethod() const
-{
-	return (_request_method);
-}
-
-void			CGI::setRequestUri(std::string value)
-{
-	_request_uri = value;
-}
-
-std::string 	CGI::getRequestUri() const
-{
-	return (_request_uri);
-}
-
-void			CGI::setScriptName(std::string value)
-{
-	_script_name = value;
-}
-
-std::string 	CGI::getScriptName() const
-{
-	return (_script_name);
-}
-
-void			CGI::setServerName(std::string value)
-{
-	_server_name = value;
-}
-
-std::string 	CGI::getServerName() const
-{
-	return (_server_name);
-}
-
-void			CGI::setServerPort(std::string value)
-{
-	_server_port = value;
-}
-
-std::string 	CGI::getServerPort() const
-{
-	return (_server_port);
-}
-
-void			CGI::setServerProtocol(std::string value)
-{
-	_server_protocol = value;
-}
-
-std::string 	CGI::getServerProtocol() const
-{
-	return (_server_protocol);
-}
-
-void			CGI::setServerSoftware(std::string value)
-{
-	_server_software = value;
-}
-
-std::string 	CGI::getServerSoftware() const
-{
-	return (_server_software);
-}
-
-std::string		CGI::getType()
+std::string CGI::getType()
 {
 	std::string type;
 	if (!ft_strcmp(type.c_str() , ".aac"))	 return ("audio/aac");
@@ -293,36 +166,48 @@ std::string		CGI::getType()
 
 }
 
-int CGI::set_all_variable(Routes route, Server serv, std::string method, std::string file, std::string content)
+int CGI::set_all_variable(std::list<std::string> metavar)
 {
 	char *tmp;
 	std::string val;
-	if (!(tmp = ft_itoa(content.length()))) return (1);
+	if (!(tmp = ft_itoa(getContent().length()))) return (1);
 	val = tmp;
 	free(tmp);
-	setAuthType("AUTH_TYPE=\"\"");
-	setContentLength("CONTENT_LENGTH=\"" + val + "\"");
-	if (!ft_strcmp(method.c_str(), "POST") || ft_strcmp(method.c_str(), "PUT")) setContentType("CONTENT_TYPE=\"" + getType() + "\"");
-	setGatewayInterface("GATEWAY_INTERFACE=\"CGI/1.1\"");
-// 	setPathInfo("PATH_INFO=\"" + var + "\"");
-	// setPathTranslated("PATH_TRANSLATED=\"" + val + "\"");
-	int pos = file.find("?");
-	if (pos == -1) pos = file.length(); 
-	val = file.substr(pos, file.length() - pos);
-	setQueryString("QUERY_STRING=\"" + val + "\"");
-//	setRemoteAddr("REMOTE_ADDR=\"" + var + "\"");
-// 	setRemoteIdent("REMOTE_IDENT=\"" + var + "\"");
-// 	setRemoteUser("REMOTE_USER=\"" + var + "\"");
-	setRequestMethod("REQUEST_METHOD=\"" + method + "\"");
-	setRequestUri("REQUEST_URI=\"" + file + "\"");
-	setScriptName("SCRIPT_NAME=\"" + route.getGCIPath() + "\"");
-	setServerName("SERVER_NAME=\"" + serv.getServerName() + "\"");
-	if (!(tmp = ft_itoa(serv.getPort()))) return (1);
+	// metavar.push_back("AUTH_TYPE=\"" + var + "\"");
+	metavar.push_back("CONTENT_LENGTH=\"" + val + "\"");
+	if (!ft_strcmp(getMethod().c_str(), "POST") || ft_strcmp(getMethod().c_str(), "PUT")) metavar.push_back("CONTENT_TYPE=\"" + getType() + "\"");
+	metavar.push_back("GATEWAY_INTERFACE=\"CGI/1.1\"");
+	int pos = getRoutes().getGCIPath().rfind("/");
+	if (pos != -1) { 
+		val = getRoutes().getGCIPath().substr(pos, getRoutes().getGCIPath().length() - pos);
+		metavar.push_back("PATH_INFO=\"" + val + "\"");
+		metavar.push_back("PATH_TRANSLATED=\"." +  getRoutes().getGCIPath() + "\"");
+	}
+	pos = getFile().find("?");
+	if (pos == -1) pos = getFile().length(); 
+	val = getFile().substr(pos, getFile().length() - pos);
+	metavar.push_back("QUERY_STRING=\"" + val + "\"");
+	// metavar.push_back("REMOTE_ADDR=\"" + getClient()->getAddres()->sin_addr->sin_addr + "\"");
+	// metavar.push_back("REMOTE_IDENT=\"" + getClient()->getAddres()-> + "\"");
+	// metavar.push_back("REMOTE_USER=\"" + getClient()->getAddres()-> + "\"");
+	metavar.push_back("REQUEST_METHOD=\"" + getMethod() + "\"");
+	metavar.push_back("REQUEST_URI=\"" + getFile() + "\"");
+	metavar.push_back("SCRIPT_NAME=\"" + getRoutes().getGCIPath() + "\"");
+	metavar.push_back("SERVER_NAME=\"" + getServer().getServerName() + "\"");
+	if (!(tmp = ft_itoa(getServer().getPort()))) return (1);
 	val = tmp;
 	free(tmp);
-	setServerPort("SERVER_PORT=\"" + val + "\"");
-	setServerProtocol("SERVER_PORT=\"HTTP/1.1\"");
-	setServerSoftware("SERVER_PORT=\"Nginx\"");
+	metavar.push_back("SERVER_PORT=\"" + val + "\"");
+	metavar.push_back("SERVER_PORT=\"HTTP/1.1\"");
+	metavar.push_back("SERVER_PORT=\"Nginx\"");
+	if (!getClient()->getRequest()->getAcceptCharsets().empty())   metavar.push_back("HTTP_ACCEPT_CHARSETS="   + getClient()->getRequest()->getAcceptCharsets() + "\"");
+	if (!getClient()->getRequest()->getAcceptLanguage().empty())   metavar.push_back("HTTP_ACCEPT_LANGUAGE="   + getClient()->getRequest()->getAcceptLanguage() + "\"");
+	if (!getClient()->getRequest()->getAuthorization().empty())    metavar.push_back("HTTP_AUTHORIZATION="     + getClient()->getRequest()->getAuthorization()  + "\"");
+	if (!getClient()->getRequest()->getDate().empty())             metavar.push_back("HTTP_DATE="              + getClient()->getRequest()->getDate()           + "\"");
+	if (!getClient()->getRequest()->getHost().empty())             metavar.push_back("HTTP_HOST="              + getClient()->getRequest()->getHost() + "\"");
+	if (!getClient()->getRequest()->getUserAgent().empty())        metavar.push_back("HTTP_USER_AGENT="        + getClient()->getRequest()->getUserAgent() + "\"");
+	if (!getClient()->getRequest()->getTransferEncoding().empty()) metavar.push_back("HTTP_TRANSFER_ENCODING=" + getClient()->getRequest()->getTransferEncoding() + "\"");
+	if (!getClient()->getRequest()->getReferer().empty())          metavar.push_back("HTTP_REFERER="           + getClient()->getRequest()->getReferer() + "\"");
 	return (0);
 }
 
@@ -333,44 +218,32 @@ int CGI::free_cgi(char **tab, int err)
 	while (tab[++i])
 		if (tab[i]) free(tab[i]);
 	free(tab);
-	if (err) return (1);
-	return (0);
+	return (err);
 }
 
-int CGI::config_cgi(Routes route, Server serv, std::string method, std::string file, std::string content)
+int CGI::config_cgi(Routes route, Server serv, std::string method, std::string file, std::string content, Client *client)
 {
 	char **tmp = getEnv();
 	char **env;
 	int i(0);
+	setRoutes(route);
+	setServer(serv);
+	setMethod(method);
+	setFile(file);
+	setContent(content);
+	setClient(client);
+	std::list<std::string> metavar;
 
 	while (tmp[i])
 		i++;
-	i += 17;
-	if (!ft_strcmp(method.c_str(), "POST") || ft_strcmp(method.c_str(), "PUT")) i++;
-	if (!(env = (char **)malloc(i * sizeof(char**))))
+	i += metavar.size();
+	if (!(env = (char **)malloc(++i * sizeof(char**))))
 		return (1);
 	while (--i >= 0)
 		env[i] = NULL;
 	while (tmp[++i])
 		if (!(env[i] = ft_strdup(tmp[i]))) free_cgi(env, 1);
-	if (set_all_variable(route, serv, method, file, content)) free_cgi(env, 1);
-	if (!(env[i++] = ft_strdup(getAuthType().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getContentLength().c_str()))) return (free_cgi(env, 1));
-	if (!ft_strcmp(method.c_str(), "POST") || ft_strcmp(method.c_str(), "PUT"))
-		if (!(env[i++] = ft_strdup(getContentType().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getGatewayInterface().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getPathInfo().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getPathTranslated().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getQueryString().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getRemoteAddr().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getRemoteIdent().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getRemoteUser().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getRequestMethod().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getRequestUri().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getScriptName().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getServerName().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getServerPort().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getServerProtocol().c_str()))) return (free_cgi(env, 1));
-	if (!(env[i++] = ft_strdup(getServerSoftware().c_str()))) return (free_cgi(env, 1));
+	for (std::list<std::string>::iterator itr = metavar.begin(); itr != metavar.end(); itr++)
+		if (!(env[++i] = ft_strdup(itr->c_str()))) free_cgi(env, 1);
 	return (free_cgi(env, 0));
 }
