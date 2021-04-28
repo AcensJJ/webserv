@@ -11,8 +11,8 @@ Client::Client(const Client &other)
 	setSocket(other.getSocket());
 	setTimeout(other.getTimeout());
 	setDir(other.getDir());
-	setTimeout(other.getTimeout());
 	setRecvEnd(other.getRecvEnd());
+	setAddress(other.getAddress());
 }
 
 Client::~Client()
@@ -65,6 +65,11 @@ void Client::setRecvEnd(int value)
 	this->_recvEnd = value;
 }
 
+void Client::setAddress(sockaddr_in value)
+{
+	this->_address = value;
+}
+
 Request *Client::getRequest() const
 {
 	return(this->_req);
@@ -88,4 +93,9 @@ std::string Client::getDir() const
 int Client::getRecvEnd() const
 {
 	return(this->_recvEnd);
+}
+
+sockaddr_in Client::getAddress() const
+{
+	return(this->_address);
 }
