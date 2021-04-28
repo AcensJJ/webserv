@@ -602,7 +602,7 @@ void Response::post_method(Request *req)
 void Response::put_method(Request *req)
 {
 	int ret(0), fd(0);
-	if (getStatusCode() >= 400 && getStatusCode() < 500) {
+	if (getStatusCode() >= 400 && getStatusCode() < 500 && getStatusCode() != 404) {
 		char *statuChar = ft_itoa(getStatusCode());
 		if (!statuChar) throw Response::BuildResponseException();
 		setWww(getServer().getErrorPage(statuChar));
