@@ -9,11 +9,11 @@ void		exit_err(std::string err, char *freevar, int new_socket, int server_fd)
 	exit(EXIT_FAILURE);
 }
 
-static int	accept_one_client(int server_fd, sockaddr_in address)
+static int	accept_one_client(int server_fd, sockaddr_in *address)
 {
 	int new_socket, addrlen = sizeof(address);
 	std::cout << std::endl << "\033[1;33m   Waiting: \033[0;33m trying to accept one client\033[0m" << std::endl; 
-	if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) 
+	if ((new_socket = accept(server_fd, (struct sockaddr *)address, (socklen_t*)&addrlen)) < 0) 
 		std::cout << "\033[1;31m   Error: \033[0;31m accept failed\033[0m" << std::endl; 
 	else
 		fcntl(new_socket, F_SETFL, O_NONBLOCK);
@@ -46,11 +46,12 @@ static void	waiting_client(Server serv, int server_fd, sockaddr_in address, char
 			{
 				if (i == server_fd)
 				{
-					if ((new_socket = accept_one_client(server_fd, address)) >= 0)
+					if ((new_socket = accept_one_client(server_fd, &address)) >= 0)
 					{
 						FD_SET(new_socket, &readfds);
 						FD_SET(new_socket, &writefds);
 						allclient[new_socket] = new Client(new_socket);
+						allclient[new_socket]->setAddress(address);
 						std::cout << "\033[1;35m   new Connection:\033[0m client (" << new_socket << ") accepted \033[0m" << std::endl;
 					}
 				}
