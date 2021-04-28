@@ -34,10 +34,8 @@ class Client {
 
 	private:
 		Request *_req;
-		int _socket;
-		int _timeout;
+		int _socket, _timeout, _recvEnd;
 		std::string _dir;
-		int _recvEnd;
 		sockaddr_in _address;
 };
 

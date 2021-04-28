@@ -708,7 +708,7 @@ void Response::config_response(Request *req, Server *serv, char **env, Client *c
 	struct timeval time;
 	gettimeofday(&time, NULL);
 	std::string request(req->getFirstLine());
-	int sep[2];
+	size_t sep[2];
 	if (!request.empty())
 	{
 		sep[0] = request.find(' ');
@@ -736,8 +736,8 @@ void Response::config_response(Request *req, Server *serv, char **env, Client *c
 			std::string port("80");
 			sep[0] = req->getHost().find(' ');
 			sep[1] = req->getHost().rfind(':');
-			if (sep[1] != -1) port = req->getHost().substr(sep[1] + 1);
-			if (sep[1] == -1) sep[1] = req->getHost().length();
+			if (sep[1] != std::string::npos) port = req->getHost().substr(sep[1] + 1);
+			if (sep[1] == std::string::npos) sep[1] = req->getHost().length();
 			host = req->getHost().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
 			if (!ft_strcmp(host.c_str(), "localhost") || !ft_strcmp(host.c_str(), "127.0.0.1"))
 			{

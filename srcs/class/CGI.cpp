@@ -177,14 +177,14 @@ int CGI::set_all_variable(std::list<std::string> metavar)
 	metavar.push_back("CONTENT_LENGTH=\"" + val + "\"");
 	if (!ft_strcmp(getMethod().c_str(), "POST") || ft_strcmp(getMethod().c_str(), "PUT")) metavar.push_back("CONTENT_TYPE=\"" + getType() + "\"");
 	metavar.push_back("GATEWAY_INTERFACE=\"CGI/1.1\"");
-	int pos = getRoutes().getGCIPath().rfind("/");
-	if (pos != -1) { 
+	size_t pos = getRoutes().getGCIPath().rfind("/");
+	if (pos != std::string::npos) { 
 		val = getRoutes().getGCIPath().substr(pos, getRoutes().getGCIPath().length() - pos);
 		metavar.push_back("PATH_INFO=\"" + val + "\"");
 		metavar.push_back("PATH_TRANSLATED=\"." +  getRoutes().getGCIPath() + "\"");
 	}
 	pos = getFile().find("?");
-	if (pos == -1) pos = getFile().length(); 
+	if (pos == std::string::npos) pos = getFile().length(); 
 	val = getFile().substr(pos, getFile().length() - pos);
 	metavar.push_back("QUERY_STRING=\"" + val + "\"");
 	// metavar.push_back("REMOTE_ADDR=\"" + getClient()->getAddres()->sin_addr->sin_addr + "\"");
