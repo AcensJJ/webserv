@@ -29,7 +29,6 @@ class Request {
 		std::string getAcceptCharsets() const;
 		std::string getAcceptLanguage() const;
 		std::string getAuthorization() const;
-		std::string getContentType() const;
 		std::string getDate() const;
 		std::string getHost() const;
 		std::string getUserAgent() const;

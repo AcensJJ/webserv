@@ -1,6 +1,5 @@
 #include "../../includes/class/Routes.hpp"
 
-// COPLIEN
 Routes::Routes()
 {
 	
@@ -26,7 +25,6 @@ Routes &Routes::operator=(const Routes &other)
     return *new(this) Routes(other);
 }
 
-// SET
 void Routes::setDirFile(std::string value)
 {
 	this->_dir_file = value;
@@ -62,7 +60,6 @@ void Routes::setMethod(std::string value)
 	this->_method = value;
 }
 
-// GET
 std::string Routes::getDirFile() const
 {
 	return (this->_dir_file);

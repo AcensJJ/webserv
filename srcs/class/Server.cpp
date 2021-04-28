@@ -84,9 +84,7 @@ Routes Server::getRoute(std::string dir) const
 	{
 		dot[1] = itr->getDirFile().rfind('.');
 		if (dot[1] >= 0 && !ft_strcmp(&dir[dot[0]], &itr->getDirFile()[dot[1]]))
-		{
 			return (*itr);
-		}
 		int len = itr->getDirFile().length() > dir.length() ? dir.length() : itr->getDirFile().length();
 		if (!ft_strncmp(itr->getDirFile().c_str(), dir.c_str(), len))
 		{

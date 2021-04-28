@@ -71,7 +71,7 @@ void	one_client_send(Server serv, fd_set *readfds, fd_set *writefds, Client *cli
 		req.setTime(client->getRequest()->getTime());
 		client->setRequest(&req);
 		client->getRequest()->config_request(request_fd);
-		res.config_response(&req, &serv, env);
+		res.config_response(&req, &serv, env, client);
 		if (send(client->getSocket(), res.getResponse().c_str(), res.getResponse().length(), 0) < 0)
 			throw "\033[1;31m   Error: \033[0;31m send failed\033[0m";
 	}

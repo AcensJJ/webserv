@@ -703,7 +703,7 @@ void Response::check_method(Request *req)
 	else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method(req);
 }
 
-void Response::config_response(Request *req, Server *serv, char **env)
+void Response::config_response(Request *req, Server *serv, char **env, Client *client)
 {
 	struct timeval time;
 	gettimeofday(&time, NULL);
@@ -780,7 +780,7 @@ void Response::config_response(Request *req, Server *serv, char **env)
 				{
 					CGI cgi;
 					cgi.setEnv(env);
-					if (cgi.config_cgi(getRoutes(), getServer(), getMethod(), getFile(), getContent(getWww()))) throw Response::BuildResponseException();
+					if (cgi.config_cgi(getRoutes(), getServer(), getMethod(), getFile(), getContent(getWww()), client)) throw Response::BuildResponseException();
 					setCGI(cgi);
 				}
 			}

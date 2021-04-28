@@ -33,7 +33,6 @@ Client::Client(int socket)
 	struct timeval time;
 	gettimeofday(&time, NULL);
 	req.setTime(time.tv_sec);
-	Response res;
 	setRequest(&req);
 	setSocket(socket);
 	setTimeout(0);

@@ -92,7 +92,7 @@ class Response {
 		void	trace_method(Request *req);
 
 		void	check_method(Request *req);
-		void	config_response(Request *req, Server *serv, char **env);
+		void	config_response(Request *req, Server *serv, char **env, Client *client);
 	
 		class BuildResponseException : public std::exception
 		{
