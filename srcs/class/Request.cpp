@@ -11,9 +11,12 @@ Request::Request(const Request &other)
 	if (!other.getAcceptCharsets().empty()) _acceptCharsets = other.getAcceptCharsets();
 	if (!other.getAcceptLanguage().empty()) _acceptLanguage = other.getAcceptLanguage();
 	if (!other.getAuthorization().empty()) _authorization = other.getAuthorization();
-	if (!other.getUserAgent().empty()) _userAgent = other.getUserAgent();
 	if (!other.getDate().empty()) _date = other.getDate();
 	if (!other.getHost().empty()) _host = other.getHost();
+	if (!other.getUserAgent().empty()) _userAgent = other.getUserAgent();
+	if (!other.getTransferEncoding().empty()) _userAgent = other.getTransferEncoding();
+	if (!other.getReferer().empty()) _userAgent = other.getReferer();
+	if (!other.getBody().empty()) _userAgent = other.getBody();
 	if (other.getTime()) _time = other.getTime();
 }
 
@@ -74,6 +77,11 @@ void Request::setReferer(std::string value)
 	this->_referer = value;
 }
 
+void Request::setBody(std::string value)
+{
+	this->_body = value;
+}
+
 void Request::setTime(int value)
 {
 	this->_time = value;
@@ -124,14 +132,24 @@ std::string Request::getReferer() const
 	return(this->_referer);
 }
 
+std::string Request::getBody() const
+{
+	return(this->_body);
+}
+
 int			Request::getTime() const
 {
 	return(this->_time);
 }
 
-void Request::set_line_config(char *line)
+void Request::set_line_config(char *line, bool body)
 {
-	if (getFirstLine().empty())
+	if (body)
+	{
+		setBody(getBody().insert(getBody().length(), line));
+		setBody(getBody().insert(getBody().length(), "\n"));
+	}
+	else if (getFirstLine().empty())
 		setFirstLine(line);
 	else {
 		if (!ft_strncmp(line, "Accept-Charset:", ft_strlen("Accept-Charset:")))
@@ -157,6 +175,7 @@ void Request::set_line_config(char *line)
 void Request::config_request(int fd)
 {
 	char *line;
+	bool body(false);
 	_firstLine.clear();
 	_acceptCharsets.clear();
 	_acceptLanguage.clear();
@@ -166,11 +185,13 @@ void Request::config_request(int fd)
 	_userAgent.clear();
 	_transferEncoding.clear();
 	_referer.clear();
+	_body.clear();
 	while (get_next_line(fd, &line) > 0)
 	{
-		set_line_config(line);
+		set_line_config(line, body);
+		if (line[0] == '\r') body = true;
 	}
-	if (line) set_line_config(line);
+	if (line) set_line_config(line, body);
 	else throw Request::GNLMallocException();
 }
 

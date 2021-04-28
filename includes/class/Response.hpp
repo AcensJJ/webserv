@@ -84,12 +84,12 @@ class Response {
 
 		void	get_method(Request *req);
 		void	head_method(Request *req);
-		void	post_method();
-		void	put_method();
+		void	post_method(Request *req);
+		void	put_method(Request *req);
 		void	delete_method(Request *req);
-		void	connect_method();
-		void	options_method();
-		void	trace_method();
+		void	connect_method(Request *req);
+		void	options_method(Request *req);
+		void	trace_method(Request *req);
 
 		void	check_method(Request *req);
 		void	config_response(Request *req, Server *serv, char **env);
