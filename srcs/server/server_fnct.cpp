@@ -9,11 +9,11 @@ void		exit_err(std::string err, char *freevar, int new_socket, int server_fd)
 	exit(EXIT_FAILURE);
 }
 
-static int	accept_one_client(int server_fd, sockaddr_in *address)
+static int	accept_one_client(int server_fd, sockaddr_in address)
 {
 	int new_socket, addrlen = sizeof(address);
 	std::cout << std::endl << "\033[1;33m   Waiting: \033[0;33m trying to accept one client\033[0m" << std::endl; 
-	if ((new_socket = accept(server_fd, (struct sockaddr *)address, (socklen_t*)&addrlen)) < 0) 
+	if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) 
 		std::cout << "\033[1;31m   Error: \033[0;31m accept failed\033[0m" << std::endl; 
 	else
 		fcntl(new_socket, F_SETFL, O_NONBLOCK);
@@ -28,7 +28,7 @@ static void config_client(fd_set *readfds, fd_set *writefds, int fd)
 	FD_SET(fd, writefds);
 }
 
-static void	waiting_client(Server serv, int server_fd, sockaddr_in *address, char **env)
+static void	waiting_client(Server serv, int server_fd, sockaddr_in address, char **env)
 {
 	fd_set readfds, writefds, rfd, wfd;
 	config_client(&readfds, &writefds, server_fd);
@@ -105,5 +105,5 @@ void		launch_serv(Server serv, char **env)
 	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))) exit_err("bind failed", NULL, -1, server_fd);
 	if (listen(server_fd, 128)) exit_err("listen failed", NULL, -1, server_fd);
 	std::cout << "\033[1;32m   Server launch succesly: \033[0;36mhttp://localhost:" << serv.getPort() << "\033[0m" << std::endl;
-	waiting_client(serv, server_fd, &address, env);
+	waiting_client(serv, server_fd, address, env);
 }
