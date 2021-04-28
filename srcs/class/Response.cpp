@@ -562,7 +562,7 @@ int Response::statu_code(std::string path)
 
 void Response::setAllHeader(Request *req)
 {
-	if (getStatusCode() == 200 && !getRoutes().getLimitClientBody().empty() && (int)getContent(getWww()).length() > ft_atoi(getRoutes().getLimitClientBody().c_str()))
+	if ((getStatusCode() >= 200 && getStatusCode() <= 299) && !getRoutes().getLimitClientBody().empty() && (int)getContent(getWww()).length() > ft_atoi(getRoutes().getLimitClientBody().c_str()))
 	{
 		setResponse("");
 		setListingContent("");
@@ -594,7 +594,6 @@ void Response::get_method(Request *req)
 
 void Response::head_method(Request *req)
 {
-
 	setFirstLine();
 	if (getStatusCode() >= 400 && getStatusCode() < 500) {
 		char *statuChar = ft_itoa(getStatusCode());
@@ -612,14 +611,44 @@ void Response::head_method(Request *req)
 	setAllHeader(req);
 }
 
-void Response::post_method()
+void Response::post_method(Request *req)
 {
-	;
+	put_method(req);
 }
 
-void Response::put_method()
+void Response::put_method(Request *req)
 {
-	;
+	int ret(0), fd(0);
+	if (getStatusCode() >= 400 && getStatusCode() < 500) {
+		char *statuChar = ft_itoa(getStatusCode());
+		if (!statuChar) throw Response::BuildResponseException();
+		setWww(getServer().getErrorPage(statuChar));
+		if (getWww().empty())
+		{
+			setWww("./server/default/error");
+			setWww(getWww().insert(getWww().length(), statuChar));
+			setWww(getWww().insert(getWww().length(), ".html"));
+		}
+		free(statuChar);
+		if (check_exist(getWww())) throw Response::BuildResponseException();
+		setFirstLine();
+		setAllHeader(req);
+		setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
+	}
+	else
+	{
+		ret = unlink(getWww().c_str());
+		if (ret == -1) setStatusCode(201);
+		fd = open(getWww().c_str(), O_CREAT | O_WRONLY, 0644);
+		write(fd, req->getBody().c_str(), req->getBody().length());
+		close(fd);
+		if (getStatusCode() != 201 && req->getBody().empty()) setStatusCode(204);
+		setFirstLine();
+		setContentLocation();
+		if (!(ft_strcmp(getMethod().c_str(), "POST"))) setAllHeader(req);
+		else setResponse(getResponse().insert(getResponse().length(), "\n"));
+		setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
+	}
 }
 
 void Response::delete_method(Request *req)
@@ -649,8 +678,10 @@ void Response::delete_method(Request *req)
 		write(1, strerror(errno), ft_strlen(strerror(errno)));
 }
 
-void Response::connect_method()
+void Response::connect_method(Request *req)
 {
+	(void)req;
+
 	// https://stackoverflow.com/questions/43264266/c-socket-send-and-connect
 	//	int server_fd, opt = 1;
 	//if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) exit_err("socket failed", NULL, -1, -1);
@@ -664,25 +695,29 @@ void Response::connect_method()
 	//address.sin_port = htons( serv.getPort() );
 }
 
-void Response::options_method()
+void Response::options_method(Request *req)
 {
-	;
+	(void)req;
+	
 }
 
-void Response::trace_method()
+void Response::trace_method(Request *req)
 {
-	;
+	(void)req;
+	
 }
+
 
 void Response::check_method(Request *req)
 {
 	if (!ft_strcmp(getMethod().c_str(), "GET")) get_method(req);
 	else if (!ft_strcmp(getMethod().c_str(), "HEAD")) head_method(req);
-	else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method();
+	else if (!ft_strcmp(getMethod().c_str(), "PUT")) put_method(req);
+	else if (!ft_strcmp(getMethod().c_str(), "POST")) post_method(req);
 	else if (!ft_strcmp(getMethod().c_str(), "DELETE")) delete_method(req);
-	else if (!ft_strcmp(getMethod().c_str(), "CONNECT")) connect_method();
-	else if (!ft_strcmp(getMethod().c_str(), "OPTIONS")) options_method();
-	else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method();
+	else if (!ft_strcmp(getMethod().c_str(), "CONNECT")) connect_method(req);
+	else if (!ft_strcmp(getMethod().c_str(), "OPTIONS")) options_method(req);
+	else if (!ft_strcmp(getMethod().c_str(), "TRACE")) trace_method(req);
 }
 
 void Response::config_response(Request *req, Server *serv, char **env)
@@ -758,7 +793,7 @@ void Response::config_response(Request *req, Server *serv, char **env)
 				setWww(getBase().insert(getBase().length(), getFile()));
 				if (!getStatusCode()) setStatusCode(statu_code(getWww()));
 			}
-		}	
+		}
 	}
 	check_method(req);
 	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;
