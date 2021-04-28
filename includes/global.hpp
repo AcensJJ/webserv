@@ -4,8 +4,6 @@
 #define FALSE 0
 #define TRUE 1
 #define RECV_BUFF 40001
-#define TIMEOUT 500
-#define SERV_WWW "./server/www/"
 #define DATA_SERV "./server/dataServ/"
 
 #include <unistd.h> 
@@ -24,16 +22,16 @@
 #include <map>
 #include <dirent.h>
 #include <algorithm>
-# include <cstdlib>
+#include <cstdlib>
 #include "../libft-cpp/include/libft.hpp"
 #include "../libft-cpp/include/get_next_line.hpp"
 #include "includes.hpp"
 
+#include "class/CGI.hpp"
 #include "class/Routes.hpp"
 #include "class/Server.hpp"
 #include "class/Request.hpp"
 #include "class/Response.hpp"
 #include "class/Client.hpp"
-#include "class/CGI.hpp"
 
 #endif

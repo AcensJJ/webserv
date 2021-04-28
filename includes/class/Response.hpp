@@ -1,12 +1,27 @@
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
+#define TIMEOUT 500
+#define SERV_WWW "./server/www/"
+
 #include <iostream>
 #include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
+#include <vector>
+#include <list>
+#include <map>
+#include <dirent.h>
+#include <algorithm>
+#include <cstdlib>
 
-#include "global.hpp"
+#include "../libft-cpp/include/libft.hpp"
+#include "../libft-cpp/include/get_next_line.hpp"
+
+#include "class/CGI.hpp"
+#include "class/Routes.hpp"
+#include "class/Server.hpp"
+#include "class/Request.hpp"
 
 class Routes;
 
@@ -35,8 +50,8 @@ class Response {
 		Routes 		getRoutes() const;
 		void		setListingContent(std::string value);
 		std::string getListingContent() const;
-		void		setEnv(char **value);
-		char 		**getEnv() const;
+		void		setCGI(CGI value);
+		CGI 		getCGI() const;
 
 		void 		configDefault();
 		void 		configMethod();
@@ -97,7 +112,7 @@ class Response {
 		int			_status;
 		Routes		_routes;
 		std::string _listingContent;
-		char		**_env;
+		CGI			_cgi;
 
 };
 

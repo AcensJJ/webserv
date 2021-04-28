@@ -22,7 +22,6 @@ class Routes {
 		void setDefault(std::string value);
 		void setLocation(std::string value);
 		void setGCIPath(std::string value);
-		void setGCIExtension(std::string value);
 		void setLimitClientBody(std::string value);
 		void setMethod(std::string value);
 
@@ -31,7 +30,6 @@ class Routes {
 		std::string getDefault() const;
 		std::string getLocation() const;
 		std::string getGCIPath() const;
-		std::string getGCIExtension() const;
 		std::string getLimitClientBody() const;
 		std::string getMethod() const;
 
@@ -41,7 +39,6 @@ class Routes {
 		std::string		_default;
 		std::string		_location;
 		std::string		_gci_path;
-		std::string		_gci_extension;
 		std::string		_limit_client_body;
 		std::string		_method;
 };

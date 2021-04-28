@@ -66,16 +66,6 @@ static void	set_routes_listen(std::vector<Server> *all, char **line, int i, int 
 		all->rbegin()->_routes.rbegin()->setListen(TRUE);
 }
 
-static void	set_routes_cgi_ext(std::vector<Server> *all, char **line, int i, int j)
-{
-	i += 14;
-	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
-		i++;
-	char *add;
-	add = &line[j][i];
-	all->rbegin()->_routes.rbegin()->setGCIExtension(add);
-}
-
 static void	set_routes_cgi_path(std::vector<Server> *all, char **line, int i, int j)
 {
 	i += 9;
@@ -142,8 +132,6 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 			all->rbegin()->_routes.rbegin()->setMethod(&line[j][i]);
 		if (!ft_strncmp(&line[j][i], "auto_index ", 11))
 			set_routes_listen(all, line, i, j);
-		else if (!ft_strncmp(&line[j][i], "cgi_extension ", 14))
-			set_routes_cgi_ext(all, line, i, j);
 		else if (!ft_strncmp(&line[j][i], "cgi_path ", 9))
 			set_routes_cgi_path(all, line, i, j);
 		else if (!ft_strncmp(&line[j][i], "root ", 5))

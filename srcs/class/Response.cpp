@@ -16,7 +16,6 @@ Response::Response(const Response &other)
 	_server = other.getServer();
 	_status = other.getStatusCode();
 	_routes = other.getRoutes();
-	_env = other.getEnv();
 	configMethod();
 }
 
@@ -122,14 +121,14 @@ std::string Response::getListingContent() const
 	return(this->_listingContent);
 }
 
-void Response::setEnv(char **value)
+void Response::setCGI(CGI value)
 {
-	this->_env = value;
+	this->_cgi = value;
 }
 
-char** Response::getEnv() const
+CGI Response::getCGI() const
 {
-	return(this->_env);
+	return(this->_cgi);
 }
 
 void Response::configDefault()
@@ -249,8 +248,7 @@ void Response::setContentLanguage(Request *req)
 		sep[1] = req->getAcceptLanguage().find(',');
 		if (sep[1] == -1) sep[1] = req->getAcceptLanguage().length();
 		std::string language = req->getAcceptLanguage().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
-		setResponse(getResponse().insert(getResponse().length(), language));
-		setResponse(getResponse().insert(getResponse().length(), "\n"));
+		setResponse(getResponse().insert(getResponse().length(), language + "\n"));
 	}
 }
 
@@ -267,9 +265,7 @@ void Response::setContentLength(std::string content)
 
 void Response::setContentLocation()
 {
-	setResponse(getResponse().insert(getResponse().length(), "Content-Location: "));
-	setResponse(getResponse().insert(getResponse().length(), getFile()));
-	setResponse(getResponse().insert(getResponse().length(), "\n"));
+	setResponse(getResponse().insert(getResponse().length(), "Content-Location: " + getFile() + "\n"));
 }
 
 void Response::setContentType(Request *req)
@@ -277,7 +273,6 @@ void Response::setContentType(Request *req)
 	size_t nb = getWww().find_last_of(".");
 	std::string type = getWww();
 	type.erase(0, nb);
-	if (!getListingContent().empty()) type = ".html";
 	if (!ft_strcmp(type.c_str() , ".aac"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: audio/aac\n"));
 	if (!ft_strcmp(type.c_str() , ".abw"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-abiword\n"));
 	if (!ft_strcmp(type.c_str() , ".arc"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/octet-stream\n"));
@@ -383,21 +378,13 @@ void Response::setLastModified(std::string path)
 void Response::setLocation()
 {
 	if ((getStatusCode() >= 301 && getStatusCode() <= 308) || getStatusCode() == 201)
-	{
-		setResponse(getResponse().insert(getResponse().length(), "Location: "));
-		setResponse(getResponse().insert(getResponse().length(), getFile()));
-		setResponse(getResponse().insert(getResponse().length(), "\n"));
-	}
+		setResponse(getResponse().insert(getResponse().length(), "Location: " + getFile() + "\n"));
 }
 
 void Response::setRetryAfer(Request *req)
 {
 	if (getStatusCode() == 503 || getStatusCode() == 429 || (getStatusCode() >= 300 && getStatusCode() <= 399))
-	{
-		setResponse(getResponse().insert(getResponse().length(), "Retry-After: "));
-		setResponse(getResponse().insert(getResponse().length(), req->getDate()));
-		setResponse(getResponse().insert(getResponse().length(), "\nRetry-After: 120\n"));
-	}
+		setResponse(getResponse().insert(getResponse().length(), "Retry-After: " + req->getDate() + "\nRetry-After: 120\n"));
 }
 
 void Response::setServerNginx()
@@ -418,8 +405,7 @@ void Response::setWWWAuthenticate(Request *req)
 			sep[1] = req->getAcceptCharsets().find(',');
 			if (sep[1] == -1) sep[1] = req->getAcceptCharsets().length();
 			std::string charset = req->getAcceptCharsets().substr(sep[0] + 2, sep[1] - (sep[0] + 1));
-			setResponse(getResponse().insert(getResponse().length() - 1, charset));
-			setResponse(getResponse().insert(getResponse().length() - 1, "\""));
+			setResponse(getResponse().insert(getResponse().length() - 1, charset + "\""));
 		}
 	}
 }
@@ -531,11 +517,7 @@ int Response::print_directory(const char *path)
 				if (S_ISDIR(statbuf.st_mode)) {
 					buf.insert(buf.length(), "/");
 				}
-				setListingContent(getListingContent().insert(getListingContent().length(), "<li><a href=\""));
-				setListingContent(getListingContent().insert(getListingContent().length(), buf));
-				setListingContent(getListingContent().insert(getListingContent().length(), "\">"));
-				setListingContent(getListingContent().insert(getListingContent().length(), buf));
-				setListingContent(getListingContent().insert(getListingContent().length(), "</a></li>\n"));
+				setListingContent(getListingContent().insert(getListingContent().length(), "<li><a href=\"" + buf + "\">" + buf + "</a></li>\n"));
 				continue;
 			}
 		}
@@ -610,6 +592,7 @@ void Response::head_method(Request *req)
 		if (check_exist(getWww())) throw Response::BuildResponseException();
 	}
 	setAllHeader(req);
+	if (!ft_strcmp("HEAD", getMethod().c_str())) setResponse(getResponse().insert(getResponse().length(), "\n"));
 }
 
 void Response::post_method()
@@ -687,7 +670,6 @@ void Response::check_method(Request *req)
 
 void Response::config_response(Request *req, Server *serv, char **env)
 {
-	setEnv(env);
 	struct timeval time;
 	gettimeofday(&time, NULL);
 	std::string request(req->getFirstLine());
@@ -727,36 +709,45 @@ void Response::config_response(Request *req, Server *serv, char **env)
 				if (getServer().getPort() != ft_atoi(port.c_str())) setStatusCode(400);
 				else if (ft_strcmp("localhost", getServer().getHost().c_str()) && ft_strcmp("127.0.0.1", getServer().getHost().c_str())) setStatusCode(400);
 			}
-			else if (ft_strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) setStatusCode(400);;
-			if (!getRoutes().getListen() && getFile()[getFile().length() - 1] == '/' && !getStatusCode())
+			else if (ft_strcmp(host.c_str(), getServer().getHost().c_str()) || getServer().getPort() != ft_atoi(port.c_str())) setStatusCode(400);
+			if (!getStatusCode())
 			{
-				configDefault();
-				setStatusCode(404);
-				for (std::map<std::string, std::string>::iterator it = _default.begin() ; it != _default.end() && getStatusCode() == 404; ++it)
+				if (!getRoutes().getListen() && getFile()[getFile().length() - 1] == '/' && !ft_strcmp("GET", getMethod().c_str()))
 				{
-					std::string tmp = getFile();
-					tmp.insert(tmp.length(), it->second);
-					if (!check_exist(getWww().insert(getWww().length(), tmp)))
+					configDefault();
+					setStatusCode(404);
+					for (std::map<std::string, std::string>::iterator it = _default.begin() ; it != _default.end() && getStatusCode() == 404; ++it)
 					{
-						setFile(tmp);
-						setStatusCode(statu_code(getWww().insert(getWww().length(), tmp)));
+						std::string tmp = getFile();
+						if (!check_exist(getWww().insert(getWww().length(), tmp + it->second)))
+						{
+							setFile(tmp + it->second);
+							setStatusCode(statu_code(getWww().insert(getWww().length(), tmp)));
+						}
+					}
+					setWww(getBase().insert(getBase().length(), getFile()));
+				}
+				else if (getRoutes().getListen() && getFile()[getFile().length() - 1] == '/' && !ft_strcmp("GET", getMethod().c_str()))
+				{
+					setWww(getBase().insert(getBase().length(), getFile()));
+					setListingContent("<H1>Auto-index</H1>\n\n");
+					if (!getStatusCode()) setStatusCode(statu_code(getWww()));
+					if (print_directory(getWww().c_str())){
+						setListingContent("");
+						setStatusCode(404);
 					}
 				}
-				setWww(getBase().insert(getBase().length(), getFile()));
-			}
-			else if (getRoutes().getListen() && getFile()[getFile().length() - 1] == '/' && !getStatusCode())
-			{
-				setWww(getBase().insert(getBase().length(), getFile()));
-				setListingContent("<H1>Auto-index</H1>\n\n");
-				if (!getStatusCode()) setStatusCode(statu_code(getWww()));
-				if (print_directory(getWww().c_str())){
-					setListingContent("");
-					setStatusCode(404);
+				else {
+					setWww(getBase().insert(getBase().length(), getFile()));
+					if (!getStatusCode()) setStatusCode(statu_code(getWww()));
 				}
-			}
-			else {
-				setWww(getBase().insert(getBase().length(), getFile()));
-				if (!getStatusCode()) setStatusCode(statu_code(getWww()));
+				if (!getRoutes().getGCIPath().empty())
+				{
+					CGI cgi;
+					cgi.setEnv(env);
+					if (cgi.config_cgi(getRoutes(), getServer(), getMethod(), getFile(), getContent(getWww()))) throw Response::BuildResponseException();
+					setCGI(cgi);
+				}
 			}
 		}	
 	}

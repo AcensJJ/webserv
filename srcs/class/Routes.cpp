@@ -11,7 +11,6 @@ _default(other._default), _limit_client_body(other._limit_client_body)
 {
 	_location = other.getLocation();
 	_gci_path = other.getGCIPath();
-	_gci_extension = other.getGCIExtension();
 	_method = other.getMethod();
 }
 
@@ -53,11 +52,6 @@ void Routes::setGCIPath(std::string value)
 	this->_gci_path = value;
 }
 
-void Routes::setGCIExtension(std::string value)
-{
-	this->_gci_extension = value;
-}
-
 void Routes::setLimitClientBody(std::string value)
 {
 	this->_limit_client_body = value;
@@ -92,11 +86,6 @@ std::string Routes::getLocation() const
 std::string Routes::getGCIPath() const
 {
 	return (this->_gci_path);
-}
-
-std::string Routes::getGCIExtension() const
-{
-	return (this->_gci_extension);
 }
 
 std::string Routes::getLimitClientBody() const
