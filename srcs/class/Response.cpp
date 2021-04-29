@@ -725,7 +725,10 @@ void Response::config_response(Request *req, Server *serv, char **env, Client *c
 		setStatusCode(0);
 	}
 	if (time.tv_sec - req->getTime() < TIMEOUT)
+	{
+		std::cout << req->getTime() << " timout convert epoch\n\n";
 		setStatusCode(408);
+	}
 	else {
 		if (req->getHost().empty()) {
 			setStatusCode(400);

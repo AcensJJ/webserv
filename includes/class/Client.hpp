@@ -31,12 +31,17 @@ class Client {
 		std::string getDir() const;
 		int			getRecvEnd() const;
 		sockaddr_in	getAddress() const;
+		
+		//Authentification
+		void		setLogin();
+		std::string getLogin() const;
 
 	private:
 		Request *_req;
 		int _socket, _timeout, _recvEnd;
 		std::string _dir;
 		sockaddr_in _address;
+		std::string	_login;
 };
 
 #endif // !REQUEST_HPP
