@@ -45,16 +45,14 @@ static int	config_data_serv(Server serv, Client *client, int fd_opt, fd_set *rea
 void	one_client_read(Server serv, fd_set *readfds, fd_set *writefds, Client *client, Client *allclient[FD_SETSIZE])
 {
 	struct timeval time;
-	gettimeofday(&time, NULL);
+	//gettimeofday(&time, NULL);
 	int request_fd, nbytes = RECV_BUFF - 1;
 	char buffer[RECV_BUFF];
 	nbytes = recv(client->getSocket(), (void*)buffer, RECV_BUFF - 1, MSG_DONTWAIT);
 	if (nbytes > 0)
 	{
 		gettimeofday(&time, NULL);
-		if (time.tv_sec - client->getRequest()->getTime() > TIMEOUT) client->setTimeout(1);
-	std::cout << client->getRequest()->getTime() << " : one client_read BAD\n";
-
+		if (time.tv_sec - client->getTime() > TIMEOUT) client->setTimeout(1);
 		request_fd = config_data_serv(serv, client, O_CREAT | O_WRONLY | O_APPEND, readfds, writefds, allclient);
 		write(request_fd, buffer, nbytes);
 		close(request_fd);
@@ -70,9 +68,7 @@ void	one_client_send(Server serv, fd_set *readfds, fd_set *writefds, Client *cli
 		std::cout << std::endl << "\033[0;33m   Working on socket\033[0m(" << client->getSocket() << ")" << std::endl;
 		Response res;
 		Request req = *client->getRequest();
-		req.setTime(client->getRequest()->getTime());
-	std::cout << client->getRequest()->getTime() << " : one clientsend wtf BAD\n";
-
+		req.setTime(client->getTime());
 		client->setRequest(&req);
 		client->getRequest()->config_request(request_fd);
 		res.config_response(&req, &serv, env, client);

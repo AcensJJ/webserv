@@ -33,10 +33,10 @@ Client::Client(int socket)
 	struct timeval time;
 	gettimeofday(&time, NULL);
 	req.setTime(time.tv_sec);
-	std::cout << time.tv_sec << " : client class\n";
 	setRequest(&req);
 	setSocket(socket);
 	setTimeout(0);
+	setTime(time.tv_sec);
 	setRecvEnd(0);
 }
 
@@ -54,6 +54,11 @@ void Client::setSocket(int value)
 void Client::setTimeout(int value)
 {
 	this->_timeout = value;
+}
+
+void Client::setTime(int value)
+{
+	this->_time = value;
 }
 
 void	Client::setDir(std::string value)
@@ -84,6 +89,11 @@ int Client::getSocket() const
 int Client::getTimeout() const
 {
 	return(this->_timeout);
+}
+
+int Client::getTime() const
+{
+	return(this->_time);
 }
 
 std::string Client::getDir() const

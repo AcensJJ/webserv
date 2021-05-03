@@ -51,7 +51,6 @@ static void	waiting_client(Server serv, int server_fd, sockaddr_in address, char
 						FD_SET(new_socket, &readfds);
 						FD_SET(new_socket, &writefds);
 						allclient[new_socket] = new Client(new_socket);
-	std::cout << allclient[new_socket]->getRequest()->getTime() << " : waitingclient1 good\n";
 						allclient[new_socket]->setAddress(address);
 						std::cout << "\033[1;35m   new Connection:\033[0m client (" << new_socket << ") accepted \033[0m" << std::endl;
 					}
@@ -63,8 +62,6 @@ static void	waiting_client(Server serv, int server_fd, sockaddr_in address, char
 			{
 				if (allclient[i] && allclient[i]->getRecvEnd() == 1)
 				{
-					std::cout << allclient[i]->getRequest()->getTime() << " : waitingclient2 BAD before on cli send\n";
-
 					one_client_send(serv, &readfds, &writefds, allclient[i], allclient, env);
 					FD_CLR(i, &readfds);
 					FD_CLR(i, &writefds);

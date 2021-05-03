@@ -724,15 +724,11 @@ void Response::config_response(Request *req, Server *serv, char **env, Client *c
 		setWww(getBase());
 		setStatusCode(0);
 	}
-	if (time.tv_sec - req->getTime() < TIMEOUT)
-	{
-		std::cout << req->getTime() << " timout convert epoch\n\n";
+	if (time.tv_sec - req->getTime() > TIMEOUT)
 		setStatusCode(408);
-	}
 	else {
-		if (req->getHost().empty()) {
+		if (req->getHost().empty())
 			setStatusCode(400);
-		}
 		else 
 		{
 			std::string host;
