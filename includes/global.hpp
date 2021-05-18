@@ -20,6 +20,8 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <sstream>
+#include <fstream>
 #include <dirent.h>
 #include <algorithm>
 #include <cstdlib>

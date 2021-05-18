@@ -9,8 +9,6 @@
 #include "../../libft-cpp/include/libft.hpp"
 #include "../../libft-cpp/include/get_next_line.hpp"
 
-#include "Request.hpp"
-
 class Client {
     public:
 		Client();
@@ -19,14 +17,12 @@ class Client {
 		Client &operator=(const Client &other);
 		Client(int socket);
 
-		void		setRequest(Request *value);
 		void		setSocket(int value);
 		void		setTimeout(int value);
 		void		setTime(int value);
 		void		setDir(std::string value);
 		void		setRecvEnd(int value);
 		void		setAddress(sockaddr_in value);
-		Request		*getRequest() const;
 		int			getSocket() const;
 		int			getTimeout() const;
 		int			getTime() const;
@@ -39,7 +35,6 @@ class Client {
 		std::string getLogin() const;
 
 	private:
-		Request		*_req;
 		int			_socket, _timeout, _recvEnd;
 		std::string	_dir;
 		sockaddr_in	_address;

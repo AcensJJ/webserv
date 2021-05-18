@@ -16,7 +16,7 @@ Request::Request(const Request &other)
 	if (!other.getUserAgent().empty()) _userAgent = other.getUserAgent();
 	if (!other.getTransferEncoding().empty()) _userAgent = other.getTransferEncoding();
 	if (!other.getReferer().empty()) _userAgent = other.getReferer();
-	if (!other.getBody().empty()) _userAgent = other.getBody();
+	if (!other.getBody().empty()) _body = other.getBody();
 	if (other.getTime()) _time = other.getTime();
 }
 
@@ -169,7 +169,6 @@ void Request::set_line_config(char *line, bool body)
 		else if (!ft_strncmp(line, "Referer:", ft_strlen("Referer:")))
 			setReferer(line);
 	}
-	if (line) free(line);
 }
 
 void Request::config_request(int fd)
@@ -190,6 +189,7 @@ void Request::config_request(int fd)
 	{
 		set_line_config(line, body);
 		if (line[0] == '\r') body = true;
+		if (line) free(line);
 	}
 	if (line) set_line_config(line, body);
 	else throw Request::GNLMallocException();

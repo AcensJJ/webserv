@@ -2,14 +2,28 @@
 
 Server::Server()
 {
-
+	this->_server_fd = -1;
 }
 
-Server::Server(const Server &other) : _error_pages(other._error_pages), _port(other._port), _host(other._host),
-_server_name(other._server_name)
+Server::Server(const Server &other)
 {
+	_error_pages = other._error_pages;
 	_listen = other.getListen();
-	_routes = other._routes;
+	_port = other.getPort();
+	_host = other.getHost();
+	_server_name = other.getServerName();
+	_server_fd = other.getSocket();
+	_address = other.getSockAddr();
+	_readfds = other.getRdFdAddr();
+	_writefds = other.getWrFdAddr();
+	std::list<Routes> route;
+	for (std::list<Routes>::const_iterator test = other._routes.begin(); test != other._routes.end(); test++)
+	{
+		Routes tmpr;
+		tmpr = *test;
+		route.push_back(tmpr);
+	}
+	_routes = route;
 }
 
 Server::~Server()
@@ -49,9 +63,29 @@ void Server::setErrorPages(std::list<std::string> value)
 	this->_error_pages = value;
 }
 
-void Server::setRoutes(std::vector<Routes> value)
+void Server::setRoutes(std::list<Routes> value)
 {
 	this->_routes = value;
+}
+
+void Server::setSocket(int value)
+{
+	this->_server_fd = value;
+}
+
+void Server::setSockAddr(sockaddr_in value)
+{
+	this->_address = value;
+}
+
+void Server::setRdFd(fd_set* value)
+{
+	this->_readfds = value;
+}
+
+void Server::setWrFd(fd_set* value)
+{
+	this->_writefds = value;
 }
 
 std::string Server::getListen() const
@@ -80,30 +114,31 @@ Routes Server::getRoute(std::string dir) const
 	int pnt = 0;
 	int dot[2];
 	dot[0] = dir.rfind('.');
-	for (std::__1::vector<Routes>::const_iterator itr = _routes.begin(); itr != _routes.end(); itr++)
+	for (std::__1::list<Routes>::const_iterator itr = _routes.begin(); itr != _routes.end(); itr++)
 	{
-		dot[1] = itr->getDirFile().rfind('.');
-		if (dot[1] >= 0 && !ft_strcmp(&dir[dot[0]], &itr->getDirFile()[dot[1]]))
-			return (*itr);
-		int len = itr->getDirFile().length() > dir.length() ? dir.length() : itr->getDirFile().length();
-		if (!ft_strncmp(itr->getDirFile().c_str(), dir.c_str(), len))
+		Routes actrt = *itr;
+		dot[1] = actrt.getDirFile().rfind('.');
+		if (dot[1] >= 0 && !ft_strcmp(&dir[dot[0]], &actrt.getDirFile()[dot[1]]))
+			return (actrt);
+		int len = actrt.getDirFile().length() > dir.length() ? dir.length() : actrt.getDirFile().length();
+		if (!ft_strncmp(actrt.getDirFile().c_str(), dir.c_str(), len))
 		{
-			if (!(itr->getDirFile().length() > dir.length() && itr->getDirFile()[dir.length()] != '\0' && itr->getDirFile()[dir.length()] != '/'))
+			if (!(actrt.getDirFile().length() > dir.length() && actrt.getDirFile()[dir.length()] != '\0' && actrt.getDirFile()[dir.length()] != '/'))
 			{
 				if (tmp.getDirFile().empty()) {
-					tmp = *itr;
-					for (int i = 0; itr->getDirFile()[i]; i++)
-						if (itr->getDirFile()[i] == '/') pnt += 2;
-					if (itr->getDirFile()[itr->getDirFile().length()] != '/' ) pnt++;
+					tmp = actrt;
+					for (int i = 0; actrt.getDirFile()[i]; i++)
+						if (actrt.getDirFile()[i] == '/') pnt += 2;
+					if (actrt.getDirFile()[actrt.getDirFile().length()] != '/' ) pnt++;
 				}
 				else {
 					int cmp = 0;
-					for (int i = 0; itr->getDirFile()[i]; i++)
-						if (itr->getDirFile()[i] == '/') cmp += 2;
-					if (itr->getDirFile()[itr->getDirFile().length()] != '/' ) cmp++;
+					for (int i = 0; actrt.getDirFile()[i]; i++)
+						if (actrt.getDirFile()[i] == '/') cmp += 2;
+					if (actrt.getDirFile()[actrt.getDirFile().length()] != '/' ) cmp++;
 					if (cmp > pnt)
 					{
-						tmp = *itr;
+						tmp = actrt;
 						pnt = cmp;
 					}
 				}
@@ -113,12 +148,36 @@ Routes Server::getRoute(std::string dir) const
 	return (tmp);
 }
 
-void Server::check_config()
+int Server::getSocket() const
 {
-	if (this->_host.empty() && this->_port <= 0)
-		throw Server::BadConfigListenException();
-	if (this->_server_name.empty())
-		throw Server::BadConfigServerNameException();
+	return (this->_server_fd);
+}
+
+sockaddr_in Server::getSockAddr() const
+{
+	return (this->_address);
+}
+
+fd_set	Server::getRdFd() const
+{
+	fd_set *tmp = getRdFdAddr();
+	return (*tmp);
+}
+
+fd_set Server::getWrFd() const
+{
+	fd_set *tmp = getWrFdAddr();
+	return (*tmp);
+}
+
+fd_set*	Server::getRdFdAddr() const
+{
+	return (this->_readfds);
+}
+
+fd_set* Server::getWrFdAddr() const
+{
+	return (this->_writefds);
 }
 
 std::string Server::getErrorPage(std::string err) const
@@ -141,6 +200,14 @@ std::string Server::getErrorPage(std::string err) const
 		}
 	}
 	return (errpath);
+}
+
+void Server::check_config()
+{
+	if (this->_host.empty() && this->_port <= 0)
+		throw Server::BadConfigListenException();
+	if (this->_server_name.empty())
+		throw Server::BadConfigServerNameException();
 }
 
 const char* Server::BadConfigListenException::what() const throw ()

@@ -4,7 +4,7 @@ static void	set_server(std::vector<Server> *all)
 {
 	Server _new;
 	all->push_back(_new);
-	std::vector<Routes> route;
+	std::list<Routes> route;
 	std::list<std::string> error;
 	all->rbegin()->_routes = route;
 	all->rbegin()->_error_pages = error;
@@ -45,52 +45,52 @@ static void	set_server_name(std::vector<Server> *all, char **line, int i, int j)
 	all->rbegin()->setServerName(add);
 }
 
-static void	set_limit_client_body(std::vector<Server> *all, char **line, int i, int j)
+static void	set_limit_client_body(Routes *_new, char **line, int i, int j)
 {
 	i += 18;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
 		i++;
 	char *add;
 	add = &line[j][i];
-	all->rbegin()->_routes.rbegin()->setLimitClientBody(add);
+	_new->setLimitClientBody(add);
 }
 
-static void	set_routes_listen(std::vector<Server> *all, char **line, int i, int j)
+static void	set_routes_listen(Routes *_new, char **line, int i, int j)
 {
 	i += 10;
 	i++;
 	while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 		i++;
-	all->rbegin()->_routes.rbegin()->setListen(FALSE);
+	_new->setListen(FALSE);
 	if (!ft_strncmp(&line[j][i], "on", 2))
-		all->rbegin()->_routes.rbegin()->setListen(TRUE);
+		_new->setListen(TRUE);
 }
 
-static void	set_routes_cgi_path(std::vector<Server> *all, char **line, int i, int j)
+static void	set_routes_cgi_path(Routes *_new, char **line, int i, int j)
 {
 	i += 9;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
 		i++;
 	char *add;
 	add = &line[j][i];
-	all->rbegin()->_routes.rbegin()->setGCIPath(add);
+	_new->setGCIPath(add);
 }
 
-static void	set_routes_location(std::vector<Server> *all, char **line, int i, int j)
+static void	set_routes_location(Routes *_new, char **line, int i, int j)
 {
 	i += 5;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
 		i++;
 	char *add;
 	add = &line[j][i];
-	all->rbegin()->_routes.rbegin()->setLocation(add);
+	_new->setLocation(add);
 }
 
-static void	set_routes_default(std::vector<Server> *all, char **line, int i, int j)
+static void	set_routes_default(Routes *_new, char **line, int i, int j)
 {
 	char *add;
 	add = &line[j][i];
-	all->rbegin()->_routes.rbegin()->setDefault(add);
+	_new->setDefault(add);
 }
 
 static void	set_error_page(std::vector<Server> *all, char **line, int i, int j)
@@ -107,7 +107,6 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 {
 	i += 9;
 	Routes _new;
-	all->rbegin()->_routes.push_back(_new);
 	int sep;
 	std::string str = &line[j][i];
 	sep = str.rfind(' ');
@@ -117,7 +116,7 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 		std::cout << "\033[1;31m   Norme error\033[0m" << std::endl;
 		return (-1);
 	}
-	all->rbegin()->_routes.rbegin()->setDirFile(str.substr(0, sep));
+	_new.setDirFile(str.substr(0, sep));
 	j++;
 	i = 0;
 	while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
@@ -129,17 +128,17 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 		!ft_strncmp(&line[j][i], "DELETE", 6) || !ft_strncmp(&line[j][i], "CONNECT", 6) ||
 		!ft_strncmp(&line[j][i], "OPTIONS", 7) || !ft_strncmp(&line[j][i], "TRACE", 5) ||
 		!ft_strncmp(&line[j][i], "PATCH", 5))
-			all->rbegin()->_routes.rbegin()->setMethod(&line[j][i]);
+			_new.setMethod(&line[j][i]);
 		if (!ft_strncmp(&line[j][i], "auto_index ", 11))
-			set_routes_listen(all, line, i, j);
+			set_routes_listen(&_new, line, i, j);
 		else if (!ft_strncmp(&line[j][i], "cgi_path ", 9))
-			set_routes_cgi_path(all, line, i, j);
+			set_routes_cgi_path(&_new, line, i, j);
 		else if (!ft_strncmp(&line[j][i], "root ", 5))
-			set_routes_location(all, line, i, j);
+			set_routes_location(&_new, line, i, j);
 		else if (!strncmp(&line[j][i], "limit_client_body=", 18))
-			set_limit_client_body(all, line, i, j);
+			set_limit_client_body(&_new, line, i, j);
 		else
-			set_routes_default(all, line, i, j);
+			set_routes_default(&_new, line, i, j);
 		j++;
 		i = 0;
 		while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
@@ -158,6 +157,13 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 		while (line[j] && line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 			i++;
 	}
+	all->rbegin()->_routes.push_back(_new);
+	std::vector<Server>::iterator tmpservtest = all->begin();
+	std::list<Routes>::reverse_iterator fuckittest;
+	std::cout << tmpservtest->_routes.size() << " size\n";
+	fuckittest = tmpservtest->_routes.rbegin();
+	Routes tmprtest(*fuckittest);
+	std::cout << tmprtest.getDirFile() << " loc\n";
 	if (line[j] && (line[j][i] == '}' || !ft_strncmp(&line[j][i], "location ", 9)))
 		return (--j);
 	std::cout << "\033[1;31m   Norme error\033[0m" << std::endl;

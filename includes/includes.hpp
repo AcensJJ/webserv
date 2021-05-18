@@ -1,21 +1,24 @@
 #ifndef INCLUDES_HPP
 #define INCLUDES_HPP
 
-class Server;
 class Request;
+class Response;
 class Client;
+class Server;
 
 /***
  *** server_data.cpp
 ***/
-void	one_client_read(Server serv, fd_set *readfds, fd_set *writefds, Client *client, Client *allclient[FD_SETSIZE]);
-void	one_client_send(Server serv, fd_set *readfds, fd_set *writefds, Client *client, Client *allclient[FD_SETSIZE], char **env);
+int 	check_end_file(Response *res, int i);
+void	one_client_read(Response *res, int i);
+void	one_client_send(Response *res, int i, char **env);
 
 /***
  *** server_fnct.cpp
 ***/
-void	exit_err(std::string err, char *freevar, int new_socket, int server_fd);
-void	launch_serv(Server serv, char **env);
+void	exit_err(char *freevar, int new_socket, int server_fd);
+int		waiting_client(char **env, Response *res);
+void	launch_serv(Response *res);
 
 /***
  *** server_parse_conf.cpp
