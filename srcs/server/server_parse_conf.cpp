@@ -158,12 +158,6 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 			i++;
 	}
 	all->rbegin()->_routes.push_back(_new);
-	std::vector<Server>::iterator tmpservtest = all->begin();
-	std::list<Routes>::reverse_iterator fuckittest;
-	std::cout << tmpservtest->_routes.size() << " size\n";
-	fuckittest = tmpservtest->_routes.rbegin();
-	Routes tmprtest(*fuckittest);
-	std::cout << tmprtest.getDirFile() << " loc\n";
 	if (line[j] && (line[j][i] == '}' || !ft_strncmp(&line[j][i], "location ", 9)))
 		return (--j);
 	std::cout << "\033[1;31m   Norme error\033[0m" << std::endl;

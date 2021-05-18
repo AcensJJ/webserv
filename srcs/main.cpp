@@ -59,8 +59,6 @@ int		main(int ac, char **av, char **env)
 	std::cout << std::endl << "\033[1;34m   Parsing file:\033[0m " << str << std::endl;
 	if (parse_conf(str.c_str(), &all))
 		return (-1);
-	std::cout << all.size() << " size\n";
-
 	std::vector<Response*> servers;
 	Server servtmpres;
 	for (std::vector<Server>::iterator itr = all.begin(); itr != all.end(); itr++)
