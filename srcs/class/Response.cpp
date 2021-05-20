@@ -497,7 +497,7 @@ void Response::setFirstLine()
 std::string Response::getContent(std::string path)
 {
 	std::string ret;
-	if (!getListingContent().empty()) return (getListingContent());
+	if (!getListingContent().empty() && getStatusCode() >= 200 && getStatusCode() < 300 ) return (getListingContent());
 	int fd;
 	int res;
 	if ((fd = open(path.c_str(), O_RDONLY)) < 0) throw Response::BuildResponseException();
@@ -800,6 +800,9 @@ void Response::clear()
 		close(i);
 	}
 	delete [] _allclient ;
+	delete getRequest();
+	delete getServer()->getWrFdAddr();
+	delete getServer()->getRdFdAddr();
 	delete getServer();
 	delete getRequest();
 	if (getServer()->getSocket() > -1) close(getServer()->getSocket());
