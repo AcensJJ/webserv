@@ -16,9 +16,9 @@ void	one_client_send(Response *res, int i, char **env);
 /***
  *** server_fnct.cpp
 ***/
-void	exit_err(char *freevar, int new_socket, int server_fd);
+int		exit_err(char *freevar, int new_socket, int server_fd);
 int		waiting_client(char **env, Response *res);
-void	launch_serv(Response *res);
+int		launch_serv(Response *res);
 
 /***
  *** server_parse_conf.cpp

@@ -19,8 +19,8 @@ static int	config_data_serv(Response *res, int i, int fd_opt)
 {
 	int request_fd;
 	struct stat st;
-	if (stat("./server/dataServ", &st) == -1)
-		if (mkdir("./server/dataServ", 0700) == -1){
+	if (stat(DATA_SERV, &st) == -1)
+		if (mkdir(DATA_SERV, 0700) == -1){
 			delete res->getClient()[i];
 			res->getClient()[i] = NULL;
 			return (-1);

@@ -1,11 +1,11 @@
 #include "global.hpp"
 
-void		exit_err(char *freevar, int new_socket, int server_fd)
+int		exit_err(char *freevar, int new_socket, int server_fd)
 {
 	if (freevar) free(freevar);
 	if (new_socket > -1) close(new_socket);
 	if (server_fd > -1) close(server_fd);
-	throw "\033[1;31m   Error: \033[0;31m config failed\033[0m";;
+	return (-1);
 }
 
 static int	accept_one_client(int server_fd, sockaddr_in address)
@@ -47,7 +47,7 @@ int			waiting_client(char **env, Response *res)
 			}
 			else if (FD_ISSET(i, &wfd))
 			{
-				if (res->getClient()[i]->getRecvEnd() == 0) check_end_file(res, i);
+				if (res->getClient()[i] && res->getClient()[i]->getRecvEnd() == 0) check_end_file(res, i);
 				if (res->getClient()[i] && res->getClient()[i]->getRecvEnd() == 1)
 				{
 					one_client_send(res, i, env);
@@ -68,11 +68,11 @@ int			waiting_client(char **env, Response *res)
 	return (0);
 }
 
-void		launch_serv(Response *res)
+int		launch_serv(Response *res)
 {
 	int server_fd, opt = 1;
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) exit_err(NULL, -1, -1);
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) exit_err(NULL, -1, server_fd);
+	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) return (exit_err(NULL, -1, -1));
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) return (exit_err(NULL, -1, server_fd));
 	struct sockaddr_in address;
 	address.sin_family = AF_INET;
 	if (ft_strcmp(res->getServer()->getHost().c_str(), "localhost"))
@@ -80,9 +80,10 @@ void		launch_serv(Response *res)
 	else
 		address.sin_addr.s_addr = inet_addr("127.0.0.1");
 	address.sin_port = htons( res->getServer()->getPort() );
-	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))) exit_err(NULL, -1, server_fd);
-	if (listen(server_fd, 128)) exit_err(NULL, -1, server_fd);
+	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))) return (exit_err(NULL, -1, server_fd));
+	if (listen(server_fd, 128)) return (exit_err(NULL, -1, server_fd));
 	res->getServer()->setSocket(server_fd);
 	res->getServer()->setSockAddr(address);
-	std::cout << "\033[1;32m   Server launch succesfully: \033[0;36mhttp://localhost:" << res->getServer()->getPort() << "\033[0m" << std::endl;
+	std::cout << "\033[1;32m   Server launch succesfully \033[0m[" << res->getServer()->getServerName() << "]\033[1;32m:  \033[0;36mhttp://localhost:" << res->getServer()->getPort() << "\033[0m" << std::endl;
+	return (0);
 }
