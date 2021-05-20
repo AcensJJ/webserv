@@ -706,8 +706,7 @@ void Response::config_response(char **env, int i)
 		configMethod();
 		setBase(getRoutes().getLocation());
 		if (getBase().empty()) setBase(SERV_WWW);
-		if (getRoutes().getDirFile().length() - 1 == 0) setFile(&getFile()[getRoutes().getDirFile().length() - 1]);
-		else setFile(getFile().substr(getFile().find_last_of("/"),getFile().length()));
+		else if (getFile().find_last_of("/") ==  getFile().length() - 1 && getFile().find_first_of("/") == 0) setFile(getRoutes().getDirFile());
 		setWww(getBase());
 		setStatusCode(0);
 	}

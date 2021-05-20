@@ -191,8 +191,12 @@ void Request::config_request(int fd)
 		if (line[0] == '\r') body = true;
 		if (line) free(line);
 	}
-	if (line) set_line_config(line, body);
+	if (line) {
+		set_line_config(line, body);
+		free(line);
+	}
 	else throw Request::GNLMallocException();
+
 }
 
 const char* Request::GNLMallocException::what() const throw ()
