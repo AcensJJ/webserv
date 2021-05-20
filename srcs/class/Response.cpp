@@ -17,8 +17,9 @@ Response::Response(const Response &other)
 	_base = other.getBase();
 	_www = other.getWww();
 	_listingContent = other.getListingContent();
-	Server newserv(*other.getServer());
-	_server = &newserv;
+	if (getServer()) delete getServer();
+	Server *serv = new Server(*other.getServer());
+	_server = serv;
 	_routes = other.getRoutes();
 	_status = other.getStatusCode();
 	_allclient = other.getClient();
@@ -799,7 +800,10 @@ void Response::clear()
 		close(i);
 	}
 	delete [] _allclient ;
+	delete getServer();
+	delete getRequest();
 	if (getServer()->getSocket() > -1) close(getServer()->getSocket());
+	delete this;
 }
 
 void Response::clean()

@@ -1,5 +1,13 @@
 #include "global.hpp"
 
+class myexception: public std::exception
+{
+  virtual const char* what() const throw()
+  {
+    return "\033[1;31m   Error: \033[0;31m config failed\033[0m";
+  }
+} myex;
+
 static int remove_directory(const char *path)
 {
 	DIR *d = opendir(path);
@@ -60,7 +68,6 @@ int		main(int ac, char **av, char **env)
 	if (parse_conf(str.c_str(), &all))
 		return (-1);
 	std::vector<Response*> servers;
-	Server servtmpres;
 	for (std::vector<Server>::iterator itr = all.begin(); itr != all.end(); itr++)
 	{
 		std::cout << std::endl << "\033[0;35m   New serv:\033[0m " << itr->getServerName() << std::endl;
@@ -68,19 +75,35 @@ int		main(int ac, char **av, char **env)
 		{
 			itr->check_config();
 			std::vector<Server>::iterator itrcheck = itr;
-			while (all.begin() != itr && ++itrcheck != all.end())
+			if (all.begin() != itr)
 			{
-				if (!ft_strcmp(itr->getServerName().c_str(), itrcheck->getServerName().c_str()))
-					throw Server::SameServerNameException();
-				if (itr->getHost() == itrcheck->getHost())
-					throw Server::SameServerNameException();
+				itrcheck--;
+				while (itrcheck-- != all.begin())
+				{
+					if (!ft_strcmp(itr->getServerName().c_str(), itrcheck->getServerName().c_str()))
+						throw Server::SameServerNameException();
+					if (itr->getHost() == itrcheck->getHost())
+						throw Server::SameServerNameException();
+				}
 			}
-			Response res;
-			Request req;
-			servtmpres = *itr;
-			res.setServer(&servtmpres);
-			res.setRequest(&req);
-			servers.push_back(&res);
+			Response *res = new Response();
+			Request *req = new Request();
+			if (all.begin() != itr)
+			{
+				std::vector<Response*>::iterator tmptest = servers.begin();
+				Response *tmp = *tmptest;
+				std::cout << "   check " << tmp->getServer()->getServerName() << "\n";
+			}
+			Server *serv = new Server(*itr);
+			if (all.begin() != itr)
+			{
+				std::vector<Response*>::iterator tmptest = servers.begin();
+				Response *tmp = *tmptest;
+				std::cout << "   check " << tmp->getServer()->getServerName() << "\n";
+			}
+			res->setServer(serv);
+			res->setRequest(req);
+			servers.push_back(res);
 		}
 		catch (std::exception & e)
 		{
@@ -93,7 +116,8 @@ int		main(int ac, char **av, char **env)
 		try
 		{
 			Response *tmp = *itr;
-			launch_serv(tmp);
+			std::cout << "   Config Serv [" << tmp->getServer()->getServerName() << "]" << std::endl;
+			if (launch_serv(tmp)) throw myexception();
 			FD_ZERO(&readfds);
 			FD_ZERO(&writefds);
 			FD_SET(tmp->getServer()->getSocket(), &readfds);
