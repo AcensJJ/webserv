@@ -9,6 +9,8 @@
 #include "../../libft-cpp/include/libft.hpp"
 #include "../../libft-cpp/include/get_next_line.hpp"
 
+#include "class/Request.hpp"
+
 class Client {
     public:
 		Client();
@@ -31,7 +33,7 @@ class Client {
 		sockaddr_in	getAddress() const;
 		
 		//Authentification
-		void		setLogin();
+		void		setLogin(Request *_req);
 		std::string getLogin() const;
 
 	private:

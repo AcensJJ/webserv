@@ -113,7 +113,7 @@ class Response {
 		int			_status;
 		Client		**_allclient;
 		Request		*_req;
-		//CGI 		_cgi;
+		CGI 		_cgi;
 
 
 };

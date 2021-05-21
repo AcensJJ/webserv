@@ -741,17 +741,21 @@ void Response::config_response(char **env, int i)
                 setWww(getBase().insert(getBase().length(), getFile()));
                 if (!getStatusCode()) setStatusCode(statu_code(getWww()));
             }
-			(void)env;
-			(void)i;
-            //if ((!getRoutes().getCGIPath().empty()) && (getMethod() == "GET" || getMethod() == "POST" || getMethod() == "PUT" ))
-            //{
-            //    _cgi.setEnv(env);
-            //    if (_cgi.config_cgi(getRoutes(), *getServer(), getMethod(), getFile(), getContent(getWww()), *getClient(), *getRequest())) throw Response::BuildResponseException();
-            //    _cgi.execv();
-            //}
+            if ((!getRoutes().getCGIPath().empty()) && (getMethod() == "GET" || getMethod() == "POST" || getMethod() == "PUT" ))
+            {
+				_cgi.setEnv(env);
+				_cgi.setRoutes(getRoutes());
+				_cgi.setServer(getServer());
+				_cgi.setMethod(getMethod());
+				_cgi.setFile(getFile());
+				_cgi.setContent("fake");
+				_cgi.setClient(getClient()[i]);
+				_cgi.setRequest(getRequest());
+				std::cout << "CGI launch\n";
+				if (_cgi.config_cgi()) throw Response::BuildResponseException();
+            }
         }
 	 }
-	 std::cout << getWww() << " : getwww\n";
 	if (getStatusCode() == 200)
 	{
 		if (getRequest()->getHost().empty()){
