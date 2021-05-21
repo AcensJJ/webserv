@@ -120,7 +120,7 @@ Routes Server::getRoute(std::string dir) const
 		dot[1] = actrt.getDirFile().rfind('.');
 		if (dot[1] >= 0 && !ft_strcmp(&dir[dot[0]], &actrt.getDirFile()[dot[1]]))
 			return (actrt);
-		int len = actrt.getDirFile().length() > dir.length() ? dir.length() : actrt.getDirFile().length();
+		int len = actrt.getDirFile().length();
 		if (!ft_strncmp(actrt.getDirFile().c_str(), dir.c_str(), len))
 		{
 			if (!(actrt.getDirFile().length() > dir.length() && actrt.getDirFile()[dir.length()] != '\0' && actrt.getDirFile()[dir.length()] != '/'))

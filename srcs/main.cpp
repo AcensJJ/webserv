@@ -88,19 +88,7 @@ int		main(int ac, char **av, char **env)
 			}
 			Response *res = new Response();
 			Request *req = new Request();
-			if (all.begin() != itr)
-			{
-				std::vector<Response*>::iterator tmptest = servers.begin();
-				Response *tmp = *tmptest;
-				std::cout << "   check " << tmp->getServer()->getServerName() << "\n";
-			}
 			Server *serv = new Server(*itr);
-			if (all.begin() != itr)
-			{
-				std::vector<Response*>::iterator tmptest = servers.begin();
-				Response *tmp = *tmptest;
-				std::cout << "   check " << tmp->getServer()->getServerName() << "\n";
-			}
 			res->setServer(serv);
 			res->setRequest(req);
 			servers.push_back(res);
@@ -110,20 +98,20 @@ int		main(int ac, char **av, char **env)
 			std::cerr << e.what() << std::endl;
 		}
 	}
-	fd_set readfds, writefds;
 	for (std::vector<Response*>::iterator itr = servers.begin(); itr != servers.end(); itr++)
 	{
 		try
 		{
+			fd_set *readfds = new fd_set, *writefds = new fd_set;
 			Response *tmp = *itr;
 			std::cout << "   Config Serv [" << tmp->getServer()->getServerName() << "]" << std::endl;
 			if (launch_serv(tmp)) throw myexception();
-			FD_ZERO(&readfds);
-			FD_ZERO(&writefds);
-			FD_SET(tmp->getServer()->getSocket(), &readfds);
-			FD_SET(tmp->getServer()->getSocket(), &writefds);
-			tmp->getServer()->setRdFd(&readfds);
-			tmp->getServer()->setWrFd(&writefds);
+			FD_ZERO(readfds);
+			FD_ZERO(writefds);
+			FD_SET(tmp->getServer()->getSocket(), readfds);
+			FD_SET(tmp->getServer()->getSocket(), writefds);
+			tmp->getServer()->setRdFd(readfds);
+			tmp->getServer()->setWrFd(writefds);
 		}
 		catch (std::exception & e)
 		{
@@ -131,7 +119,7 @@ int		main(int ac, char **av, char **env)
 			for (std::vector<Response*>::iterator itr = servers.begin(); itr != servers.end(); itr++)
 			{
 				Response *tmp = *itr;
-				tmp->clear();
+				tmp->clean();
 			}
 			return (EXIT_FAILURE);
 		}
@@ -139,15 +127,7 @@ int		main(int ac, char **av, char **env)
 	while (1)
 		for (std::vector<Response*>::iterator itr = servers.begin(); itr != servers.end(); itr++)
 		{
-			if (waiting_client(env, *itr))
-			{
-				for (std::vector<Response*>::iterator itr = servers.begin(); itr != servers.end(); itr++)
-				{
-					Response *tmp = *itr;
-					tmp->clear();
-				}
-				return (EXIT_FAILURE);
-			}
+			waiting_client(env, *itr);
 		}
     return (EXIT_SUCCESS);
 }

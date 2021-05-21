@@ -11,7 +11,7 @@ follow the real HTTP RFC and you will be able to test it with a real browser. HT
 one of the most used protocol on internet. Knowing its arcane will be useful, even if you
 won’t be working on a website.
 
-> *Project en collaboration avec:<br>*
+> *Contributors:<br>*
 > -	   *<a href="https://github.com/nemu69">Nemuel Page Léonie</a> (<a href="https://profile.intra.42.fr/users/nepage-l">nepage-l</a>).<br>*
 > -    *<a href="https://github.com/AcensJJ">Jean-Jacques Acens</a> (<a href="https://profile.intra.42.fr/users/jacens">jacens</a>).*
 

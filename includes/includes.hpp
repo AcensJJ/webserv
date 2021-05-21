@@ -9,7 +9,7 @@ class Server;
 /***
  *** server_data.cpp
 ***/
-int 	check_end_file(Response *res, int i);
+void 	check_end_file(Response *res, int i);
 void	one_client_read(Response *res, int i);
 void	one_client_send(Response *res, int i, char **env);
 

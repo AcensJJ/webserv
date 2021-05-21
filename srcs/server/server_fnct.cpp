@@ -39,11 +39,15 @@ int			waiting_client(char **env, Response *res)
 						FD_SET(new_socket, res->getServer()->getWrFdAddr());
 						res->getClient()[new_socket] = new Client(new_socket);
 						res->getClient()[new_socket]->setAddress(res->getServer()->getSockAddr());
-						std::cout << "\033[1;35m   new Connection:\033[0m client (" << new_socket << ") accepted \033[0m" << std::endl;
+						std::cout << "\033[1;35m   new Connection:\033[0m client (" << new_socket << ") accepted on server [" << res->getServer()->getServerName() << "]" << std::endl;
 					}
 				}
-				else if (res->getClient()[i] && !res->getClient()[i]->getRecvEnd() && !check_end_file(res, i))
-					one_client_read(res, i);
+				else if (res->getClient()[i])
+				{
+					check_end_file(res, i);
+					if (!res->getClient()[i]->getRecvEnd())
+						one_client_read(res, i);
+				}
 			}
 			else if (FD_ISSET(i, &wfd))
 			{
@@ -57,13 +61,10 @@ int			waiting_client(char **env, Response *res)
 					unlink(res->getClient()[i]->getDir().c_str());
 					delete res->getClient()[i];
 					res->getClient()[i] = NULL;
-					std::cout << "\033[1;32m   Connection:\033[0m closed for (" << i << ")" << std::endl;
+					std::cout << "\033[1;32m   Connection:\033[0m closed for (" << i << ") on server [" << res->getServer()->getServerName() << "]" << std::endl;
 				}
 			}
 		}
-	}
-	else {
-		return (1);
 	}
 	return (0);
 }

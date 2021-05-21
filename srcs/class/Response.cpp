@@ -241,17 +241,13 @@ void Response::setDate()
 
 void Response::setAllow()
 {
-	int i = 0;
 	if (getStatusCode() == 405)
 	{
 		setResponse(getResponse().insert(getResponse().length(), "Allow:"));
 		for (std::map<std::string, std::string>::iterator it = _http_method.begin() ; it != _http_method.end(); ++it)
 		{
-			if (i) setResponse(getResponse().insert(getResponse().length(), ", "));
-			else {
-				setResponse(getResponse().insert(getResponse().length(), " "));
-				i++;
-			}
+			if (it != _http_method.begin()) setResponse(getResponse().insert(getResponse().length(), ", "));
+			else setResponse(getResponse().insert(getResponse().length(), " "));
 			setResponse(getResponse().insert(getResponse().length(), it->second));
 		}
 		setResponse(getResponse().insert(getResponse().length(), "\n"));
@@ -497,7 +493,7 @@ void Response::setFirstLine()
 std::string Response::getContent(std::string path)
 {
 	std::string ret;
-	if (!getListingContent().empty()) return (getListingContent());
+	if (!getListingContent().empty() && getStatusCode() >= 200 && getStatusCode() < 300 ) return (getListingContent());
 	int fd;
 	int res;
 	if ((fd = open(path.c_str(), O_RDONLY)) < 0) throw Response::BuildResponseException();
@@ -616,6 +612,7 @@ void Response::head_method()
 
 void Response::post_method()
 {
+	put_method();
 }
 
 void Response::put_method()
@@ -783,15 +780,10 @@ void Response::config_response(char **env, int i)
 	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;
 }
 
-void Response::clear()
+void Response::clean()
 {
 	for (int i = 1; i < FD_SETSIZE; i++)
 	{
-		if (this->_allclient[i]) 
-		{
-			delete this->_allclient[i];
-			this->_allclient[i] = NULL;
-		}
 		fd_set tmp;
 		tmp = getServer()->getRdFd();
 		FD_CLR(i, &tmp);
@@ -800,13 +792,16 @@ void Response::clear()
 		close(i);
 	}
 	delete [] _allclient ;
+	delete getRequest();
+	if (getServer()->getWrFdAddr()) delete getServer()->getWrFdAddr();
+	if (getServer()->getRdFdAddr()) delete getServer()->getRdFdAddr();
 	delete getServer();
 	delete getRequest();
 	if (getServer()->getSocket() > -1) close(getServer()->getSocket());
 	delete this;
 }
 
-void Response::clean()
+void Response::clear()
 {
 	_response.clear(); 
 	_file.clear();

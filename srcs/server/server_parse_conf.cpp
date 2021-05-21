@@ -145,12 +145,12 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 			i++;
 	}
 	i = 0;
-	while (line[j] && line[j][i] && line[j][i] != '}')
+	while (line[j] && line[j][i] && line[j][i] != '}' && !ft_strncmp("location", &line[j][i], 8))
 		i++;
 	i++;
 	while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 		i++;
-	while (line[j] && line[j][i] != '}' && ft_strncmp(&line[j][i], "location ", 9))
+	while (line[j] && line[j][i] != '}')
 	{
 		i = 0;
 		j++;
@@ -158,7 +158,7 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 			i++;
 	}
 	all->rbegin()->_routes.push_back(_new);
-	if (line[j] && (line[j][i] == '}' || !ft_strncmp(&line[j][i], "location ", 9)))
+	if (line[j] && ((line[j][i] == '}') || !ft_strncmp("location", &line[j][i], 8)))
 		return (--j);
 	std::cout << "\033[1;31m   Norme error\033[0m" << std::endl;
 	return (-1);
@@ -225,14 +225,20 @@ static int		set_value(char **line, std::vector<Server> *all)
 		int i(0);
 		while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 			i++;
-		if (!ft_strncmp(&line[j][i], "}", 1))
-			while (line[j] && !ft_strncmp(&line[j][i], "server", 6))
-			{
-				j++;
-				i=0;
-				while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
-					i++;
-			}
+		if (line[j][i] == '}')
+		{
+			i++;
+			while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
+				i++;
+			if (!ft_strncmp(&line[j][i], "location", 8))
+				while (line[j] && !ft_strncmp(&line[j][i], "server", 6))
+				{
+					j++;
+					i=0;
+					while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
+						i++;
+				}
+		}
 		if (!ft_strncmp(&line[j][i], "server", 6))
 		{
 			if (check_bef_serv(line, j))

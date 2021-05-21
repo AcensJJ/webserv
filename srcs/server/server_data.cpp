@@ -1,6 +1,6 @@
 #include "global.hpp"
 
-int check_end_file(Response *res, int i)
+void check_end_file(Response *res, int i)
 {
 	std::ifstream fs(res->getClient()[i]->getDir());
 	if (fs.is_open())
@@ -8,11 +8,28 @@ int check_end_file(Response *res, int i)
 		std::stringstream ss;
 		ss << fs.rdbuf();
 		std::string check = ss.str();
-		if (check.find("\r\n\r\n") != std::string::npos) res->getClient()[i]->setRecvEnd(true);
+		size_t j;
+		if ((j = check.find("\r\n\r\n")) != std::string::npos)
+		{
+			std::string tmp = &check[j + 4];
+			if (check.find("Transfer-Encoding:") != std::string::npos && check.find("chunked") != std::string::npos)
+			{
+				while (!tmp.empty() && !res->getClient()[i]->getRecvEnd())
+				{
+					size_t nb = ft_atoi(&check[j]);
+					while (!tmp.empty() && tmp[0] >= '0' && tmp[0] <= '9')
+						tmp = &tmp[1];
+					if (nb == 0 && tmp.find("\r\n\r\n") != std::string::npos)
+						res->getClient()[i]->setRecvEnd(true);
+					else if ((size_t)(nb + 4) < tmp.length())
+						tmp = &tmp[nb + 4];
+					else tmp.clear();
+				}
+			}
+			else res->getClient()[i]->setRecvEnd(true);
+		}
 		fs.close();
-		return (1);
 	}
-	return (0);
 }
 
 static int	config_data_serv(Response *res, int i, int fd_opt)
@@ -89,7 +106,7 @@ void	one_client_send(Response *res, int i, char **env)
 			{	
 				std::cerr << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
 			}
-			res->clean();
+			res->clear();
 		}
 		catch(const std::exception& e)
 		{
