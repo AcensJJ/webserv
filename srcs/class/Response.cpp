@@ -241,17 +241,13 @@ void Response::setDate()
 
 void Response::setAllow()
 {
-	int i = 0;
 	if (getStatusCode() == 405)
 	{
 		setResponse(getResponse().insert(getResponse().length(), "Allow:"));
 		for (std::map<std::string, std::string>::iterator it = _http_method.begin() ; it != _http_method.end(); ++it)
 		{
-			if (i) setResponse(getResponse().insert(getResponse().length(), ", "));
-			else {
-				setResponse(getResponse().insert(getResponse().length(), " "));
-				i++;
-			}
+			if (it != _http_method.begin()) setResponse(getResponse().insert(getResponse().length(), ", "));
+			else setResponse(getResponse().insert(getResponse().length(), " "));
 			setResponse(getResponse().insert(getResponse().length(), it->second));
 		}
 		setResponse(getResponse().insert(getResponse().length(), "\n"));
