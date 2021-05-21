@@ -127,15 +127,7 @@ int		main(int ac, char **av, char **env)
 	while (1)
 		for (std::vector<Response*>::iterator itr = servers.begin(); itr != servers.end(); itr++)
 		{
-			if (waiting_client(env, *itr))
-			{
-				for (std::vector<Response*>::iterator itr = servers.begin(); itr != servers.end(); itr++)
-				{
-					Response *tmp = *itr;
-					tmp->clear();
-				}
-				return (EXIT_FAILURE);
-			}
+			(waiting_client(env, *itr);
 		}
     return (EXIT_SUCCESS);
 }

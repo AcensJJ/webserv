@@ -42,8 +42,12 @@ int			waiting_client(char **env, Response *res)
 						std::cout << "\033[1;35m   new Connection:\033[0m client (" << new_socket << ") accepted on server [" << res->getServer()->getServerName() << "]" << std::endl;
 					}
 				}
-				else if (res->getClient()[i] && !res->getClient()[i]->getRecvEnd() && !check_end_file(res, i))
-					one_client_read(res, i);
+				else if (res->getClient()[i])
+				{
+					check_end_file(res, i);
+					if (!res->getClient()[i]->getRecvEnd())
+						one_client_read(res, i);
+				}
 			}
 			else if (FD_ISSET(i, &wfd))
 			{
@@ -61,9 +65,6 @@ int			waiting_client(char **env, Response *res)
 				}
 			}
 		}
-	}
-	else {
-		return (1);
 	}
 	return (0);
 }

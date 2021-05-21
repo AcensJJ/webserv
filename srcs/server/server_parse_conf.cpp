@@ -150,7 +150,7 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 	i++;
 	while (line[j] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 		i++;
-	while (line[j] && line[j][i] != '}' && ft_strncmp(&line[j][i], "location ", 9))
+	while (line[j] && line[j][i] != '}')
 	{
 		i = 0;
 		j++;
@@ -158,7 +158,7 @@ static int		set_location(std::vector<Server> *all, char **line, int i, int j)
 			i++;
 	}
 	all->rbegin()->_routes.push_back(_new);
-	if (line[j] && (line[j][i] == '}' || !ft_strncmp(&line[j][i], "location ", 9)))
+	if (line[j] && (line[j][i] == '}'))
 		return (--j);
 	std::cout << "\033[1;31m   Norme error\033[0m" << std::endl;
 	return (-1);

@@ -787,11 +787,6 @@ void Response::clear()
 {
 	for (int i = 1; i < FD_SETSIZE; i++)
 	{
-		if (this->_allclient[i]) 
-		{
-			delete this->_allclient[i];
-			this->_allclient[i] = NULL;
-		}
 		fd_set tmp;
 		tmp = getServer()->getRdFd();
 		FD_CLR(i, &tmp);
