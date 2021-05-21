@@ -703,7 +703,7 @@ void Response::config_response(char **env, int i)
 		configMethod();
 		setBase(getRoutes().getLocation());
 		if (getBase().empty()) setBase(SERV_WWW);
-		else if (getFile().find_last_of("/") ==  getFile().length() - 1 && getFile().find_first_of("/") == 0) setFile(getRoutes().getDirFile());
+		setFile(&getFile()[getRoutes().getDirFile().length()]);
 		setWww(getBase());
 		setStatusCode(0);
 	}
@@ -712,7 +712,7 @@ void Response::config_response(char **env, int i)
 	 else {
         if (!getStatusCode())
         {
-            if (!getRoutes().getListen() && getFile()[getFile().length() - 1] == '/' && !ft_strcmp("GET", getMethod().c_str()))
+            if (!getRoutes().getListen() && (getFile()[getFile().length() - 1] == '/' || getFile().empty()) && !ft_strcmp("GET", getMethod().c_str()))
             {
                 configDefault();
                 setStatusCode(404);
@@ -727,7 +727,7 @@ void Response::config_response(char **env, int i)
                 }
                 setWww(getBase().insert(getBase().length(), getFile()));
             }
-            else if (getRoutes().getListen() && getFile()[getFile().length() - 1] == '/' && !ft_strcmp("GET", getMethod().c_str()))
+            else if (getRoutes().getListen() && (getFile()[getFile().length() - 1] == '/' || getFile().empty()) && !ft_strcmp("GET", getMethod().c_str()))
             {
                 setWww(getBase().insert(getBase().length(), getFile()));
                 setListingContent("<H1>Auto-index</H1>\n\n");
@@ -751,6 +751,7 @@ void Response::config_response(char **env, int i)
             //}
         }
 	 }
+	 std::cout << getWww() << " : getwww\n";
 	if (getStatusCode() == 200)
 	{
 		if (getRequest()->getHost().empty()){

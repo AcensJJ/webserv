@@ -14,11 +14,11 @@ static int		set_listen(std::vector<Server> *all, char **line, int i, int j)
 {
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
 		i++;
-	char *add;
+	std::string add;
 	add = &line[j][i];
 	char **adds;
 	all->rbegin()->setListen(add);
-	if (!(adds = ft_split(add, ':')))
+	if (!(adds = ft_split(add.c_str(), ':')))
 	{
 		std::cout << "\033[1;31m   Error malloc\033[0m" << std::endl;
 		return (1);
@@ -40,7 +40,7 @@ static void	set_server_name(std::vector<Server> *all, char **line, int i, int j)
 	i += 12;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
 		i++;
-	char *add;
+	std::string add;
 	add = &line[j][i];
 	all->rbegin()->setServerName(add);
 }
@@ -50,7 +50,7 @@ static void	set_limit_client_body(Routes *_new, char **line, int i, int j)
 	i += 18;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
 		i++;
-	char *add;
+	std::string add;
 	add = &line[j][i];
 	_new->setLimitClientBody(add);
 }
@@ -71,7 +71,7 @@ static void	set_routes_cgi_path(Routes *_new, char **line, int i, int j)
 	i += 9;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
 		i++;
-	char *add;
+	std::string add;
 	add = &line[j][i];
 	_new->setCGIPath(add);
 }
@@ -81,14 +81,14 @@ static void	set_routes_location(Routes *_new, char **line, int i, int j)
 	i += 5;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
 		i++;
-	char *add;
+	std::string add;
 	add = &line[j][i];
 	_new->setLocation(add);
 }
 
 static void	set_routes_default(Routes *_new, char **line, int i, int j)
 {
-	char *add;
+	std::string add;
 	add = &line[j][i];
 	_new->setDefault(add);
 }
@@ -98,7 +98,7 @@ static void	set_error_page(std::vector<Server> *all, char **line, int i, int j)
 	i += 11;
 	while ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32)
 		i++;
-	char *add;
+	std::string add;
 	add = &line[j][i];
 	all->rbegin()->_error_pages.push_back(add);
 }
