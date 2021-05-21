@@ -21,6 +21,7 @@
 #include "class/Client.hpp"
 #include "class/Server.hpp"
 #include "class/Request.hpp"
+#include "class/CGI.hpp"
 
 class Request;
 
@@ -112,6 +113,8 @@ class Response {
 		int			_status;
 		Client		**_allclient;
 		Request		*_req;
+		//CGI 		_cgi;
+
 
 };
 

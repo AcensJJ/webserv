@@ -9,7 +9,7 @@ Routes::Routes(const Routes &other)  : _dir_file(other._dir_file),  _listen(othe
 _default(other._default), _limit_client_body(other._limit_client_body)
 {
 	_location = other.getLocation();
-	_gci_path = other.getGCIPath();
+	_cgi_path = other.getCGIPath();
 	_method = other.getMethod();
 }
 
@@ -45,9 +45,9 @@ void Routes::setLocation(std::string value)
 	this->_location = value;
 }
 
-void Routes::setGCIPath(std::string value)
+void Routes::setCGIPath(std::string value)
 {
-	this->_gci_path = value;
+	this->_cgi_path = value;
 }
 
 void Routes::setLimitClientBody(std::string value)
@@ -80,9 +80,9 @@ std::string Routes::getLocation() const
 	return (this->_location);
 }
 
-std::string Routes::getGCIPath() const
+std::string Routes::getCGIPath() const
 {
-	return (this->_gci_path);
+	return (this->_cgi_path);
 }
 
 std::string Routes::getLimitClientBody() const

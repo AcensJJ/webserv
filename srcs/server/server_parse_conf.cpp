@@ -73,7 +73,7 @@ static void	set_routes_cgi_path(Routes *_new, char **line, int i, int j)
 		i++;
 	char *add;
 	add = &line[j][i];
-	_new->setGCIPath(add);
+	_new->setCGIPath(add);
 }
 
 static void	set_routes_location(Routes *_new, char **line, int i, int j)

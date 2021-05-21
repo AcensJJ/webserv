@@ -42,6 +42,13 @@
 // 		int			set_all_variable(std::list<std::string> metavar);
 // 		int			free_cgi(char **tab, int err);
 // 		int			config_cgi(Routes route, Server serv, std::string method, std::string file, std::string content, Client *client, Request req);
+//		int			execv();
+
+//		class CGIException : public std::exception
+//		{
+//			public:
+//				virtual const char* what () const throw();
+//		};
 
 // 	private:
 // 		char **_env;

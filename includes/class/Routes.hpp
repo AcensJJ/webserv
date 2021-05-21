@@ -21,7 +21,7 @@ class Routes {
 		void setListen(bool value);
 		void setDefault(std::string value);
 		void setLocation(std::string value);
-		void setGCIPath(std::string value);
+		void setCGIPath(std::string value);
 		void setLimitClientBody(std::string value);
 		void setMethod(std::string value);
 
@@ -29,7 +29,7 @@ class Routes {
 		bool getListen() const;
 		std::string getDefault() const;
 		std::string getLocation() const;
-		std::string getGCIPath() const;
+		std::string getCGIPath() const;
 		std::string getLimitClientBody() const;
 		std::string getMethod() const;
 
@@ -38,7 +38,7 @@ class Routes {
 		bool			_listen;
 		std::string		_default;
 		std::string		_location;
-		std::string		_gci_path;
+		std::string		_cgi_path;
 		std::string		_limit_client_body;
 		std::string		_method;
 };

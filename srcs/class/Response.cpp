@@ -744,14 +744,14 @@ void Response::config_response(char **env, int i)
                 setWww(getBase().insert(getBase().length(), getFile()));
                 if (!getStatusCode()) setStatusCode(statu_code(getWww()));
             }
-			(void)i;
 			(void)env;
-            // if ((!getRoutes().getCGIPath().empty()) && (getMethod() == "GET" || getMethod() == "POST" || getMethod() == "PUT" ))
-            // {
-            //     _cgi.setEnv(env);
-            //     if (_cgi.config_cgi(getRoutes(), getServer(), getMethod(), getFile(), getContent(getWww()), client)) throw Response::BuildResponseException();
-            //     _cgi.execv();
-            // }
+			(void)i;
+            //if ((!getRoutes().getCGIPath().empty()) && (getMethod() == "GET" || getMethod() == "POST" || getMethod() == "PUT" ))
+            //{
+            //    _cgi.setEnv(env);
+            //    if (_cgi.config_cgi(getRoutes(), *getServer(), getMethod(), getFile(), getContent(getWww()), *getClient(), *getRequest())) throw Response::BuildResponseException();
+            //    _cgi.execv();
+            //}
         }
 	 }
 	if (getStatusCode() == 200)
