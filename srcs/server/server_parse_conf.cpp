@@ -225,14 +225,20 @@ static int		set_value(char **line, std::vector<Server> *all)
 		int i(0);
 		while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
 			i++;
-		if (!ft_strncmp(&line[j][i], "}", 1))
-			while (line[j] && !ft_strncmp(&line[j][i], "server", 6))
-			{
-				j++;
-				i=0;
-				while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
-					i++;
-			}
+		if (line[j][i] == '}')
+		{
+			i++;
+			while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
+				i++;
+			if (!ft_strncmp(&line[j][i], "location", 8))
+				while (line[j] && !ft_strncmp(&line[j][i], "server", 6))
+				{
+					j++;
+					i=0;
+					while (line[j][i] && ((line[j][i] >= 9 && line[j][i] <= 13) || line[j][i] == 32))
+						i++;
+				}
+		}
 		if (!ft_strncmp(&line[j][i], "server", 6))
 		{
 			if (check_bef_serv(line, j))
