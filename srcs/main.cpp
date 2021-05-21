@@ -119,7 +119,7 @@ int		main(int ac, char **av, char **env)
 			for (std::vector<Response*>::iterator itr = servers.begin(); itr != servers.end(); itr++)
 			{
 				Response *tmp = *itr;
-				tmp->clear();
+				tmp->clean();
 			}
 			return (EXIT_FAILURE);
 		}

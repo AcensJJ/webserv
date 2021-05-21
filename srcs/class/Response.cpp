@@ -783,7 +783,7 @@ void Response::config_response(char **env, int i)
 	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;
 }
 
-void Response::clear()
+void Response::clean()
 {
 	for (int i = 1; i < FD_SETSIZE; i++)
 	{
@@ -796,15 +796,15 @@ void Response::clear()
 	}
 	delete [] _allclient ;
 	delete getRequest();
-	delete getServer()->getWrFdAddr();
-	delete getServer()->getRdFdAddr();
+	if (getServer()->getWrFdAddr()) delete getServer()->getWrFdAddr();
+	if (getServer()->getRdFdAddr()) delete getServer()->getRdFdAddr();
 	delete getServer();
 	delete getRequest();
 	if (getServer()->getSocket() > -1) close(getServer()->getSocket());
 	delete this;
 }
 
-void Response::clean()
+void Response::clear()
 {
 	_response.clear(); 
 	_file.clear();

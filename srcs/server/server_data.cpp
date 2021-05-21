@@ -106,7 +106,7 @@ void	one_client_send(Response *res, int i, char **env)
 			{	
 				std::cerr << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
 			}
-			res->clean();
+			res->clear();
 		}
 		catch(const std::exception& e)
 		{
