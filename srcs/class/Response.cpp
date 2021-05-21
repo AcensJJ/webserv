@@ -612,6 +612,7 @@ void Response::head_method()
 
 void Response::post_method()
 {
+	put_method();
 }
 
 void Response::put_method()
@@ -775,6 +776,7 @@ void Response::config_response(char **env, int i)
 			setListingContent("");
 		}
 	}
+	std::cout << getRoutes().getDirFile() << "   LLAAA" << std::endl;
 	check_method();
 	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;
 }

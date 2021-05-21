@@ -117,6 +117,7 @@ Routes Server::getRoute(std::string dir) const
 	for (std::__1::list<Routes>::const_iterator itr = _routes.begin(); itr != _routes.end(); itr++)
 	{
 		Routes actrt = *itr;
+		std::cout << actrt.getDirFile() << std::endl;
 		dot[1] = actrt.getDirFile().rfind('.');
 		if (dot[1] >= 0 && !ft_strcmp(&dir[dot[0]], &actrt.getDirFile()[dot[1]]))
 			return (actrt);
