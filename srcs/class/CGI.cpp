@@ -183,41 +183,41 @@ int CGI::set_all_variable(std::list<std::string> *metavar)
 	if (!(tmp = ft_itoa(getContent().length()))) return (1);
 	val = tmp;
 	free(tmp);
-	if (ft_strcmp(getClient()->getLogin().c_str(), "NotAuth") && ft_strcmp(getClient()->getLogin().c_str(), "Error")) metavar->push_back("AUTH_TYPE=\"Basic\"");
+	if (ft_strcmp(getClient()->getLogin().c_str(), "NotAuth") && ft_strcmp(getClient()->getLogin().c_str(), "Error")) metavar->push_back("AUTH_TYPE=Basic");
 	metavar->push_back("CONTENT_LENGTH=" + val + "");
-	if (!ft_strcmp(getMethod().c_str(), "POST") || !ft_strcmp(getMethod().c_str(), "PUT")) metavar->push_back("CONTENT_TYPE=\"" + getType() + "\"");
-	metavar->push_back("GATEWAY_INTERFACE=\"CGI/1.1\"");
+	if (!ft_strcmp(getMethod().c_str(), "POST") || !ft_strcmp(getMethod().c_str(), "PUT")) metavar->push_back("CONTENT_TYPE=" + getType() + "");
+	metavar->push_back("GATEWAY_INTERFACE=CGI/1.1");
 	size_t pos = getRoutes().getCGIPath().rfind("/");
 	if (pos != std::string::npos) { 
 		val = getRoutes().getCGIPath().substr(pos, getRoutes().getCGIPath().length() - pos);
-		metavar->push_back("PATH_INFO=\"" + val + "\"");
-		metavar->push_back("PATH_TRANSLATED=\"." +  getRoutes().getCGIPath() + "\"");
+		metavar->push_back("PATH_INFO=" + val + "");
+		metavar->push_back("PATH_TRANSLATED=." +  getRoutes().getCGIPath() + "");
 	}
 	pos = getFile().find("?");
 	if (pos == std::string::npos) pos = getFile().length(); 
 	val = getFile().substr(pos, getFile().length() - pos);
-	metavar->push_back("QUERY_STRING=\"" + val + "\"");
-	metavar->push_back("REMOTE_ADDR=\"" + getServer()->getHost() + "\"");
-	metavar->push_back("REMOTE_IDENT=\"""\"");
-	metavar->push_back("REMOTE_USER=\"" + getClient()->getLogin().substr(0, getClient()->getLogin().find(":")) + "\"");
-	metavar->push_back("REQUEST_METHOD=\"" + getMethod() + "\"");
-	metavar->push_back("REQUEST_URI=\"" + getFile() + "\"");
-	metavar->push_back("SCRIPT_NAME=\"" + getRoutes().getCGIPath() + "\"");
-	metavar->push_back("SERVER_NAME=\"" + getServer()->getServerName() + "\"");
+	metavar->push_back("QUERY_STRING=" + val + "");
+	metavar->push_back("REMOTE_ADDR=" + getServer()->getHost() + "");
+	metavar->push_back("REMOTE_IDENT=""");
+	metavar->push_back("REMOTE_USER=" + getClient()->getLogin().substr(0, getClient()->getLogin().find(":")) + "");
+	metavar->push_back("REQUEST_METHOD=" + getMethod() + "");
+	metavar->push_back("REQUEST_URI=" + getFile());
+	metavar->push_back("SCRIPT_NAME=" + getRoutes().getCGIPath() + "");
+	metavar->push_back("SERVER_NAME=" + getServer()->getServerName() + "");
 	if (!(tmp = ft_itoa(getServer()->getPort()))) return (1);
 	val = tmp;
 	free(tmp);
-	metavar->push_back("SERVER_PORT=\"" + val + "\"");
+	metavar->push_back("SERVER_PORT=" + val + "");
 	metavar->push_back("SERVER_PROTOCOL=HTTP/1.1");
-	metavar->push_back("SERVER_SOFTWARE=\"Nginx\"");
-	if (!getRequest()->getAcceptCharsets().empty())   metavar->push_back("HTTP_ACCEPT_CHARSETS="   + getRequest()->getAcceptCharsets() + "\"");
-	if (!getRequest()->getAcceptLanguage().empty())   metavar->push_back("HTTP_ACCEPT_LANGUAGE="   + getRequest()->getAcceptLanguage() + "\"");
-	if (!getRequest()->getAuthorization().empty())    metavar->push_back("HTTP_AUTHORIZATION="     + getRequest()->getAuthorization()  + "\"");
-	if (!getRequest()->getDate().empty())             metavar->push_back("HTTP_DATE="              + getRequest()->getDate()           + "\"");
-	if (!getRequest()->getHost().empty())             metavar->push_back("HTTP_HOST="              + getRequest()->getHost() + "\"");
-	if (!getRequest()->getUserAgent().empty())        metavar->push_back("HTTP_USER_AGENT="        + getRequest()->getUserAgent() + "\"");
-	if (!getRequest()->getTransferEncoding().empty()) metavar->push_back("HTTP_TRANSFER_ENCODING=" + getRequest()->getTransferEncoding() + "\"");
-	if (!getRequest()->getReferer().empty())          metavar->push_back("HTTP_REFERER="           + getRequest()->getReferer() + "\"");
+	metavar->push_back("SERVER_SOFTWARE=Nginx");
+	if (!getRequest()->getAcceptCharsets().empty())   metavar->push_back("HTTP_ACCEPT_CHARSETS="   + getRequest()->getAcceptCharsets() + "");
+	if (!getRequest()->getAcceptLanguage().empty())   metavar->push_back("HTTP_ACCEPT_LANGUAGE="   + getRequest()->getAcceptLanguage() + "");
+	if (!getRequest()->getAuthorization().empty())    metavar->push_back("HTTP_AUTHORIZATION="     + getRequest()->getAuthorization()  + "");
+	if (!getRequest()->getDate().empty())             metavar->push_back("HTTP_DATE="              + getRequest()->getDate()           + "");
+	if (!getRequest()->getHost().empty())             metavar->push_back("HTTP_HOST="              + getRequest()->getHost() + "");
+	if (!getRequest()->getUserAgent().empty())        metavar->push_back("HTTP_USER_AGENT="        + getRequest()->getUserAgent() + "");
+	if (!getRequest()->getTransferEncoding().empty()) metavar->push_back("HTTP_TRANSFER_ENCODING=" + getRequest()->getTransferEncoding() + "");
+	if (!getRequest()->getReferer().empty())          metavar->push_back("HTTP_REFERER="           + getRequest()->getReferer() + "");
 	return (0);
 }
 
@@ -268,7 +268,11 @@ int CGI::execv()
 	pid_t pid;
 
 	pipe(pfd);
-
+	for (size_t i = 0; getEnv()[i]; i++)
+	{
+		dprintf(1, "%s\n", getEnv()[i]);
+	}
+	
 	pid = fork();
 	if (pid == -1)
 		throw CGI::CGIException();
