@@ -39,7 +39,7 @@
 
  		std::string		getType();
 
- 		int			set_all_variable(std::list<std::string> metavar);
+ 		int			set_all_variable(std::list<std::string> *metavar);
  		int			free_cgi(char **tab, int err);
  		int			config_cgi();
 		int			execv();

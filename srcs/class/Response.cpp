@@ -371,24 +371,26 @@ void Response::setContentType()
 void Response::setLastModified(std::string path)
 {
 	struct stat	sb;
-	stat(path.c_str(), &sb);
-	char *date;
-	if (!(date = (char *)malloc(12))) throw Response::BuildResponseException();
-	ft_bzero(date, 12);
-	strftime(date, 3, "%a", gmtime(&(sb.st_ctime)));
-	setResponse(getResponse().insert(getResponse().length(), "Last-Modified: "));
-	setResponse(getResponse().insert(getResponse().length(), date));
-	setResponse(getResponse().insert(getResponse().length(), ", "));
-	ft_bzero(date, 3);
-	strftime(date, 11, "%d %h %Y", gmtime(&(sb.st_ctime)));
-	setResponse(getResponse().insert(getResponse().length(), date));
-	setResponse(getResponse().insert(getResponse().length(), " "));
-	ft_bzero(date, 11);
-	strftime(date, 8, "%H:%M:%S", gmtime(&(sb.st_ctime)));
-	setResponse(getResponse().insert(getResponse().length(), date));
-	setResponse(getResponse().insert(getResponse().length(), " GMT"));
-	free(date);
-	setResponse(getResponse().insert(getResponse().length(), "\n"));
+	if (stat(path.c_str(), &sb) >= 0)
+	{
+		char *date;
+		if (!(date = (char *)malloc(12))) throw Response::BuildResponseException();
+		ft_bzero(date, 12);
+		strftime(date, 3, "%a", gmtime(&(sb.st_ctime)));
+		setResponse(getResponse().insert(getResponse().length(), "Last-Modified: "));
+		setResponse(getResponse().insert(getResponse().length(), date));
+		setResponse(getResponse().insert(getResponse().length(), ", "));
+		ft_bzero(date, 3);
+		strftime(date, 11, "%d %h %Y", gmtime(&(sb.st_ctime)));
+		setResponse(getResponse().insert(getResponse().length(), date));
+		setResponse(getResponse().insert(getResponse().length(), " "));
+		ft_bzero(date, 11);
+		strftime(date, 8, "%H:%M:%S", gmtime(&(sb.st_ctime)));
+		setResponse(getResponse().insert(getResponse().length(), date));
+		setResponse(getResponse().insert(getResponse().length(), " GMT"));
+		free(date);
+		setResponse(getResponse().insert(getResponse().length(), "\n"));
+	}
 }
 
 void Response::setLocation()
@@ -554,7 +556,11 @@ int Response::statu_code(std::string path)
 {
 	struct stat	sb;
 	if (stat(path.c_str(), &sb) == -1) return (404);
-	if (_http_method.find(getMethod()) != _http_method.end()) return (200);
+	if (_http_method.find(getMethod()) != _http_method.end()) {
+		if (S_ISDIR(sb.st_mode)) return (404);
+		return (200);
+	}
+
 	return (405);
 }
 
@@ -712,7 +718,11 @@ void Response::config_response(char **env, int i)
 	 else {
         if (!getStatusCode())
         {
-            if (!getRoutes().getListen() && (getFile()[getFile().length() - 1] == '/' || getFile().empty()) && !ft_strcmp("GET", getMethod().c_str()))
+			struct stat	sb;
+			if (stat(getWww().insert(getWww().length(), getFile()).c_str(), &sb) != -1) if (S_ISDIR(sb.st_mode) && !S_ISREG(sb.st_mode)) {
+				setFile(getFile().insert(getFile().length(), "/"));
+			}
+			if (!getRoutes().getListen() && (getFile()[getFile().length() - 1] == '/' || getFile().empty()) && !ft_strcmp("GET", getMethod().c_str()))
             {
                 configDefault();
                 setStatusCode(404);
@@ -722,21 +732,23 @@ void Response::config_response(char **env, int i)
                     if (!check_exist(getWww().insert(getWww().length(), tmp + it->second)))
                     {
                         setFile(tmp + it->second);
-                        setStatusCode(statu_code(getWww().insert(getWww().length(), tmp)));
+                		setWww(getBase().insert(getBase().length(), getFile()));
+                        setStatusCode(statu_code(getWww()));
                     }
                 }
-                setWww(getBase().insert(getBase().length(), getFile()));
             }
             else if (getRoutes().getListen() && (getFile()[getFile().length() - 1] == '/' || getFile().empty()) && !ft_strcmp("GET", getMethod().c_str()))
             {
                 setWww(getBase().insert(getBase().length(), getFile()));
                 setListingContent("<H1>Auto-index</H1>\n\n");
                 if (!getStatusCode()) setStatusCode(statu_code(getWww()));
-                if (print_directory(getWww().c_str())){
+                if (print_directory(getWww().c_str())) {
                     setListingContent("");
                     setStatusCode(404);
-                }
-            }
+        		}
+				struct stat	sb;
+				if (stat(getWww().c_str(), &sb) != -1) if (S_ISDIR(sb.st_mode)) setStatusCode (200);
+			}
             else {
                 setWww(getBase().insert(getBase().length(), getFile()));
                 if (!getStatusCode()) setStatusCode(statu_code(getWww()));
@@ -753,6 +765,8 @@ void Response::config_response(char **env, int i)
 				_cgi.setRequest(getRequest());
 				std::cout << "CGI launch\n";
 				if (_cgi.config_cgi()) throw Response::BuildResponseException();
+				setListingContent("fake");
+				setStatusCode(200);
             }
         }
 	 }
