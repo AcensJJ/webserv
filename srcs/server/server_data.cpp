@@ -11,13 +11,14 @@ void check_end_file(Response *res, int i)
 		size_t j;
 		if ((j = check.find("\r\n\r\n")) != std::string::npos)
 		{
-			std::string tmp = &check[j + 4];
+			std::string tmp = &check[j + 2];
 			if (check.find("Transfer-Encoding:") != std::string::npos && check.find("chunked") != std::string::npos)
 			{
+				tmp = &tmp[2];
 				while (!tmp.empty() && !res->getClient()[i]->getRecvEnd())
 				{
-					size_t nb = ft_atoi(&check[j]);
-					while (!tmp.empty() && tmp[0] >= '0' && tmp[0] <= '9')
+					int nb = ft_atoi_base(&check[j], (char *)"0123456789ACBDEF\0");
+					while (!tmp.empty() && ((tmp[0] >= '0' && tmp[0] <= '9') || (tmp[0] >= 'A' && tmp[0] <= 'F')))
 						tmp = &tmp[1];
 					if (nb == 0 && tmp.find("\r\n\r\n") != std::string::npos)
 						res->getClient()[i]->setRecvEnd(true);
@@ -26,7 +27,13 @@ void check_end_file(Response *res, int i)
 					else tmp.clear();
 				}
 			}
-			else res->getClient()[i]->setRecvEnd(true);
+			else if ((j = check.find("Content-Length:")) != std::string::npos)
+			{
+				tmp = &tmp[2];
+				int nb = ft_atoi(&check[j]);
+				if ((size_t)nb <= tmp.length()) res->getClient()[i]->setRecvEnd(true);
+			}
+			else if (check.find("\r\n\r\n") != std::string::npos) res->getClient()[i]->setRecvEnd(true);
 		}
 		fs.close();
 	}
