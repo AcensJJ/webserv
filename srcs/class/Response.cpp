@@ -720,7 +720,7 @@ void Response::config_response(char **env, int i)
 		configMethod();
 		setBase(getRoutes().getLocation());
 		if (getBase().empty()) setBase(SERV_WWW);
-		if (getRoutes().getDirFile().rfind("/ *.") == std::string::npos && getRoutes().getDirFile()[getRoutes().getDirFile().length() -1] == '/') setFile(&getFile()[getRoutes().getDirFile().length()]);
+		if (getRoutes().getDirFile().rfind("/ *.") == std::string::npos && getRoutes().getDirFile().rfind('/') != std::string::npos) setFile(&getFile()[getRoutes().getDirFile().rfind('/')]);
 		setWww(getBase());
 		setStatusCode(0);
 	}
