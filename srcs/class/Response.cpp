@@ -89,6 +89,16 @@ std::string Response::getWww() const
 	return(this->_www);
 }
 
+void Response::setUrl(std::string value)
+{
+	this->_url = value;
+}
+
+std::string Response::getUrl() const
+{
+	return(this->_url);
+}
+
 void Response::setServer(Server* value)
 {
 	this->_server = value;
@@ -281,7 +291,7 @@ void Response::setContentLength(std::string content)
 
 void Response::setContentLocation()
 {
-	setResponse(getResponse().insert(getResponse().length(), "Content-Location: " + getFile() + "\n"));
+	setResponse(getResponse().insert(getResponse().length(), "Content-Location: " + getUrl() + "\n"));
 }
 
 void Response::setContentType()
@@ -703,13 +713,14 @@ void Response::config_response(char **env, int i)
 		sep[0] = request.find(' ');
 		sep[1] = request.rfind(' ');
 		setMethod(request.substr(0, sep[0]));
-		setFile(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
+		setUrl(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
+		setFile(getUrl());
 		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;            
 		this->setRoutes(getServer()->getRoute(getFile()));
 		configMethod();
 		setBase(getRoutes().getLocation());
 		if (getBase().empty()) setBase(SERV_WWW);
-		setFile(&getFile()[getRoutes().getDirFile().length()]);
+		if (getRoutes().getDirFile().rfind("/ *.") == std::string::npos && getRoutes().getDirFile()[getRoutes().getDirFile().length() -1] == '/') setFile(&getFile()[getRoutes().getDirFile().length()]);
 		setWww(getBase());
 		setStatusCode(0);
 	}

@@ -112,30 +112,31 @@ Routes Server::getRoute(std::string dir) const
 {
 	Routes tmp;
 	int pnt = 0;
-	int dot[2];
+	size_t dot[2];
 	dot[0] = dir.rfind('.');
 	for (std::__1::list<Routes>::const_iterator itr = _routes.begin(); itr != _routes.end(); itr++)
 	{
+
 		Routes actrt = *itr;
 		dot[1] = actrt.getDirFile().rfind('.');
-		if (dot[1] >= 0 && !ft_strcmp(&dir[dot[0]], &actrt.getDirFile()[dot[1]]))
+		if (actrt.getDirFile().find("/ *.") != std::string::npos && dot[1] != std::string::npos && !ft_strcmp(&dir[dot[0]], &actrt.getDirFile()[dot[1]]))
 			return (actrt);
 		int len = actrt.getDirFile().length();
 		if (!ft_strncmp(actrt.getDirFile().c_str(), dir.c_str(), len))
 		{
-			if (!(actrt.getDirFile().length() > dir.length() && actrt.getDirFile()[dir.length()] != '\0' && actrt.getDirFile()[dir.length()] != '/'))
+			if (!(actrt.getDirFile().length() > dir.length() && actrt.getDirFile()[dir.length() - 1] != '\0' && actrt.getDirFile()[dir.length() - 1] != '/'))
 			{
 				if (tmp.getDirFile().empty()) {
 					tmp = actrt;
 					for (int i = 0; actrt.getDirFile()[i]; i++)
 						if (actrt.getDirFile()[i] == '/') pnt += 2;
-					if (actrt.getDirFile()[actrt.getDirFile().length()] != '/' ) pnt++;
+					if (actrt.getDirFile()[actrt.getDirFile().length() - 1] != '/') pnt++;
 				}
 				else {
 					int cmp = 0;
 					for (int i = 0; actrt.getDirFile()[i]; i++)
 						if (actrt.getDirFile()[i] == '/') cmp += 2;
-					if (actrt.getDirFile()[actrt.getDirFile().length()] != '/' ) cmp++;
+					if (actrt.getDirFile()[actrt.getDirFile().length() - 1] != '/' ) cmp++;
 					if (cmp > pnt)
 					{
 						tmp = actrt;
