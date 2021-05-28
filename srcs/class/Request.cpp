@@ -144,6 +144,12 @@ int			Request::getTime() const
 
 void Request::set_line_config(char *line, bool body)
 {
+	//fuck
+	std::cout << "cherche moi probleme malloc char* to string" << std::endl;
+	std::string uri2 = getHost();
+	std::cout << uri2 << std::endl;
+	uri2 = uri2 +"getFile()";
+	std::cout << uri2 << std::endl;
 	if (body)
 	{
 		setBody(getBody().insert(getBody().length(), line));
@@ -153,21 +159,21 @@ void Request::set_line_config(char *line, bool body)
 		setFirstLine(line);
 	else {
 		if (!ft_strncmp(line, "Accept-Charset:", ft_strlen("Accept-Charset:")))
-			setAcceptCharsets(line);
+			setAcceptCharsets((std::string)line);
 		else if (!ft_strncmp(line, "Accept-Language:", ft_strlen("Accept-Language:")))
-			setAcceptLanguage(line);
+			setAcceptLanguage((std::string)line);
 		else if (!ft_strncmp(line, "Authorization:", ft_strlen("Authorization:")))
-			setAuthorization(line);
+			setAuthorization((std::string)line);
 		else if (!ft_strncmp(line, "Date:", ft_strlen("Date:")))
-			setDate(line);
+			setDate((std::string)line);
 		else if (!ft_strncmp(line, "Host:", ft_strlen("Host:")))
 			setHost(line);
 		else if (!ft_strncmp(line, "User-Agent:", ft_strlen("User-Agent:")))
-			setUserAgent(line);
+			setUserAgent((std::string)line);
 		else if (!ft_strncmp(line, "Transfer-Encoding:", ft_strlen("Transfer-Encoding:")))
-			setTransferEncoding(line);
+			setTransferEncoding((std::string)line);
 		else if (!ft_strncmp(line, "Referer:", ft_strlen("Referer:")))
-			setReferer(line);
+			setReferer((std::string)line);
 	}
 }
 

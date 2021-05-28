@@ -721,6 +721,7 @@ void Response::config_response(char **env, int i)
 		setBase(getRoutes().getLocation());
 		if (getBase().empty()) setBase(SERV_WWW);
 		if (getRoutes().getDirFile().rfind("/ *.") == std::string::npos && getRoutes().getDirFile().rfind('/') != std::string::npos) setFile(&getFile()[getRoutes().getDirFile().rfind('/') + 1]);
+		if (getFile()[0] == '/') setFile(&getFile()[1]);
 		setWww(getBase());
 		setStatusCode(0);
 	}
@@ -770,7 +771,7 @@ void Response::config_response(char **env, int i)
 				_cgi.setRoutes(getRoutes());
 				_cgi.setServer(getServer());
 				_cgi.setMethod(getMethod());
-				_cgi.setFile(getFile());
+				_cgi.setFile(getUrl());
 				_cgi.setContent("fake");
 				_cgi.setClient(getClient()[i]);
 				_cgi.setRequest(getRequest());
