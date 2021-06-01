@@ -320,9 +320,11 @@ std::string CGI::read_message()
 						return (str);
 					else
 					{
+						tmp = &tmp[nb + 2];
 						std::string add;
 						add.copy((char *)tmp.c_str(), 0, nb);
 						str.insert(str.length(), add);
+						tmp = &tmp[nb + 4];
 					}
 				}
 			}
