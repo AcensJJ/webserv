@@ -3,6 +3,10 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <iomanip>
 #include "../../libft-cpp/include/libft.hpp"
 #include "../../libft-cpp/include/get_next_line.hpp"
 
@@ -37,8 +41,8 @@ class Request {
 		std::string getBody() const;
 		int			getTime() const;
 
-		void config_request(int fd);
-		void set_line_config(char *line, bool body);
+		void set_line_config(std::string line, bool body);
+		void config_request(std::string file);
 
 		class GNLMallocException : public std::exception
 		{

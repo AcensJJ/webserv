@@ -206,8 +206,7 @@ int CGI::set_all_variable(std::list<std::string> *metavar)
 	if (!(tmp = ft_itoa(getServer()->getPort()))) return (1);
 	val = tmp;
 	free(tmp);
-	//metavar->push_back("REQUEST_URI=http://"+ getServer()->getHost() + ":"+ val + getFile());
-	metavar->push_back("REQUEST_URI= "); //fake
+	metavar->push_back("REQUEST_URI=http://"+ getRequest()->getHost() + ":"+ val + getFile());
 	metavar->push_back("SERVER_PORT=" + val + "");
 	metavar->push_back("SERVER_PROTOCOL=HTTP/1.1");
 	metavar->push_back("SERVER_SOFTWARE=Nginx");

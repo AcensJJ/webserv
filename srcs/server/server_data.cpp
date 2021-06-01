@@ -100,26 +100,21 @@ void	one_client_read(Response* res, int i)
 
 void	one_client_send(Response *res, int i, char **env)
 {
-	int request_fd = config_data_serv(res, i, O_RDONLY);
-	if (request_fd != -1)
+	try
 	{
-		try
-		{
-			std::cout << std::endl << "\033[0;33m   Working on socket\033[0m(" << res->getClient()[i]->getSocket() << ")" << std::endl;
-			res->getRequest()->setTime(res->getClient()[i]->getTime());
-			res->getRequest()->config_request(request_fd);
-			res->config_response(env, i);
-			if (send(res->getClient()[i]->getSocket(), res->getResponse().c_str(), res->getResponse().length(), 0) < 0)
-			{	
-				std::cerr << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
-			}
-			res->clear();
+		std::cout << std::endl << "\033[0;33m   Working on socket\033[0m(" << res->getClient()[i]->getSocket() << ")" << std::endl;
+		res->getRequest()->setTime(res->getClient()[i]->getTime());
+		res->getRequest()->config_request(res->getClient()[i]->getDir());
+		res->config_response(env, i);
+		if (send(res->getClient()[i]->getSocket(), res->getResponse().c_str(), res->getResponse().length(), 0) < 0)
+		{	
+			std::cerr << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
 		}
-		catch(const std::exception& e)
-		{
-			std::cerr << e.what() << std::endl;
-		}
-		close(request_fd);
+		res->clear();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
 	}
 
 }

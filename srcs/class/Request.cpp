@@ -142,14 +142,9 @@ int			Request::getTime() const
 	return(this->_time);
 }
 
-void Request::set_line_config(char *line, bool body)
+void Request::set_line_config(std::string line, bool body)
 {
-	//fuck
-	std::cout << "cherche moi probleme malloc char* to string" << std::endl;
-	std::string uri2 = getHost();
-	std::cout << uri2 << std::endl;
-	uri2 = uri2 +"getFile()";
-	std::cout << uri2 << std::endl;
+	line.erase(line.length() - 1, 1);
 	if (body)
 	{
 		setBody(getBody().insert(getBody().length(), line));
@@ -158,51 +153,47 @@ void Request::set_line_config(char *line, bool body)
 	else if (getFirstLine().empty())
 		setFirstLine(line);
 	else {
-		if (!ft_strncmp(line, "Accept-Charset:", ft_strlen("Accept-Charset:")))
-			setAcceptCharsets((std::string)line);
-		else if (!ft_strncmp(line, "Accept-Language:", ft_strlen("Accept-Language:")))
-			setAcceptLanguage((std::string)line);
-		else if (!ft_strncmp(line, "Authorization:", ft_strlen("Authorization:")))
-			setAuthorization((std::string)line);
-		else if (!ft_strncmp(line, "Date:", ft_strlen("Date:")))
-			setDate((std::string)line);
-		else if (!ft_strncmp(line, "Host:", ft_strlen("Host:")))
+		if (!ft_strncmp(line.c_str(), "Accept-Charset:", ft_strlen("Accept-Charset:")))
+			setAcceptCharsets(line);
+		else if (!ft_strncmp(line.c_str(), "Accept-Language:", ft_strlen("Accept-Language:")))
+			setAcceptLanguage(line);
+		else if (!ft_strncmp(line.c_str(), "Authorization:", ft_strlen("Authorization:")))
+			setAuthorization(line);
+		else if (!ft_strncmp(line.c_str(), "Date:", ft_strlen("Date:")))
+			setDate(line);
+		else if (!ft_strncmp(line.c_str(), "Host:", ft_strlen("Host:")))
 			setHost(line);
-		else if (!ft_strncmp(line, "User-Agent:", ft_strlen("User-Agent:")))
-			setUserAgent((std::string)line);
-		else if (!ft_strncmp(line, "Transfer-Encoding:", ft_strlen("Transfer-Encoding:")))
-			setTransferEncoding((std::string)line);
-		else if (!ft_strncmp(line, "Referer:", ft_strlen("Referer:")))
-			setReferer((std::string)line);
+		else if (!ft_strncmp(line.c_str(), "User-Agent:", ft_strlen("User-Agent:")))
+			setUserAgent(line);
+		else if (!ft_strncmp(line.c_str(), "Transfer-Encoding:", ft_strlen("Transfer-Encoding:")))
+			setTransferEncoding(line);
+		else if (!ft_strncmp(line.c_str(), "Referer:", ft_strlen("Referer:")))
+			setReferer(line);
 	}
 }
 
-void Request::config_request(int fd)
+void Request::config_request(std::string file)
 {
-	char *line;
+	std::ifstream fd(file);
+	std::string line;
 	bool body(false);
-	_firstLine.clear();
-	_acceptCharsets.clear();
-	_acceptLanguage.clear();
-	_authorization.clear();
-	_date.clear();
-	_host.clear();
-	_userAgent.clear();
-	_transferEncoding.clear();
-	_referer.clear();
-	_body.clear();
-	while (get_next_line(fd, &line) > 0)
+	if (!_firstLine.empty()) _firstLine.clear();
+	if (!_acceptCharsets.empty()) _acceptCharsets.clear();
+	if (!_acceptLanguage.empty()) _acceptLanguage.clear();
+	if (!_authorization.empty()) _authorization.clear();
+	if (!_date.empty()) _date.clear();
+	if (!_host.empty()) _host.clear();
+	if (!_userAgent.empty()) _userAgent.clear();
+	if (!_transferEncoding.empty()) _transferEncoding.clear();
+	if (!_referer.empty()) _referer.clear();
+	if (!_body.empty()) _body.clear();
+	while (getline(fd, line))
 	{
 		set_line_config(line, body);
 		if (line[0] == '\r') body = true;
-		if (line) free(line);
+		line.clear();
 	}
-	if (line) {
-		set_line_config(line, body);
-		free(line);
-	}
-	else throw Request::GNLMallocException();
-
+	fd.close();
 }
 
 const char* Request::GNLMallocException::what() const throw ()

@@ -6,6 +6,8 @@
 #define RECV_BUFF 40001
 #define DATA_SERV "./server/dataServ/"
 
+#include <iostream>
+#include <iomanip>
 #include <unistd.h> 
 #include <stdio.h>
 #include <sys/socket.h> 
