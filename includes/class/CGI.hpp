@@ -45,6 +45,7 @@
  		int			free_cgi(char **tab, int err);
  		int			config_cgi();
 		int			execv();
+		std::string	read_message();
 
 		class CGIException : public std::exception
 		{
