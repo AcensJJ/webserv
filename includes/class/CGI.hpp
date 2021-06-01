@@ -13,6 +13,8 @@
  #include "class/Client.hpp"
  #include "class/Request.hpp"
 
+#define DATA_SERV "./server/dataServ/"
+
  class CGI {
      public:
  		CGI();
