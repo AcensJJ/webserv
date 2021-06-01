@@ -295,6 +295,49 @@ int CGI::execv()
 	return (0);
 }
 
+std::string CGI::read_message()
+{
+	std::string str;
+	std::ifstream fs(getClient()->getDir());
+	if (fs.is_open())
+	{
+		std::stringstream ss;
+		ss << fs.rdbuf();
+		std::string check = ss.str();
+		size_t j;
+		if ((j = check.find("\r\n\r\n")) != std::string::npos)
+		{
+			std::string tmp = &check[j + 2];
+			if (check.find("Transfer-Encoding:") != std::string::npos && check.find("chunked") != std::string::npos)
+			{
+				tmp = &tmp[2];
+				while (!tmp.empty())
+				{
+					int nb = ft_atoi_base(&check[j], (char *)"0123456789ACBDEF\0");
+					while (!tmp.empty() && ((tmp[0] >= '0' && tmp[0] <= '9') || (tmp[0] >= 'A' && tmp[0] <= 'F')))
+						tmp = &tmp[1];
+					if (nb == 0 && tmp.find("\r\n\r\n") != std::string::npos)
+						return (str);
+					else
+					{
+						std::string add;
+						add.copy((char *)tmp.c_str(), 0, nb);
+						str.insert(str.length(), add);
+					}
+				}
+			}
+			else if ((j = check.find("Content-Length:")) != std::string::npos)
+			{
+				tmp = &tmp[2];
+				int nb = ft_atoi(&check[j]);
+				str.copy((char *)tmp.c_str(), 0, nb);
+			}
+		}
+		fs.close();
+	}
+	return (str);
+}
+
 const char* CGI::CGIException::what() const throw ()
 {
 	return ("\033[1;31m   Error: \033[0;31m Building CGI failed\033[0m");
