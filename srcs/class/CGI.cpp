@@ -190,7 +190,8 @@ int CGI::set_all_variable(std::list<std::string> *metavar)
 	size_t pos = getRoutes().getCGIPath().rfind("/");
 	if (pos != std::string::npos) { 
 		val = getRoutes().getCGIPath().substr(pos, getRoutes().getCGIPath().length() - pos);
-		metavar->push_back("PATH_INFO=" + val + "");
+		metavar->push_back("PATH_INFO=" + getFile());
+		std::cout << val << std::endl;
 		metavar->push_back("PATH_TRANSLATED=." +  getRoutes().getCGIPath() + "");
 	}
 	pos = getFile().find("?");
@@ -206,7 +207,7 @@ int CGI::set_all_variable(std::list<std::string> *metavar)
 	if (!(tmp = ft_itoa(getServer()->getPort()))) return (1);
 	val = tmp;
 	free(tmp);
-	metavar->push_back("REQUEST_URI=http://"+ getRequest()->getHost() + ":"+ val + getFile());
+	metavar->push_back("REQUEST_URI="+ getFile());
 	metavar->push_back("SERVER_PORT=" + val + "");
 	metavar->push_back("SERVER_PROTOCOL=HTTP/1.1");
 	metavar->push_back("SERVER_SOFTWARE=Nginx");
@@ -273,24 +274,37 @@ int CGI::execv()
 	//	dprintf(1, "%s\n", getEnv()[i]);
 	//}
 	
+	if ((fdfile = open((DATA_SERV + getServer()->getServerName()).c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
+		throw CGI::CGIException();
 	pid = fork();
 	if (pid == -1)
 		throw CGI::CGIException();
 	else if (pid == 0)
 	{
         dup2(pfd[0], 0);
+        dup2(fdfile, 1);
 		if (execve(getRoutes().getCGIPath().c_str(), NULL, getEnv()) < 0)
 			throw CGI::CGIException();
 		exit(0);
 	}
     else
     {
-		if ((fdfile = open(getServer()->getServerName().c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
-			throw CGI::CGIException();
+        dup2(1, fdfile);
+        dup2(0, pfd[0]);
         dup2(pfd[1], fdfile);
+		waitpid(-1, NULL, 0);
+		// int ret = 1;
+		// char	buffer[34] = {0};
+		// std::string res;
+		// while (ret > 0)
+		// {
+		// 	memset(buffer, 0, 34);
+		// 	ret = read(fdfile, buffer, 34 - 1);
+		// 	res += buffer;
+		// 	std::cout << res << std::endl;
+		// }
 		close(pfd[0]);
 		close(pfd[1]);
-		waitpid(pid, NULL, 0);
     }
 	return (0);
 }
