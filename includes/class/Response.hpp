@@ -60,8 +60,6 @@ class Response {
 		Request*	getRequest() const;
 		void		setClient(Client** value);
 		Client**	getClient() const;
-		void		setBodyToWork(bool value);
-		bool		getBodyToWork() const;
 
 		void 		configDefault();
 		void 		configMethod();
@@ -120,7 +118,6 @@ class Response {
 		Client		**_allclient;
 		Request		*_req;
 		CGI 		_cgi;
-		bool		_work;
 
 
 };

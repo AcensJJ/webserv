@@ -31,6 +31,10 @@ class Client {
 		std::string getDir() const;
 		int			getRecvEnd() const;
 		sockaddr_in	getAddress() const;
+		void		setBodyToWork(bool value);
+		bool		getBodyToWork() const;
+		void		setPos(unsigned long long value);
+		unsigned long long 		getPos() const;
 		
 		//Authentification
 		void		setLogin(Request *_req);
@@ -42,6 +46,8 @@ class Client {
 		sockaddr_in	_address;
 		std::string	_login;
 		int			_time;
+		bool		_work;
+		unsigned long long _pos;
 };
 
 #endif // !REQUEST_HPP

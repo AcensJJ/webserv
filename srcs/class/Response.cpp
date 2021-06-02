@@ -24,6 +24,8 @@ Response::Response(const Response &other)
 	_status = other.getStatusCode();
 	_allclient = other.getClient();
 	_req = other.getRequest();
+	_url = other.getUrl();
+	_i = other.getI();
 	configMethod();
 }
 
@@ -167,16 +169,6 @@ void Response::setClient(Client** value)
 Client** Response::getClient() const
 {
 	return (this->_allclient);
-}
-
-void Response::setBodyToWork(bool value)
-{
-	this->_work = value;
-}
-
-bool Response::getBodyToWork() const
-{
-	return (this->_work);
 }
 
 void Response::configDefault()
@@ -525,7 +517,7 @@ void Response::setFirstLine()
 std::string Response::getContent(std::string path)
 {
 	if (_cgi.getDo()) return (_cgi.getBody());
-	if (getBodyToWork()) return (_cgi.read_message(getClient()[getI()]));
+	if (getClient()[getI()]->getBodyToWork()) return (_cgi.read_message(getClient()[getI()]));
 	std::string ret;
 	if (!getListingContent().empty() && getStatusCode() >= 200 && getStatusCode() < 300 ) return (getListingContent());
 	int fd;
@@ -677,9 +669,9 @@ void Response::put_method()
 		ret = unlink(getWww().c_str());
 		if (ret == -1) setStatusCode(201);
 		fd = open(getWww().c_str(), O_CREAT | O_WRONLY, 0644);
-		write(fd, getRequest()->getBody().c_str(), getRequest()->getBody().length());
+		write(fd, getContent(getWww()).c_str(), getContent(getWww()).length());
 		close(fd);
-		if (getStatusCode() != 201 && getRequest()->getBody().empty()) setStatusCode(204);
+		if (getStatusCode() != 201 && getContent(getWww()).empty()) setStatusCode(204);
 		setFirstLine();
 		setContentLocation();
 		if (!(ft_strcmp(getMethod().c_str(), "POST"))) setAllHeader();
@@ -729,6 +721,7 @@ void Response::config_response(char **env, int i)
 	struct timeval time;
 	gettimeofday(&time, NULL);
 	setI(i);
+	_cgi.setDo(false);
 	std::string request(getRequest()->getFirstLine());
 	size_t sep[2];
 	if (!request.empty())
@@ -748,9 +741,9 @@ void Response::config_response(char **env, int i)
 		setWww(getBase());
 		setStatusCode(0);
 	}
-	if (time.tv_sec - getRequest()->getTime() > TIMEOUT)
-		setStatusCode(408);
-	 else {
+	// if (time.tv_sec - getRequest()->getTime() > TIMEOUT)
+	// 	setStatusCode(408);
+	//  else {
         if (!getStatusCode())
         {
 			struct stat	sb;
@@ -803,7 +796,7 @@ void Response::config_response(char **env, int i)
 				setStatusCode(_cgi.getStatu());
             }
         }
-	 }
+	// }
 	if (getStatusCode() == 200)
 	{
 		if (getRequest()->getHost().empty()){

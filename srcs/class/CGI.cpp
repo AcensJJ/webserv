@@ -2,12 +2,22 @@
 
 CGI::CGI()
 {
-
+	_do = false;
 }
 
 CGI::CGI(const CGI &other)
 {
 	_env = other.getEnv();
+	_route = other.getRoutes();
+	_req = other.getRequest();
+	_serv = other.getServer();
+	_method = other.getMethod();
+	_file = other.getFile();
+	_content = other.getContent();
+	_body = other.getBody();
+	_statu = other.getStatu();
+	_client = other.getClient();
+	_do = other.getDo();
 }
 
 CGI::~CGI()
@@ -364,28 +374,27 @@ std::string CGI::read_message(Client* client)
 		size_t j;
 		if ((j = check.find("\r\n\r\n")) != std::string::npos)
 		{
-			std::string tmp = &check[j + 2];
+			std::string tmp = &check[j + 4];
 			if (check.find("Transfer-Encoding:") != std::string::npos && check.find("chunked") != std::string::npos)
 			{
-				tmp = &tmp[2];
 				while (!tmp.empty())
 				{
-					int nb = ft_atoi_base(&check[j], (char *)"0123456789ACBDEF\0");
-					while (!tmp.empty() && ((tmp[0] >= '0' && tmp[0] <= '9') || (tmp[0] >= 'A' && tmp[0] <= 'F')))
+					int nb = ft_atoi_base((char *)tmp.c_str(), (char *)"0123456789abcdef\0");
+					while (!tmp.empty() && ((tmp[0] >= '0' && tmp[0] <= '9') || (tmp[0] >= 'a' && tmp[0] <= 'f')))
 						tmp = &tmp[1];
 					if (nb == 0 && tmp.find("\r\n\r\n") != std::string::npos)
 						return (str);
 					else
 					{
-						tmp = &tmp[nb + 2];
+						tmp = &tmp[2];
 						std::string add;
-						add.copy((char *)tmp.c_str(), 0, nb);
+						add = tmp.substr(0, nb);
 						str.insert(str.length(), add);
-						tmp = &tmp[nb + 4];
+						tmp = &tmp[nb + 2];
 					}
 				}
 			}
-			else if ((j = check.find("Content-Length:")) != std::string::npos) str = &check[check.find("\r\n\r\n") + 4];
+			else if ((j = check.find("Content-Length:")) != std::string::npos) str = tmp;
 		}
 	}
 	return (str);

@@ -13,6 +13,8 @@ Client::Client(const Client &other)
 	setRecvEnd(other.getRecvEnd());
 	setAddress(other.getAddress());
 	setTime(other.getTime());
+	setBodyToWork(other.getBodyToWork());
+	setPos(other.getPos());
 }
 
 Client::~Client()
@@ -35,6 +37,8 @@ Client::Client(int socket)
 	setTimeout(0);
 	setTime(time.tv_sec);
 	setRecvEnd(0);
+	setBodyToWork(false);
+	setPos(0);
 }
 
 void Client::setSocket(int value)
@@ -100,6 +104,26 @@ sockaddr_in Client::getAddress() const
 std::string Client::getLogin() const
 {
 	return(this->_login);
+}
+
+void Client::setBodyToWork(bool value)
+{
+	this->_work = value;
+}
+
+bool Client::getBodyToWork() const
+{
+	return (this->_work);
+}
+
+void Client::setPos(unsigned long long value)
+{
+	this->_pos = value;
+}
+
+unsigned long long  Client::getPos() const
+{
+	return (this->_pos);
 }
 
  int b64_isvalidchar(char c)
