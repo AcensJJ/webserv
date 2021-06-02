@@ -50,6 +50,8 @@ class Response {
 		Server*		getServer() const;
 		void		setStatusCode(int value);
 		int 		getStatusCode() const;
+		void		setI(int value);
+		int 		getI() const;
 		void		setRoutes(Routes value);
 		Routes 		getRoutes() const;
 		void		setListingContent(std::string value);
@@ -58,6 +60,8 @@ class Response {
 		Request*	getRequest() const;
 		void		setClient(Client** value);
 		Client**	getClient() const;
+		void		setBodyToWork(bool value);
+		bool		getBodyToWork() const;
 
 		void 		configDefault();
 		void 		configMethod();
@@ -112,10 +116,11 @@ class Response {
 		std::string _response, _file, _method, _base, _www, _listingContent, _url;
 		Server		*_server;
 		Routes		_routes;
-		int			_status;
+		int			_status, _i;
 		Client		**_allclient;
 		Request		*_req;
 		CGI 		_cgi;
+		bool		_work;
 
 
 };

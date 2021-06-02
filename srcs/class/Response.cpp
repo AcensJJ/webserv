@@ -119,6 +119,16 @@ int Response::getStatusCode() const
 	return(this->_status);
 }
 
+void Response::setI(int value)
+{
+	this->_i = value;
+}
+
+int Response::getI() const
+{
+	return(this->_i);
+}
+
 void Response::setRoutes(Routes value)
 {
 	this->_routes = value;
@@ -157,6 +167,16 @@ void Response::setClient(Client** value)
 Client** Response::getClient() const
 {
 	return (this->_allclient);
+}
+
+void Response::setBodyToWork(bool value)
+{
+	this->_work = value;
+}
+
+bool Response::getBodyToWork() const
+{
+	return (this->_work);
 }
 
 void Response::configDefault()
@@ -504,6 +524,8 @@ void Response::setFirstLine()
 
 std::string Response::getContent(std::string path)
 {
+	if (_cgi.getDo()) return (_cgi.getBody());
+	if (getBodyToWork()) return (_cgi.read_message(getClient()[getI()]));
 	std::string ret;
 	if (!getListingContent().empty() && getStatusCode() >= 200 && getStatusCode() < 300 ) return (getListingContent());
 	int fd;
@@ -706,6 +728,7 @@ void Response::config_response(char **env, int i)
 {
 	struct timeval time;
 	gettimeofday(&time, NULL);
+	setI(i);
 	std::string request(getRequest()->getFirstLine());
 	size_t sep[2];
 	if (!request.empty())
@@ -765,20 +788,19 @@ void Response::config_response(char **env, int i)
                 setWww(getBase().insert(getBase().length(), getFile()));
                 if (!getStatusCode()) setStatusCode(statu_code(getWww()));
             }
-            if ((!getRoutes().getCGIPath().empty()) && (getMethod() == "GET" || getMethod() == "POST" || getMethod() == "PUT" ))
+            if (((!getRoutes().getCGIPath().empty()) && (getMethod() == "GET" || getMethod() == "POST" || getMethod() == "PUT" )))
             {
 				_cgi.setEnv(env);
 				_cgi.setRoutes(getRoutes());
 				_cgi.setServer(getServer());
 				_cgi.setMethod(getMethod());
 				_cgi.setFile(getUrl());
-				_cgi.setContent("fake");
 				_cgi.setClient(getClient()[i]);
 				_cgi.setRequest(getRequest());
-				std::cout << "CGI launch\n";
+				std::cout << "   CGI launch\n";
 				if (_cgi.config_cgi()) throw Response::BuildResponseException();
-				setListingContent("fake");
-				setStatusCode(200);
+                setListingContent("");
+				setStatusCode(_cgi.getStatu());
             }
         }
 	 }

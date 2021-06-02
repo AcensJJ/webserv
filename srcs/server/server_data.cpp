@@ -14,6 +14,7 @@ void check_end_file(Response *res, int i)
 			std::string tmp = &check[j + 2];
 			if (check.find("Transfer-Encoding:") != std::string::npos && check.find("chunked") != std::string::npos)
 			{
+				res->setBodyToWork(true);
 				tmp = &tmp[2];
 				while (!tmp.empty() && !res->getClient()[i]->getRecvEnd())
 				{
@@ -29,6 +30,7 @@ void check_end_file(Response *res, int i)
 			}
 			else if ((j = check.find("Content-Length:")) != std::string::npos)
 			{
+				res->setBodyToWork(true);
 				tmp = &tmp[2];
 				int nb = ft_atoi(&check[j]);
 				if ((size_t)nb <= tmp.length()) res->getClient()[i]->setRecvEnd(true);

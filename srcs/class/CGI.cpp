@@ -92,6 +92,26 @@ std::string CGI::getContent() const
 	return(_content);
 }
 
+void CGI::setBody(std::string value)
+{
+	_body = value;
+}
+
+std::string CGI::getBody() const
+{
+	return(_body);
+}
+
+void CGI::setStatu(int value)
+{
+	_statu = value;
+}
+
+int CGI::getStatu() const
+{
+	return(_statu);
+}
+
 void CGI::setClient(Client* value)
 {
 	_client = value;
@@ -101,6 +121,17 @@ Client* CGI::getClient() const
 {
 	return(_client);
 }
+
+void CGI::setDo(bool value)
+{
+	_do = value;
+}
+
+bool CGI::getDo() const
+{
+	return(_do);
+}
+
 
 std::string CGI::getType()
 {
@@ -180,7 +211,7 @@ int CGI::set_all_variable(std::list<std::string> *metavar)
 {
 	char *tmp;
 	std::string val;
-	if (!(tmp = ft_itoa(getContent().length()))) return (1);
+	if (!(tmp = ft_itoa(read_message(getClient()).length()))) return (1);
 	val = tmp;
 	free(tmp);
 	if (ft_strcmp(getClient()->getLogin().c_str(), "NotAuth") && ft_strcmp(getClient()->getLogin().c_str(), "Error")) metavar->push_back("AUTH_TYPE=Basic");
@@ -191,7 +222,6 @@ int CGI::set_all_variable(std::list<std::string> *metavar)
 	if (pos != std::string::npos) { 
 		val = getRoutes().getCGIPath().substr(pos, getRoutes().getCGIPath().length() - pos);
 		metavar->push_back("PATH_INFO=" + getFile());
-		std::cout << val << std::endl;
 		metavar->push_back("PATH_TRANSLATED=." +  getRoutes().getCGIPath() + "");
 	}
 	pos = getFile().find("?");
@@ -237,7 +267,7 @@ int CGI::free_cgi(char **tab, int err)
 
 int CGI::config_cgi()
 {
-
+	_do = true;
 	char **tmp = getEnv();
 	char **env;
 	int i(0);
@@ -265,15 +295,12 @@ int CGI::config_cgi()
 int CGI::execv()
 {
 	int pfd[2];
-	int fdfile;;
+	int pfd2[2];
+	int fdfile;
 	pid_t pid;
-
-	pipe(pfd);
-	//for (size_t i = 0; getEnv()[i]; i++)
-	//{
-	//	dprintf(1, "%s\n", getEnv()[i]);
-	//}
-	
+	std::string message = read_message(getClient());
+	if (pipe(pfd) == -1 || pipe(pfd2) == -1)
+		throw CGI::CGIException();
 	if ((fdfile = open((DATA_SERV + getServer()->getServerName()).c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
 		throw CGI::CGIException();
 	pid = fork();
@@ -281,42 +308,58 @@ int CGI::execv()
 		throw CGI::CGIException();
 	else if (pid == 0)
 	{
-        dup2(pfd[0], 0);
-        dup2(fdfile, 1);
+		dup2(pfd[0], STDIN_FILENO);
+        close(pfd[0]);
+        close(pfd[1]);
+        dup2(fdfile, STDOUT_FILENO);
+        dup2(pfd2[1], fdfile);
+        close(pfd2[0]);
+        close(pfd[1]);
 		if (execve(getRoutes().getCGIPath().c_str(), NULL, getEnv()) < 0)
 			throw CGI::CGIException();
+		close(pfd[1]);
 		exit(0);
 	}
     else
     {
-        dup2(1, fdfile);
-        dup2(0, pfd[0]);
-        dup2(pfd[1], fdfile);
-		waitpid(-1, NULL, 0);
-		// int ret = 1;
-		// char	buffer[34] = {0};
-		// std::string res;
-		// while (ret > 0)
-		// {
-		// 	memset(buffer, 0, 34);
-		// 	ret = read(fdfile, buffer, 34 - 1);
-		// 	res += buffer;
-		// 	std::cout << res << std::endl;
-		// }
+        close(pfd[0]);
+		write(pfd[1], message.c_str(), message.length());
+        close(pfd[1]);
+        close(pfd2[1]);
+        close(pfd2[0]);
+        if (fdfile) close(fdfile);
+		waitpid(pid, NULL, 0);
+		if (fdfile) close(fdfile);
 		close(pfd[0]);
-		close(pfd[1]);
     }
-	return (0);
-}
-
-std::string CGI::read_message()
-{
-	std::string str;
-	std::ifstream fs(getClient()->getDir());
+	std::ifstream fs(DATA_SERV + getServer()->getServerName());
 	if (fs.is_open())
 	{
 		std::stringstream ss;
 		ss << fs.rdbuf();
+		fs.close();
+		std::string check = ss.str();
+		size_t j;
+		if ((j = check.find("Status:")) != std::string::npos) setStatu(ft_atoi(&check[j + 7]));
+		if ((j = check.find("\r\n\r\n")) != std::string::npos)
+		{
+			std::string tmp = &check[j + 4];
+			if (tmp.length() >= 4) tmp.erase(tmp.length() - 4, 4);
+			setBody(tmp);
+		}
+	}
+	return (0);
+}
+
+std::string CGI::read_message(Client* client)
+{
+	std::string str;
+	std::ifstream fs(client->getDir());
+	if (fs.is_open())
+	{
+		std::stringstream ss;
+		ss << fs.rdbuf();
+		fs.close();
 		std::string check = ss.str();
 		size_t j;
 		if ((j = check.find("\r\n\r\n")) != std::string::npos)
@@ -342,14 +385,8 @@ std::string CGI::read_message()
 					}
 				}
 			}
-			else if ((j = check.find("Content-Length:")) != std::string::npos)
-			{
-				tmp = &tmp[2];
-				int nb = ft_atoi(&check[j]);
-				str.copy((char *)tmp.c_str(), 0, nb);
-			}
+			else if ((j = check.find("Content-Length:")) != std::string::npos) str = &check[check.find("\r\n\r\n") + 4];
 		}
-		fs.close();
 	}
 	return (str);
 }

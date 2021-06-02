@@ -1,17 +1,22 @@
- #ifndef CGI_HPP
- #define CGI_HPP
+#ifndef CGI_HPP
+#define CGI_HPP
 
- #include <iostream>
- #include "../../libft-cpp/include/libft.hpp"
- #include "../../libft-cpp/include/get_next_line.hpp"
- #include <fcntl.h>
- #include <unistd.h>
+#include <iostream>
+#include "../../libft-cpp/include/libft.hpp"
+#include "../../libft-cpp/include/get_next_line.hpp"
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <string.h>
 
- #include <list>
- #include "class/Routes.hpp"
- #include "class/Server.hpp"
- #include "class/Client.hpp"
- #include "class/Request.hpp"
+#include <list>
+#include "class/Routes.hpp"
+#include "class/Server.hpp"
+#include "class/Client.hpp"
+#include "class/Request.hpp"
 
 #define DATA_SERV "./server/dataServ/"
 
@@ -36,8 +41,14 @@
  		std::string 	getFile() const;
  		void			setContent(std::string value);
  		std::string 	getContent() const;
+ 		void			setBody(std::string value);
+ 		std::string 	getBody() const;
+ 		void			setStatu(int value);
+ 		int 			getStatu() const;
  		void			setClient(Client* value);
  		Client	 		*getClient() const;
+ 		void			setDo(bool value);
+ 		bool	 		getDo() const;
 
  		std::string		getType();
 
@@ -45,7 +56,7 @@
  		int			free_cgi(char **tab, int err);
  		int			config_cgi();
 		int			execv();
-		std::string	read_message();
+		std::string	read_message(Client* client);
 
 		class CGIException : public std::exception
 		{
@@ -58,8 +69,10 @@
  		Routes _route;
  		Request *_req;
  		Server *_serv;
- 		std::string _method, _file, _content;
+ 		std::string _method, _file, _content, _body;
+		int _statu;
  		Client *_client;
+		bool _do;
  };
 
  #endif // !CGI_HPP
