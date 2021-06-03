@@ -12,14 +12,11 @@ void check_end_file(Response *res, int i)
 		if ((j = check.find("\r\n\r\n")) != std::string::npos)
 		{
 			std::string tmp;
+			if (!res->getClient()[i]->getPos()) res->getClient()[i]->setPos(j + 4);
 			if (check.find("Transfer-Encoding:") != std::string::npos && check.find("chunked") != std::string::npos)
 			{
-				if (!res->getClient()[i]->getPos()) res->getClient()[i]->setPos(j + 4);
 				res->getClient()[i]->setBodyToWork(true);
-				if (res->getClient()[i]->getPos()){
-					if (res->getClient()[i]->getPos() < check.length()) tmp = &check[res->getClient()[i]->getPos()];
-					else tmp = "";
-				}
+				if (res->getClient()[i]->getPos() < check.length()) tmp = &check[res->getClient()[i]->getPos()];
 				while (!tmp.empty() && !res->getClient()[i]->getRecvEnd())
 				{
 					int k = 0;
@@ -30,9 +27,7 @@ void check_end_file(Response *res, int i)
 						k++;
 					}
 					if (nb == 0 && tmp.find("\r\n\r\n") != std::string::npos)
-					{
 						res->getClient()[i]->setRecvEnd(true);
-					}
 					else if ((size_t)(nb + 4) < tmp.length())
 					{
 						tmp = &tmp[2];
@@ -48,12 +43,12 @@ void check_end_file(Response *res, int i)
 			else if ((j = check.find("Content-Length:")) != std::string::npos)
 			{
 				res->getClient()[i]->setBodyToWork(true);
-				tmp = &tmp[2];
 				int nb = ft_atoi(&check[j + 16]);
+				tmp = &check[res->getClient()[i]->getPos()];
 				if ((size_t)nb <= tmp.length())
 				{
 					res->getClient()[i]->setRecvEnd(true);
-					res->getClient()[i]->setMsg(res->getClient()[i]->getMsg() + tmp.substr());
+					res->getClient()[i]->setMsg(tmp);
 				}
 			}
 			else if (check.find("\r\n\r\n") != std::string::npos) res->getClient()[i]->setRecvEnd(true);
