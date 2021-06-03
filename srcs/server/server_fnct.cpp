@@ -58,7 +58,7 @@ int			waiting_client(char **env, Response *res)
 					FD_CLR(i, res->getServer()->getRdFdAddr());
 					FD_CLR(i, res->getServer()->getWrFdAddr());
 					close(i);
-					// unlink(res->getClient()[i]->getDir().c_str());
+					unlink(res->getClient()[i]->getDir().c_str());
 					delete res->getClient()[i];
 					res->getClient()[i] = NULL;
 					std::cout << "\033[1;32m   Connection:\033[0m closed for (" << i << ") on server [" << res->getServer()->getServerName() << "]" << std::endl;
