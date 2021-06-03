@@ -11,18 +11,18 @@ void check_end_file(Response *res, int i)
 		size_t j;
 		if ((j = check.find("\r\n\r\n")) != std::string::npos)
 		{
-			std::string tmp = &check[j + 2];
+			std::string tmp;
 			if (check.find("Transfer-Encoding:") != std::string::npos && check.find("chunked") != std::string::npos)
 			{
+				if (!res->getClient()[i]->getPos()) res->getClient()[i]->setPos(j + 4);
 				res->getClient()[i]->setBodyToWork(true);
-				tmp = &tmp[2];
 				if (res->getClient()[i]->getPos()){
 					if (res->getClient()[i]->getPos() < check.length()) tmp = &check[res->getClient()[i]->getPos()];
 					else tmp = "";
 				}
 				while (!tmp.empty() && !res->getClient()[i]->getRecvEnd())
 				{
-					int k = 4;
+					int k = 0;
 					int nb = ft_atoi_base((char *)tmp.c_str(), (char *)"0123456789abcdef\0");
 					while (!tmp.empty() && ((tmp[0] >= '0' && tmp[0] <= '9') || (tmp[0] >= 'a' && tmp[0] <= 'f')))
 					{
@@ -30,11 +30,16 @@ void check_end_file(Response *res, int i)
 						k++;
 					}
 					if (nb == 0 && tmp.find("\r\n\r\n") != std::string::npos)
+					{
 						res->getClient()[i]->setRecvEnd(true);
+					}
 					else if ((size_t)(nb + 4) < tmp.length())
 					{
-						tmp = &tmp[nb + 4];
-						if (!res->getClient()[i]->getPos()) res->getClient()[i]->setPos(check.find("\r\n\r\n") + 4);
+						tmp = &tmp[2];
+						std::string msg;
+						msg = tmp.substr(0, nb);
+						tmp = &tmp[2];
+						if (!msg.empty()) res->getClient()[i]->setMsg(res->getClient()[i]->getMsg() + msg);
 						res->getClient()[i]->setPos(res->getClient()[i]->getPos() + k + nb + 4);
 					}
 					else tmp.clear();
@@ -44,8 +49,12 @@ void check_end_file(Response *res, int i)
 			{
 				res->getClient()[i]->setBodyToWork(true);
 				tmp = &tmp[2];
-				int nb = ft_atoi(&check[j]);
-				if ((size_t)nb <= tmp.length()) res->getClient()[i]->setRecvEnd(true);
+				int nb = ft_atoi(&check[j + 16]);
+				if ((size_t)nb <= tmp.length())
+				{
+					res->getClient()[i]->setRecvEnd(true);
+					res->getClient()[i]->setMsg(res->getClient()[i]->getMsg() + tmp.substr());
+				}
 			}
 			else if (check.find("\r\n\r\n") != std::string::npos) res->getClient()[i]->setRecvEnd(true);
 		}

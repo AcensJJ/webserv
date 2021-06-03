@@ -221,7 +221,7 @@ int CGI::set_all_variable(std::list<std::string> *metavar)
 {
 	char *tmp;
 	std::string val;
-	if (!(tmp = ft_itoa(read_message(getClient()).length()))) return (1);
+	if (!(tmp = ft_itoa(getClient()->getMsg().length()))) return (1);
 	val = tmp;
 	free(tmp);
 	if (ft_strcmp(getClient()->getLogin().c_str(), "NotAuth") && ft_strcmp(getClient()->getLogin().c_str(), "Error")) metavar->push_back("AUTH_TYPE=Basic");
@@ -308,7 +308,6 @@ int CGI::execv()
 	int pfd2[2];
 	int fdfile;
 	pid_t pid;
-	std::string message = read_message(getClient());
 	if (pipe(pfd) == -1 || pipe(pfd2) == -1)
 		throw CGI::CGIException();
 	if ((fdfile = open((DATA_SERV + getServer()->getServerName()).c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
@@ -333,7 +332,7 @@ int CGI::execv()
     else
     {
         close(pfd[0]);
-		write(pfd[1], message.c_str(), message.length());
+		write(pfd[1], getClient()->getMsg().c_str(), getClient()->getMsg().length());
         close(pfd[1]);
         close(pfd2[1]);
         close(pfd2[0]);
@@ -359,45 +358,6 @@ int CGI::execv()
 		}
 	}
 	return (0);
-}
-
-std::string CGI::read_message(Client* client)
-{
-	std::string str;
-	std::ifstream fs(client->getDir());
-	if (fs.is_open())
-	{
-		std::stringstream ss;
-		ss << fs.rdbuf();
-		fs.close();
-		std::string check = ss.str();
-		size_t j;
-		if ((j = check.find("\r\n\r\n")) != std::string::npos)
-		{
-			std::string tmp = &check[j + 4];
-			if (check.find("Transfer-Encoding:") != std::string::npos && check.find("chunked") != std::string::npos)
-			{
-				while (!tmp.empty())
-				{
-					int nb = ft_atoi_base((char *)tmp.c_str(), (char *)"0123456789abcdef\0");
-					while (!tmp.empty() && ((tmp[0] >= '0' && tmp[0] <= '9') || (tmp[0] >= 'a' && tmp[0] <= 'f')))
-						tmp = &tmp[1];
-					if (nb == 0 && tmp.find("\r\n\r\n") != std::string::npos)
-						return (str);
-					else
-					{
-						tmp = &tmp[2];
-						std::string add;
-						add = tmp.substr(0, nb);
-						str.insert(str.length(), add);
-						tmp = &tmp[nb + 2];
-					}
-				}
-			}
-			else if ((j = check.find("Content-Length:")) != std::string::npos) str = tmp;
-		}
-	}
-	return (str);
 }
 
 const char* CGI::CGIException::what() const throw ()

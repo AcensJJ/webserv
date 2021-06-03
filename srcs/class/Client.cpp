@@ -15,6 +15,8 @@ Client::Client(const Client &other)
 	setTime(other.getTime());
 	setBodyToWork(other.getBodyToWork());
 	setPos(other.getPos());
+	setLength(other.getLength());
+	setSize(other.getSize());
 }
 
 Client::~Client()
@@ -39,6 +41,10 @@ Client::Client(int socket)
 	setRecvEnd(0);
 	setBodyToWork(false);
 	setPos(0);
+	setLength(0);
+	setSize(-1);
+	setDir("");
+	setMsg("");
 }
 
 void Client::setSocket(int value)
@@ -124,6 +130,36 @@ void Client::setPos(unsigned long long value)
 unsigned long long  Client::getPos() const
 {
 	return (this->_pos);
+}
+
+void Client::setLength(int value)
+{
+	this->_length = value;
+}
+
+int  Client::getLength() const
+{
+	return (this->_length);
+}
+
+void Client::setMsg(std::string value)
+{
+	this->_msg = value;
+}
+
+std::string  Client::getMsg() const
+{
+	return (this->_msg);
+}
+
+void Client::setSize(int value)
+{
+	this->_size = value;
+}
+
+int  Client::getSize() const
+{
+	return (this->_size);
 }
 
  int b64_isvalidchar(char c)

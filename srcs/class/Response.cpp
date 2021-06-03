@@ -517,7 +517,7 @@ void Response::setFirstLine()
 std::string Response::getContent(std::string path)
 {
 	if (_cgi.getDo()) return (_cgi.getBody());
-	if (getClient()[getI()]->getBodyToWork()) return (_cgi.read_message(getClient()[getI()]));
+	if (getClient()[getI()]->getBodyToWork()) return (getClient()[getI()]->getMsg());
 	std::string ret;
 	if (!getListingContent().empty() && getStatusCode() >= 200 && getStatusCode() < 300 ) return (getListingContent());
 	int fd;
@@ -823,7 +823,7 @@ void Response::config_response(char **env, int i)
 		}
 	}
 	check_method();
-	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;
+	// std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;
 }
 
 void Response::clean()
@@ -855,7 +855,13 @@ void Response::clear()
 	_base.clear();
 	_www.clear();
 	_listingContent.clear();
+	_url.clear();
 	_status = 0;
+	_i = 0;
+	delete _req;
+	_req = new Request();
+	CGI cgi;
+	_cgi = cgi;
 }
 
 const char* Response::BuildResponseException::what() const throw ()

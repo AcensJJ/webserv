@@ -26,7 +26,6 @@ class Request {
 		void setUserAgent(std::string value);
 		void setTransferEncoding(std::string value);
 		void setReferer(std::string value);
-		void setBody(std::string value);
 		void setTime(int value);
 
 		std::string getFirstLine() const;
@@ -38,10 +37,9 @@ class Request {
 		std::string getUserAgent() const;
 		std::string getTransferEncoding() const;
 		std::string getReferer() const;
-		std::string getBody() const;
 		int			getTime() const;
 
-		void set_line_config(std::string line, bool body);
+		void set_line_config(std::string line);
 		void config_request(std::string file);
 
 		class GNLMallocException : public std::exception
@@ -60,7 +58,6 @@ class Request {
 		std::string _userAgent;
 		std::string _transferEncoding;
 		std::string _referer;
-		std::string _body;
 		int			_time;
 };
 

@@ -16,7 +16,6 @@ Request::Request(const Request &other)
 	if (!other.getUserAgent().empty()) _userAgent = other.getUserAgent();
 	if (!other.getTransferEncoding().empty()) _userAgent = other.getTransferEncoding();
 	if (!other.getReferer().empty()) _userAgent = other.getReferer();
-	if (!other.getBody().empty()) _body = other.getBody();
 	if (other.getTime()) _time = other.getTime();
 }
 
@@ -77,11 +76,6 @@ void Request::setReferer(std::string value)
 	this->_referer = value;
 }
 
-void Request::setBody(std::string value)
-{
-	this->_body = value;
-}
-
 void Request::setTime(int value)
 {
 	this->_time = value;
@@ -132,25 +126,15 @@ std::string Request::getReferer() const
 	return(this->_referer);
 }
 
-std::string Request::getBody() const
-{
-	return(this->_body);
-}
-
 int			Request::getTime() const
 {
 	return(this->_time);
 }
 
-void Request::set_line_config(std::string line, bool body)
+void Request::set_line_config(std::string line)
 {
 	line.erase(line.length() - 1, 1);
-	if (body)
-	{
-		setBody(getBody().insert(getBody().length(), line));
-		setBody(getBody().insert(getBody().length(), "\n"));
-	}
-	else if (getFirstLine().empty())
+	if (getFirstLine().empty())
 		setFirstLine(line);
 	else {
 		if (!ft_strncmp(line.c_str(), "Accept-Charset:", ft_strlen("Accept-Charset:")))
@@ -176,7 +160,6 @@ void Request::config_request(std::string file)
 {
 	std::ifstream fd(file);
 	std::string line;
-	bool body(false);
 	if (!_firstLine.empty()) _firstLine.clear();
 	if (!_acceptCharsets.empty()) _acceptCharsets.clear();
 	if (!_acceptLanguage.empty()) _acceptLanguage.clear();
@@ -186,11 +169,12 @@ void Request::config_request(std::string file)
 	if (!_userAgent.empty()) _userAgent.clear();
 	if (!_transferEncoding.empty()) _transferEncoding.clear();
 	if (!_referer.empty()) _referer.clear();
-	if (!_body.empty()) _body.clear();
 	while (getline(fd, line))
 	{
-		set_line_config(line, body);
-		if (line[0] == '\r') body = true;
+		set_line_config(line);
+		if (line[0] == '\r') {
+			break ;
+		}
 		line.clear();
 	}
 	fd.close();

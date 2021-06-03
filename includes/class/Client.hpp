@@ -25,27 +25,33 @@ class Client {
 		void		setDir(std::string value);
 		void		setRecvEnd(int value);
 		void		setAddress(sockaddr_in value);
+		void		setBodyToWork(bool value);
+		void		setPos(unsigned long long value);
+		void		setLength(int value);
+		void		setLogin() const;
+		void		setMsg(std::string value);
+		void		setSize(int value);
+
 		int			getSocket() const;
 		int			getTimeout() const;
 		int			getTime() const;
 		std::string getDir() const;
 		int			getRecvEnd() const;
 		sockaddr_in	getAddress() const;
-		void		setBodyToWork(bool value);
 		bool		getBodyToWork() const;
-		void		setPos(unsigned long long value);
 		unsigned long long 		getPos() const;
+		int			getLength() const;
+		std::string getMsg() const;
+		int			getSize() const;
 		
 		//Authentification
 		void		setLogin(Request *_req);
 		std::string getLogin() const;
 
 	private:
-		int			_socket, _timeout, _recvEnd;
-		std::string	_dir;
+		int			_socket, _timeout, _recvEnd, _time, _length, _size;
+		std::string	_dir, _login, _msg;
 		sockaddr_in	_address;
-		std::string	_login;
-		int			_time;
 		bool		_work;
 		unsigned long long _pos;
 };
