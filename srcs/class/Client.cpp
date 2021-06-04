@@ -9,14 +9,17 @@ Client::Client(const Client &other)
 {
 	setSocket(other.getSocket());
 	setTimeout(other.getTimeout());
-	setDir(other.getDir());
 	setRecvEnd(other.getRecvEnd());
+	setLength(other.getLength());
+	setSize(other.getSize());
+	setDir(other.getDir());
+	setMsg(other.getMsg());
 	setAddress(other.getAddress());
 	setTime(other.getTime());
 	setBodyToWork(other.getBodyToWork());
 	setPos(other.getPos());
-	setLength(other.getLength());
-	setSize(other.getSize());
+	for (std::list<std::string>::const_iterator itr = other._chunck.begin(); itr != other._chunck.end(); itr++)
+		_chunck.push_back(*itr);
 }
 
 Client::~Client()

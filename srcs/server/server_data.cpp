@@ -2,58 +2,67 @@
 
 void check_end_file(Response *res, int i)
 {
-	std::ifstream fs(res->getClient()[i]->getDir());
-	if (fs.is_open())
+	if (!res->getClient()[i]->getBodyToWork())
 	{
-		std::stringstream ss;
-		ss << fs.rdbuf();
-		std::string check = ss.str();
-		size_t j;
-		if ((j = check.find("\r\n\r\n")) != std::string::npos)
+		std::ifstream fs(res->getClient()[i]->getDir());
+		if (fs.is_open())
 		{
-			std::string tmp;
-			if (!res->getClient()[i]->getPos()) res->getClient()[i]->setPos(j + 4);
-			if (check.find("Transfer-Encoding:") != std::string::npos && check.find("chunked") != std::string::npos)
+			std::stringstream ss;
+			ss << fs.rdbuf();
+			fs.close();
+			std::string check = ss.str();
+			size_t j;
+			if ((j = check.find("\r\n\r\n")) != std::string::npos)
 			{
-				res->getClient()[i]->setBodyToWork(true);
-				if (res->getClient()[i]->getPos() < check.length()) tmp = &check[res->getClient()[i]->getPos()];
-				while (!tmp.empty() && !res->getClient()[i]->getRecvEnd())
+				std::string tmp = &check[j + 4];
+				if (check.find("Transfer-Encoding:") != std::string::npos && check.find("chunked") != std::string::npos)
 				{
-					int k = 0;
-					int nb = ft_atoi_base((char *)tmp.c_str(), (char *)"0123456789abcdef\0");
-					while (!tmp.empty() && ((tmp[0] >= '0' && tmp[0] <= '9') || (tmp[0] >= 'a' && tmp[0] <= 'f')))
-					{
-						tmp = &tmp[1];
-						k++;
-					}
-					if (nb == 0 && tmp.find("\r\n\r\n") != std::string::npos)
-						res->getClient()[i]->setRecvEnd(true);
-					else if ((size_t)(nb + 4) < tmp.length())
-					{
-						tmp = &tmp[2];
-						std::string msg;
-						msg = tmp.substr(0, nb);
-						tmp = &tmp[2];
-						if (!msg.empty()) res->getClient()[i]->setMsg(res->getClient()[i]->getMsg() + msg);
-						res->getClient()[i]->setPos(res->getClient()[i]->getPos() + k + nb + 4);
-					}
-					else tmp.clear();
-				}
-			}
-			else if ((j = check.find("Content-Length:")) != std::string::npos)
-			{
-				res->getClient()[i]->setBodyToWork(true);
-				int nb = ft_atoi(&check[j + 16]);
-				tmp = &check[res->getClient()[i]->getPos()];
-				if ((size_t)nb <= tmp.length())
-				{
-					res->getClient()[i]->setRecvEnd(true);
+					res->getClient()[i]->setBodyToWork(true);
 					res->getClient()[i]->setMsg(tmp);
 				}
+				else if ((j = check.find("Content-Length:")) != std::string::npos)
+				{
+					int nb = ft_atoi(&check[j + 16]);
+					if ((size_t)nb <= tmp.length())
+					{
+						res->getClient()[i]->setBodyToWork(true);
+						res->getClient()[i]->setRecvEnd(true);
+						res->getClient()[i]->setMsg(tmp);
+					}
+				}
+				else if (check.find("\r\n") != std::string::npos) res->getClient()[i]->setRecvEnd(true);
 			}
-			else if (check.find("\r\n\r\n") != std::string::npos) res->getClient()[i]->setRecvEnd(true);
 		}
-		fs.close();
+	}
+	else 
+	{
+		int stop = 0;
+		while (!res->getClient()[i]->getRecvEnd() && !res->getClient()[i]->getMsg().empty() && !stop)
+		{
+			if (res->getClient()[i]->getSize() == -1 && res->getClient()[i]->getMsg().find("\r\n") != std::string::npos)
+			{
+				res->getClient()[i]->setSize(ft_atoi_base((char *)res->getClient()[i]->getMsg().c_str(), (char *)"0123456789abcdef\0"));
+				int k = 0;
+				while (!res->getClient()[i]->getMsg().empty() && ((res->getClient()[i]->getMsg()[k] >= '0' && res->getClient()[i]->getMsg()[k] <= '9') || (res->getClient()[i]->getMsg()[k] >= 'a' && res->getClient()[i]->getMsg()[k] <= 'f')))
+					k++;
+				res->getClient()[i]->setMsg(&res->getClient()[i]->getMsg()[k + 2]);
+			}
+			if (res->getClient()[i]->getSize() != -1)
+			{
+				if (res->getClient()[i]->getSize() == 0)
+					res->getClient()[i]->setRecvEnd(true);
+				else if ((size_t)(res->getClient()[i]->getSize() + 2) < res->getClient()[i]->getMsg().length())
+				{
+					std::string msg;
+					msg = res->getClient()[i]->getMsg().substr(0, res->getClient()[i]->getSize());
+					res->getClient()[i]->setMsg(&res->getClient()[i]->getMsg()[res->getClient()[i]->getSize() + 2]);
+					if (!msg.empty()) res->getClient()[i]->_chunck.push_back(msg);
+					res->getClient()[i]->setSize(-1);
+				}
+				else stop = 1;
+			}
+			else stop = 1;
+		}
 	}
 }
 
@@ -101,14 +110,23 @@ void	one_client_read(Response* res, int i)
 	struct timeval time;
 	int request_fd, nbytes = RECV_BUFF - 1;
 	char buffer[RECV_BUFF];
+	ft_bzero((void *)buffer, RECV_BUFF);
 	nbytes = recv(res->getClient()[i]->getSocket(), (void*)buffer, RECV_BUFF - 1, MSG_DONTWAIT);
 	if (nbytes > 0)
 	{
 		gettimeofday(&time, NULL);
 		if (time.tv_sec - res->getClient()[i]->getTime() > TIMEOUT) res->getClient()[i]->setTimeout(1);
-		request_fd = config_data_serv(res, i, O_CREAT | O_WRONLY | O_APPEND);
-		write(request_fd, buffer, nbytes);
-		close(request_fd);
+		if (!res->getClient()[i]->getBodyToWork())
+		{
+			request_fd = config_data_serv(res, i, O_CREAT | O_WRONLY | O_APPEND);
+			write(request_fd, buffer, nbytes);
+			close(request_fd);
+		}
+		else {
+			buffer[nbytes] = '\0';
+			res->getClient()[i]->setMsg(res->getClient()[i]->getMsg() + buffer);
+		}
+
 	}
 	if (nbytes == -1) {
 		delete res->getClient()[i];
@@ -125,7 +143,7 @@ void	one_client_send(Response *res, int i, char **env)
 		res->getRequest()->config_request(res->getClient()[i]->getDir());
 		res->config_response(env, i);
 		if (send(res->getClient()[i]->getSocket(), res->getResponse().c_str(), res->getResponse().length(), 0) < 0)
-		{	
+		{
 			std::cerr << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
 		}
 		res->clear();

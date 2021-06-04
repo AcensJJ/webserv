@@ -221,7 +221,10 @@ int CGI::set_all_variable(std::list<std::string> *metavar)
 {
 	char *tmp;
 	std::string val;
-	if (!(tmp = ft_itoa(getClient()->getMsg().length()))) return (1);
+	int nb = 0;
+	for (std::list<std::string>::iterator itr = getClient()->_chunck.begin(); itr != getClient()->_chunck.end(); itr++)
+		nb += itr->length();
+	if (!(tmp = ft_itoa(nb))) return (1);
 	val = tmp;
 	free(tmp);
 	if (ft_strcmp(getClient()->getLogin().c_str(), "NotAuth") && ft_strcmp(getClient()->getLogin().c_str(), "Error")) metavar->push_back("AUTH_TYPE=Basic");
@@ -332,7 +335,8 @@ int CGI::execv()
     else
     {
         close(pfd[0]);
-		write(pfd[1], getClient()->getMsg().c_str(), getClient()->getMsg().length());
+		for (std::list<std::string>::iterator itr = getClient()->_chunck.begin(); itr != getClient()->_chunck.end(); itr++)
+			write(pfd[1], itr->c_str(), itr->length());
         close(pfd[1]);
         close(pfd2[1]);
         close(pfd2[0]);

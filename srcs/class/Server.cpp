@@ -17,13 +17,10 @@ Server::Server(const Server &other)
 	_readfds = other.getRdFdAddr();
 	_writefds = other.getWrFdAddr();
 	std::list<Routes> route;
-	for (std::list<Routes>::const_iterator test = other._routes.begin(); test != other._routes.end(); test++)
-	{
-		Routes tmpr;
-		tmpr = *test;
-		route.push_back(tmpr);
-	}
-	_routes = route;
+	for (std::list<std::string>::const_iterator itr = other._error_pages.begin(); itr != other._error_pages.end(); itr++)
+		_error_pages.push_back(*itr);
+	for (std::list<Routes>::const_iterator itr = other._routes.begin(); itr != other._routes.end(); itr++)
+		_routes.push_back(*itr);
 }
 
 Server::~Server()
@@ -108,7 +105,7 @@ std::string Server::getServerName() const
 	return(this->_server_name);
 }
 
-Routes Server::getRoute(std::string dir) const
+Routes Server::getRoute(std::string dir, int cgi) const
 {
 	Routes tmp;
 	int pnt = 0;
@@ -116,10 +113,9 @@ Routes Server::getRoute(std::string dir) const
 	dot[0] = dir.rfind('.');
 	for (std::__1::list<Routes>::const_iterator itr = _routes.begin(); itr != _routes.end(); itr++)
 	{
-
 		Routes actrt = *itr;
 		dot[1] = actrt.getDirFile().rfind('.');
-		if (actrt.getDirFile().find("/ *.") != std::string::npos && dot[1] != std::string::npos && !ft_strcmp(&dir[dot[0]], &actrt.getDirFile()[dot[1]]))
+		if (cgi && actrt.getDirFile().find("/ *.") != std::string::npos && dot[1] != std::string::npos && !ft_strcmp(&dir[dot[0]], &actrt.getDirFile()[dot[1]]))
 			return (actrt);
 		int len = actrt.getDirFile().length();
 		if (!ft_strncmp(actrt.getDirFile().c_str(), dir.c_str(), len))

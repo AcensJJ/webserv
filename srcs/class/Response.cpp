@@ -517,7 +517,11 @@ void Response::setFirstLine()
 std::string Response::getContent(std::string path)
 {
 	if (_cgi.getDo()) return (_cgi.getBody());
-	if (getClient()[getI()]->getBodyToWork()) return (getClient()[getI()]->getMsg());
+	if (getClient()[getI()]->getBodyToWork()){
+		for (std::list<std::string>::iterator itr = getClient()[getI()]->_chunck.begin(); itr != getClient()[getI()]->_chunck.end(); itr++)
+			getClient()[getI()]->setMsg(getClient()[getI()]->getMsg() + *itr);
+			return (getClient()[getI()]->getMsg());
+	}
 	std::string ret;
 	if (!getListingContent().empty() && getStatusCode() >= 200 && getStatusCode() < 300 ) return (getListingContent());
 	int fd;
@@ -669,14 +673,16 @@ void Response::put_method()
 		ret = unlink(getWww().c_str());
 		if (ret == -1) setStatusCode(201);
 		fd = open(getWww().c_str(), O_CREAT | O_WRONLY, 0644);
-		write(fd, getContent(getWww()).c_str(), getContent(getWww()).length());
+		if (fd == -1) throw Response::BuildResponseException();
+		std::string content = getContent(getWww()).c_str();
+		write(fd, content.c_str(), content.length());
 		close(fd);
-		if (getStatusCode() != 201 && getContent(getWww()).empty()) setStatusCode(204);
+		if (getStatusCode() != 201 && content.empty()) setStatusCode(204);
 		setFirstLine();
 		setContentLocation();
 		if (!(ft_strcmp(getMethod().c_str(), "POST"))) setAllHeader();
 		else setResponse(getResponse().insert(getResponse().length(), "\n"));
-		setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
+		// setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
 	}
 }
 
@@ -732,13 +738,14 @@ void Response::config_response(char **env, int i)
 		setUrl(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
 		setFile(getUrl());
 		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;            
-		this->setRoutes(getServer()->getRoute(getFile()));
+		this->setRoutes(getServer()->getRoute(getFile(), 1));
 		configMethod();
 		setBase(getRoutes().getLocation());
 		if (getBase().empty()) setBase(SERV_WWW);
 		if (getRoutes().getDirFile().rfind("/ *.") == std::string::npos && getRoutes().getDirFile().rfind('/') != std::string::npos) setFile(&getFile()[getRoutes().getDirFile().rfind('/') + 1]);
 		if (getFile()[0] == '/') setFile(&getFile()[1]);
 		setWww(getBase());
+		// this->setRoutes(getServer()->getRoute(getUrl(), 1));
 		setStatusCode(0);
 	}
 	// if (time.tv_sec - getRequest()->getTime() > TIMEOUT)

@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include "../../libft-cpp/include/libft.hpp"
 #include "../../libft-cpp/include/get_next_line.hpp"
+#include <list>
 
 #include "class/Request.hpp"
 
@@ -48,6 +49,7 @@ class Client {
 		void		setLogin(Request *_req);
 		std::string getLogin() const;
 
+		std::list<std::string> _chunck;
 	private:
 		int			_socket, _timeout, _recvEnd, _time, _length, _size;
 		std::string	_dir, _login, _msg;

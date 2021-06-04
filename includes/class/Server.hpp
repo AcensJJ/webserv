@@ -39,7 +39,7 @@ class Server {
 		int getPort() const;
 		std::string getHost() const;
 		std::string getServerName() const;
-		Routes getRoute(std::string dir) const;
+		Routes getRoute(std::string dir, int cgi) const;
 		int getSocket() const;
 		sockaddr_in getSockAddr() const;
 		fd_set getRdFd() const;
