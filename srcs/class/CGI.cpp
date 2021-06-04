@@ -357,7 +357,6 @@ int CGI::execv()
 		if ((j = check.find("\r\n\r\n")) != std::string::npos)
 		{
 			std::string tmp = &check[j + 4];
-			if (tmp.length() >= 4) tmp.erase(tmp.length() - 4, 4);
 			setBody(tmp);
 		}
 	}

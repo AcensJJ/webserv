@@ -39,6 +39,10 @@ void check_end_file(Response *res, int i)
 		int stop = 0;
 		while (!res->getClient()[i]->getRecvEnd() && !res->getClient()[i]->getMsg().empty() && !stop)
 		{
+			int nb = 0;
+			for (std::list<std::string>::iterator itr = res->getClient()[i]->_chunck.begin(); itr != res->getClient()[i]->_chunck.end(); itr++)
+				nb += itr->length();
+			std::cout << "   " << nb << " bytes readed for server " << res->getServer()->getServerName() << "(" << i << ")" << std::endl;
 			if (res->getClient()[i]->getSize() == -1 && res->getClient()[i]->getMsg().find("\r\n") != std::string::npos)
 			{
 				res->getClient()[i]->setSize(ft_atoi_base((char *)res->getClient()[i]->getMsg().c_str(), (char *)"0123456789abcdef\0"));
@@ -49,7 +53,7 @@ void check_end_file(Response *res, int i)
 			}
 			if (res->getClient()[i]->getSize() != -1)
 			{
-				if (res->getClient()[i]->getSize() == 0)
+				if (res->getClient()[i]->getSize() == 0 && res->getClient()[i]->getMsg().find("\r\n") != std::string::npos)
 					res->getClient()[i]->setRecvEnd(true);
 				else if ((size_t)(res->getClient()[i]->getSize() + 2) < res->getClient()[i]->getMsg().length())
 				{

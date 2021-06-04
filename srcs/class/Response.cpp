@@ -292,9 +292,10 @@ void Response::setContentLanguage()
 
 void Response::setContentLength(std::string content)
 {
-
 	char* len;
-	if (!(len = ft_itoa(content.length()))) throw Response::BuildResponseException();
+	int size = 0;
+	size = content.length();
+	if (!(len = ft_itoa(size))) throw Response::BuildResponseException();
 	setResponse(getResponse().insert(getResponse().length(), "Content-Length: "));
 	setResponse(getResponse().insert(getResponse().length(), len));
 	setResponse(getResponse().insert(getResponse().length(), "\n"));
@@ -602,15 +603,16 @@ void Response::setAllHeader()
 		check_method();
 	}
 	else {
+		std::string content = getWww();
 		setDate();
-		setLastModified(getWww());
+		setLastModified(content);
 		setLocation();
 		setRetryAfer();
 		setServerNginx();
 		setWWWAuthenticate();
 		setAllow();
 		setContentLanguage();
-		setContentLength(getContent(getWww()));
+		setContentLength(getContent(content));
 		setContentLocation();
 		setContentType();
 		setConnectionClose();
@@ -682,7 +684,7 @@ void Response::put_method()
 		setContentLocation();
 		if (!(ft_strcmp(getMethod().c_str(), "POST"))) setAllHeader();
 		else setResponse(getResponse().insert(getResponse().length(), "\n"));
-		// setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
+		setResponse(getResponse().insert(getResponse().length(), content));
 	}
 }
 
@@ -738,14 +740,14 @@ void Response::config_response(char **env, int i)
 		setUrl(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
 		setFile(getUrl());
 		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;            
-		this->setRoutes(getServer()->getRoute(getFile(), 1));
+		this->setRoutes(getServer()->getRoute(getFile(), 0));
 		configMethod();
 		setBase(getRoutes().getLocation());
 		if (getBase().empty()) setBase(SERV_WWW);
 		if (getRoutes().getDirFile().rfind("/ *.") == std::string::npos && getRoutes().getDirFile().rfind('/') != std::string::npos) setFile(&getFile()[getRoutes().getDirFile().rfind('/') + 1]);
 		if (getFile()[0] == '/') setFile(&getFile()[1]);
 		setWww(getBase());
-		// this->setRoutes(getServer()->getRoute(getUrl(), 1));
+		this->setRoutes(getServer()->getRoute(getUrl(), 1));
 		setStatusCode(0);
 	}
 	// if (time.tv_sec - getRequest()->getTime() > TIMEOUT)
