@@ -103,15 +103,15 @@ int		main(int ac, char **av, char **env)
 		try
 		{
 			fd_set *readfds = new fd_set, *writefds = new fd_set;
-			Response *tmp = *itr;
-			std::cout << "   Config Serv [" << tmp->getServer()->getServerName() << "]" << std::endl;
-			if (launch_serv(tmp)) throw myexception();
 			FD_ZERO(readfds);
 			FD_ZERO(writefds);
 			FD_SET(tmp->getServer()->getSocket(), readfds);
 			FD_SET(tmp->getServer()->getSocket(), writefds);
 			tmp->getServer()->setRdFd(readfds);
 			tmp->getServer()->setWrFd(writefds);
+			Response *tmp = *itr;
+			std::cout << "   Config Serv [" << tmp->getServer()->getServerName() << "]" << std::endl;
+			if (launch_serv(tmp)) throw myexception();
 		}
 		catch (std::exception & e)
 		{

@@ -219,5 +219,5 @@ const char* Server::BadConfigServerNameException::what() const throw ()
 
 const char* Server::SameServerNameException::what() const throw ()
 {
-	return ("\033[1;31m   Error: \033[0;31m Same server name\033[0m");
+	return ("\033[1;31m   Error: \033[0;31m Same server name or port\033[0m");
 }

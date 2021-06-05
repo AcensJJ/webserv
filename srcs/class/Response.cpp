@@ -829,12 +829,15 @@ void Response::clean()
 {
 	for (int i = 1; i < FD_SETSIZE; i++)
 	{
-		fd_set tmp;
-		tmp = getServer()->getRdFd();
-		FD_CLR(i, &tmp);
-		tmp = getServer()->getWrFd();
-		FD_CLR(i, &tmp);
-		close(i);
+		if (_allclient[i])
+		{
+			fd_set tmp;
+			tmp = getServer()->getRdFd();
+			FD_CLR(i, &tmp);
+			tmp = getServer()->getWrFd();
+			FD_CLR(i, &tmp);
+			close(i);
+		}
 	}
 	delete [] _allclient ;
 	delete getRequest();
