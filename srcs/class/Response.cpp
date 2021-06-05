@@ -789,7 +789,7 @@ void Response::config_response(char **env, int i)
 				_cgi.setFile(getUrl());
 				_cgi.setClient(getClient()[i]);
 				_cgi.setRequest(getRequest());
-				std::cout << "   CGI launch\n";
+				std::cout << "   \033[0;34mCGI launch\033[0m\n";
 				if (_cgi.config_cgi()) throw Response::BuildResponseException();
                 setListingContent("");
 				setStatusCode(_cgi.getStatu());
