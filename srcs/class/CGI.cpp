@@ -254,14 +254,14 @@ int CGI::set_all_variable(std::list<std::string> *metavar)
 	metavar->push_back("SERVER_PORT=" + val + "");
 	metavar->push_back("SERVER_PROTOCOL=HTTP/1.1");
 	metavar->push_back("SERVER_SOFTWARE=Nginx");
-	if (!getRequest()->getAcceptCharsets().empty())   metavar->push_back("HTTP_ACCEPT_CHARSETS="   + (std::string)&getRequest()->getAcceptCharsets().at(17) + "");
-	if (!getRequest()->getAcceptLanguage().empty())   metavar->push_back("HTTP_ACCEPT_LANGUAGE="   + (std::string)&getRequest()->getAcceptLanguage().at(17) + "");
-	if (!getRequest()->getAuthorization().empty())    metavar->push_back("HTTP_AUTHORIZATION="     + (std::string)&getRequest()->getAuthorization().at(15)  + "");
-	if (!getRequest()->getDate().empty())             metavar->push_back("HTTP_DATE="              + (std::string)&getRequest()->getDate().at(6)           + "");
-	if (!getRequest()->getHost().empty())             metavar->push_back("HTTP_HOST="              + (std::string)&getRequest()->getHost().at(6) + "");
-	if (!getRequest()->getUserAgent().empty())        metavar->push_back("HTTP_USER_AGENT="        + (std::string)&getRequest()->getUserAgent().at(12) + "");
-	if (!getRequest()->getTransferEncoding().empty()) metavar->push_back("HTTP_TRANSFER_ENCODING=" + (std::string)&getRequest()->getTransferEncoding().at(19) + "");
-	if (!getRequest()->getReferer().empty())          metavar->push_back("HTTP_REFERER="           + (std::string)&getRequest()->getReferer().at(9) + "");
+	for (std::list<std::string>::const_iterator itr = getRequest()->_header.begin(); itr != getRequest()->_header.end(); itr++)
+	{
+		std::string header = itr->substr(0, itr->find(':'));
+		for (int i = 0; header[i]; i++)
+			header[i] = toupper(header[i]);
+		std::string content = itr->substr(itr->rfind(' ')+ 1, itr->length() - itr->rfind(' ') + 1);
+		metavar->push_back("HTTP_" + header + "=" + content);
+	}
 	return (0);
 }
 

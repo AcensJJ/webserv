@@ -729,7 +729,7 @@ void Response::config_response(char **env, int i)
 		setMethod(request.substr(0, sep[0]));
 		setUrl(request.substr(sep[0] + 1, sep[1] - (sep[0] + 1)));
 		setFile(getUrl());
-		std::cout << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;            
+		std::cout << std::endl << "   \033[1;30mnew REQUEST: \033[0;33m " << getMethod() << " on " << getFile() << "\033[0m" << std::endl;            
 		this->setRoutes(getServer()->getRoute(getFile(), 0));
 		configMethod();
 		setBase(getRoutes().getLocation());

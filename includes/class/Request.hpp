@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <list>
 #include "../../libft-cpp/include/libft.hpp"
 #include "../../libft-cpp/include/get_next_line.hpp"
 
@@ -48,6 +49,7 @@ class Request {
 				virtual const char* what () const throw();
 		};
 
+		std::list<std::string> _header;
 	private:
 		std::string _firstLine;
 		std::string _acceptCharsets;

@@ -17,6 +17,8 @@ Request::Request(const Request &other)
 	if (!other.getTransferEncoding().empty()) _userAgent = other.getTransferEncoding();
 	if (!other.getReferer().empty()) _userAgent = other.getReferer();
 	if (other.getTime()) _time = other.getTime();
+	for (std::list<std::string>::const_iterator itr = other._header.begin(); itr != other._header.end(); itr++)
+		_header.push_back(*itr);
 }
 
 Request::~Request()
@@ -153,6 +155,7 @@ void Request::set_line_config(std::string line)
 			setTransferEncoding(line);
 		else if (!ft_strncmp(line.c_str(), "Referer:", ft_strlen("Referer:")))
 			setReferer(line);
+		_header.push_back(line);
 	}
 }
 
@@ -171,10 +174,10 @@ void Request::config_request(std::string file)
 	if (!_referer.empty()) _referer.clear();
 	while (getline(fd, line))
 	{
-		set_line_config(line);
 		if (line[0] == '\r') {
 			break ;
 		}
+		set_line_config(line);
 		line.clear();
 	}
 	fd.close();
