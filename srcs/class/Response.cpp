@@ -519,6 +519,7 @@ std::string Response::getContent(std::string path)
 {
 	if (_cgi.getDo()) return (_cgi.getBody());
 	if (getClient()[getI()]->getBodyToWork()){
+		if (getClient()[getI()]->_chunck.size() > 0) getClient()[getI()]->setMsg("");
 		for (std::list<std::string>::iterator itr = getClient()[getI()]->_chunck.begin(); itr != getClient()[getI()]->_chunck.end(); itr++)
 			getClient()[getI()]->setMsg(getClient()[getI()]->getMsg() + *itr);
 			return (getClient()[getI()]->getMsg());
@@ -676,15 +677,16 @@ void Response::put_method()
 		if (ret == -1) setStatusCode(201);
 		fd = open(getWww().c_str(), O_CREAT | O_WRONLY, 0644);
 		if (fd == -1) throw Response::BuildResponseException();
-		std::string content = getContent(getWww()).c_str();
+		std::string content = getContent(getWww());
 		write(fd, content.c_str(), content.length());
 		close(fd);
 		if (getStatusCode() != 201 && content.empty()) setStatusCode(204);
 		setFirstLine();
 		setContentLocation();
 		if (!(ft_strcmp(getMethod().c_str(), "POST"))) setAllHeader();
-		else setResponse(getResponse().insert(getResponse().length(), "\n"));
+		else 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 		setResponse(getResponse().insert(getResponse().length(), content));
+		if (!(ft_strcmp(getMethod().c_str(), "POST"))) setResponse(getResponse().insert(getResponse().length() , "\n\n"));
 	}
 }
 
@@ -750,9 +752,9 @@ void Response::config_response(char **env, int i)
 		this->setRoutes(getServer()->getRoute(getUrl(), 1));
 		setStatusCode(0);
 	}
-	// if (time.tv_sec - getRequest()->getTime() > TIMEOUT)
-	// 	setStatusCode(408);
-	//  else {
+	if (time.tv_sec - getRequest()->getTime() > TIMEOUT)
+		setStatusCode(408);
+	 else {
         if (!getStatusCode())
         {
 			struct stat	sb;
@@ -805,7 +807,7 @@ void Response::config_response(char **env, int i)
 				setStatusCode(_cgi.getStatu());
             }
         }
-	// }
+	}
 	if (getStatusCode() == 200)
 	{
 		if (getRequest()->getHost().empty()){

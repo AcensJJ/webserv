@@ -130,7 +130,6 @@ void	one_client_read(Response* res, int i)
 			buffer[nbytes] = '\0';
 			res->getClient()[i]->setMsg(res->getClient()[i]->getMsg() + buffer);
 		}
-
 	}
 	if (nbytes == -1) {
 		delete res->getClient()[i];
