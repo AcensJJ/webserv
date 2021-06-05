@@ -7,6 +7,7 @@ Client::Client()
 
 Client::Client(const Client &other)
 {
+	_response = other.getResponse();
 	setSocket(other.getSocket());
 	setTimeout(other.getTimeout());
 	setRecvEnd(other.getRecvEnd());
@@ -47,7 +48,16 @@ Client::Client(int socket)
 	setLength(0);
 	setSize(-1);
 	setDir("");
-	setMsg("");
+}
+
+void Client::setResponse(std::string value)
+{
+	this->_response = value;
+}
+
+std::string Client::getResponse() const
+{
+	return(this->_response);
 }
 
 void Client::setSocket(int value)

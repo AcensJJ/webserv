@@ -27,10 +27,15 @@ void check_end_file(Response *res, int i)
 					{
 						res->getClient()[i]->setBodyToWork(true);
 						res->getClient()[i]->setRecvEnd(true);
+						res->getClient()[i]->setPos(0);
 						res->getClient()[i]->setMsg(tmp);
 					}
 				}
-				else if (check.find("\r\n") != std::string::npos) res->getClient()[i]->setRecvEnd(true);
+				else if (check.find("\r\n") != std::string::npos) 
+				{
+					res->getClient()[i]->setRecvEnd(true);
+					res->getClient()[i]->setPos(0);
+				}
 			}
 		}
 	}
@@ -54,7 +59,10 @@ void check_end_file(Response *res, int i)
 			if (res->getClient()[i]->getSize() != -1)
 			{
 				if (res->getClient()[i]->getSize() == 0 && res->getClient()[i]->getMsg().find("\r\n") != std::string::npos)
+				{
 					res->getClient()[i]->setRecvEnd(true);
+					res->getClient()[i]->setPos(0);
+				}	
 				else if ((size_t)(res->getClient()[i]->getSize() + 2) < res->getClient()[i]->getMsg().length())
 				{
 					std::string msg;
@@ -141,15 +149,20 @@ void	one_client_send(Response *res, int i, char **env)
 {
 	try
 	{
-		std::cout << std::endl << "\033[0;33m   Working on socket\033[0m(" << res->getClient()[i]->getSocket() << ")" << std::endl;
-		res->getRequest()->setTime(res->getClient()[i]->getTime());
-		res->getRequest()->config_request(res->getClient()[i]->getDir());
-		res->config_response(env, i);
-		if (send(res->getClient()[i]->getSocket(), res->getResponse().c_str(), res->getResponse().length(), 0) < 0)
+		// std::cout << std::endl << "\033[0;33m   Working on socket\033[0m(" << res->getClient()[i]->getSocket() << ")" << std::endl;
+		if (res->getClient()[i]->getResponse().empty()) 
 		{
-			std::cerr << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
+			res->getRequest()->setTime(res->getClient()[i]->getTime());
+			res->getRequest()->config_request(res->getClient()[i]->getDir());
+			res->config_response(env, i);
+			res->clear();
 		}
-		res->clear();
+		size_t tosend = 300000;
+		if (tosend > res->getClient()[i]->getResponse().length() - res->getClient()[i]->getPos()) tosend = res->getClient()[i]->getResponse().length() - res->getClient()[i]->getPos();
+		if (tosend > 0) {
+			if (send(res->getClient()[i]->getSocket(), &res->getClient()[i]->getResponse()[res->getClient()[i]->getPos()], tosend, 0) < 0) std::cerr << "\033[1;31m   Error: \033[0;31m send failed\033[0m" << std::endl;
+			res->getClient()[i]->setPos(res->getClient()[i]->getPos() + tosend);
+		}
 	}
 	catch(const std::exception& e)
 	{

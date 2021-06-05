@@ -34,8 +34,6 @@ class Response {
 		Response &operator=(const Response &other);
 		~Response();
 
-		void		setResponse(std::string value);
-		std::string getResponse() const;
 		void		setFile(std::string value);
 		std::string getFile() const;
 		void		setMethod(std::string value);
@@ -111,7 +109,7 @@ class Response {
 		std::map<std::string, std::string>	_http_method;
 		std::map<std::string, std::string>	_default;
 	private:
-		std::string _response, _file, _method, _base, _www, _listingContent, _url;
+		std::string _file, _method, _base, _www, _listingContent, _url;
 		Server		*_server;
 		Routes		_routes;
 		int			_status, _i;

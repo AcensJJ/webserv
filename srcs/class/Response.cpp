@@ -11,7 +11,6 @@ Response::Response()
 
 Response::Response(const Response &other)
 {
-	_response = other.getResponse();
 	_file = other.getFile();
 	_method = other.getMethod();
 	_base = other.getBase();
@@ -39,16 +38,6 @@ Response &Response::operator=(const Response &other)
     if (this == &other) return(*this);
     this->~Response();
     return *new(this) Response(other);
-}
-
-void Response::setResponse(std::string value)
-{
-	this->_response = value;
-}
-
-std::string Response::getResponse() const
-{
-	return(this->_response);
 }
 
 void Response::setFile(std::string value)
@@ -254,10 +243,10 @@ void Response::setDate()
 	ft_bzero(buf, 30);
 	gettimeofday(&tv, NULL); 
 	curtime=tv.tv_sec;
-	setResponse(getResponse().insert(getResponse().length(), "Date: "));
+	getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Date: "));
 	strftime(buf, sizeof(buf),"%a, %d %b %Y %H:%M:%S GMT", localtime(&curtime));
-	setResponse(getResponse().insert(getResponse().length(), buf));
-	setResponse(getResponse().insert(getResponse().length(), "\n"));
+	getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), buf));
+	getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "\n"));
 	delete buf;
 }
 
@@ -265,14 +254,14 @@ void Response::setAllow()
 {
 	if (getStatusCode() == 405)
 	{
-		setResponse(getResponse().insert(getResponse().length(), "Allow:"));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Allow:"));
 		for (std::map<std::string, std::string>::iterator it = _http_method.begin() ; it != _http_method.end(); ++it)
 		{
-			if (it != _http_method.begin()) setResponse(getResponse().insert(getResponse().length(), ", "));
-			else setResponse(getResponse().insert(getResponse().length(), " "));
-			setResponse(getResponse().insert(getResponse().length(), it->second));
+			if (it != _http_method.begin()) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), ", "));
+			else getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " "));
+			getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), it->second));
 		}
-		setResponse(getResponse().insert(getResponse().length(), "\n"));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "\n"));
 	}
 }
 
@@ -280,13 +269,13 @@ void Response::setContentLanguage()
 {
 	if (!getRequest()->getAcceptLanguage().empty())
 	{
-		setResponse(getResponse().insert(getResponse().length(), "Content-Langage: "));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Langage: "));
 		int sep[2];
 		sep[0] = 16;
 		sep[1] = getRequest()->getAcceptLanguage().find(',');
 		if (sep[1] == -1) sep[1] = getRequest()->getAcceptLanguage().length();
 		std::string language = getRequest()->getAcceptLanguage().substr(sep[0] + 1, sep[1] - (sep[0] + 1));
-		setResponse(getResponse().insert(getResponse().length(), language + "\n"));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), language + "\n"));
 	}
 }
 
@@ -296,15 +285,15 @@ void Response::setContentLength(std::string content)
 	int size = 0;
 	size = content.length();
 	if (!(len = ft_itoa(size))) throw Response::BuildResponseException();
-	setResponse(getResponse().insert(getResponse().length(), "Content-Length: "));
-	setResponse(getResponse().insert(getResponse().length(), len));
-	setResponse(getResponse().insert(getResponse().length(), "\n"));
+	getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Length: "));
+	getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), len));
+	getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "\n"));
 	free(len);
 }
 
 void Response::setContentLocation()
 {
-	setResponse(getResponse().insert(getResponse().length(), "Content-Location: " + getUrl() + "\n"));
+	getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Location: " + getUrl() + "\n"));
 }
 
 void Response::setContentType()
@@ -312,82 +301,82 @@ void Response::setContentType()
 	size_t nb = getWww().find_last_of(".");
 	std::string type = getWww();
 	type.erase(0, nb);
-	if (!ft_strcmp(type.c_str() , ".aac"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: audio/aac\n"));
-	if (!ft_strcmp(type.c_str() , ".abw"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-abiword\n"));
-	if (!ft_strcmp(type.c_str() , ".arc"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/octet-stream\n"));
-	if (!ft_strcmp(type.c_str() , ".avi"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: video/x-msvideo\n"));
-	if (!ft_strcmp(type.c_str() , ".azw"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.amazon.ebook\n"));
-	if (!ft_strcmp(type.c_str() , ".bin"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/octet-stream\n"));
-	if (!ft_strcmp(type.c_str() , ".bmp"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: image/bmp\n"));
-	if (!ft_strcmp(type.c_str() , ".bz"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-bzip\n"));
-	if (!ft_strcmp(type.c_str() , ".bz2"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-bzip2\n"));
-	if (!ft_strcmp(type.c_str() , ".csh"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-csh\n"));
-	if (!ft_strcmp(type.c_str() , ".css"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: text/css\n"));
-	if (!ft_strcmp(type.c_str() , ".csv"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: text/csv\n"));
-	if (!ft_strcmp(type.c_str() , ".doc"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/msword\n"));
-	if (!ft_strcmp(type.c_str() , ".docx"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: pplication/vnd.openxmlformats-officedocument.wordprocessingml.document\n"));
-	if (!ft_strcmp(type.c_str() , ".eot"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.ms-fontobject\n"));
-	if (!ft_strcmp(type.c_str() , ".epub"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/epub+zip\n"));
-	if (!ft_strcmp(type.c_str() , ".gif"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: image/gif\n"));
-	if (!ft_strcmp(type.c_str() , ".htm"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: text/html\n"));
-	if (!ft_strcmp(type.c_str() , ".html"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: text/html\n"));
-	if (!ft_strcmp(type.c_str() , ".ico"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: image/x-icon\n"));
-	if (!ft_strcmp(type.c_str() , ".ics"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: text/calendar\n"));
-	if (!ft_strcmp(type.c_str() , ".jar"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/java-archive\n"));
-	if (!ft_strcmp(type.c_str() , ".jpg"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: image/jpeg\n"));
-	if (!ft_strcmp(type.c_str() , ".jpeg"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: image/jpeg\n"));
-	if (!ft_strcmp(type.c_str() , ".js"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/javascript\n"));
-	if (!ft_strcmp(type.c_str() , ".json"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/json\n"));
-	if (!ft_strcmp(type.c_str() , ".mid"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: audio/midi\n"));
-	if (!ft_strcmp(type.c_str() , ".midi"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: audio/midi\n"));
-	if (!ft_strcmp(type.c_str() , ".mpeg"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: video/mpeg\n"));
-	if (!ft_strcmp(type.c_str() , ".mpkg"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.apple.installer+xml\n"));
-	if (!ft_strcmp(type.c_str() , ".odp"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.oasis.opendocument.presentation\n"));
-	if (!ft_strcmp(type.c_str() , ".ods"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.oasis.opendocument.spreadsheet\n"));
-	if (!ft_strcmp(type.c_str() , ".odt"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.oasis.opendocument.text\n"));
-	if (!ft_strcmp(type.c_str() , ".oga"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: audio/ogg\n"));
-	if (!ft_strcmp(type.c_str() , ".ogv"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: video/ogg\n"));
-	if (!ft_strcmp(type.c_str() , ".ogx"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/ogg\n"));
-	if (!ft_strcmp(type.c_str() , ".otf"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: font/otf\n"));
-	if (!ft_strcmp(type.c_str() , ".png"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: image/png\n"));
-	if (!ft_strcmp(type.c_str() , ".pdf"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/pdf\n"));
-	if (!ft_strcmp(type.c_str() , ".ppt"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.ms-powerpoint\n"));
-	if (!ft_strcmp(type.c_str() , ".pptx"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.openxmlformats-officedocument.presentationml.presentation\n"));
-	if (!ft_strcmp(type.c_str() , ".rar"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-rar-compressed\n"));
-	if (!ft_strcmp(type.c_str() , ".rtf"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/rtf\n"));
-	if (!ft_strcmp(type.c_str() , ".sh"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-sh\n"));
-	if (!ft_strcmp(type.c_str() , ".svg"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: image/svg+xml\n"));
-	if (!ft_strcmp(type.c_str() , ".swf"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-shockwave-flash\n"));
-	if (!ft_strcmp(type.c_str() , ".tar"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-tar\n"));
-	if (!ft_strcmp(type.c_str() , ".tif"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: image/tiff\n"));
-	if (!ft_strcmp(type.c_str() , ".tiff"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: image/tiff\n"));
-	if (!ft_strcmp(type.c_str() , ".ts"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/typescript\n"));
-	if (!ft_strcmp(type.c_str() , ".ttf"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: font/ttf\n"));
-	if (!ft_strcmp(type.c_str() , ".vsd"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.visio\n"));
-	if (!ft_strcmp(type.c_str() , ".wav"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: audio/x-wav\n"));
-	if (!ft_strcmp(type.c_str() , ".weba"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: audio/webm\n"));
-	if (!ft_strcmp(type.c_str() , ".webm"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: video/webm\n"));
-	if (!ft_strcmp(type.c_str() , ".webp"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: image/webp\n"));
-	if (!ft_strcmp(type.c_str() , ".woff"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: font/woff\n"));
-	if (!ft_strcmp(type.c_str() , ".woff2")) setResponse(getResponse().insert(getResponse().length(), "Content-Type: font/woff2\n"));
-	if (!ft_strcmp(type.c_str() , ".xhtml")) setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/xhtml+xml\n"));
-	if (!ft_strcmp(type.c_str() , ".xls"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.ms-excel\n"));
-	if (!ft_strcmp(type.c_str() , ".xlsx"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\n"));
-	if (!ft_strcmp(type.c_str() , ".xml"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/xml\n"));
-	if (!ft_strcmp(type.c_str() , ".xul"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/vnd.mozilla.xul+xml\n"));
-	if (!ft_strcmp(type.c_str() , ".zip"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/zip\n"));
-	if (!ft_strcmp(type.c_str() , ".3gp"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: video/3gpp\n"));
-	if (!ft_strcmp(type.c_str() , ".3g2"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: video/3gpp2\n"));
-	if (!ft_strcmp(type.c_str() , ".7z"))	 setResponse(getResponse().insert(getResponse().length(), "Content-Type: application/x-7z-compressed\n"));
+	if (!ft_strcmp(type.c_str() , ".aac"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: audio/aac\n"));
+	if (!ft_strcmp(type.c_str() , ".abw"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/x-abiword\n"));
+	if (!ft_strcmp(type.c_str() , ".arc"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/octet-stream\n"));
+	if (!ft_strcmp(type.c_str() , ".avi"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: video/x-msvideo\n"));
+	if (!ft_strcmp(type.c_str() , ".azw"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.amazon.ebook\n"));
+	if (!ft_strcmp(type.c_str() , ".bin"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/octet-stream\n"));
+	if (!ft_strcmp(type.c_str() , ".bmp"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: image/bmp\n"));
+	if (!ft_strcmp(type.c_str() , ".bz"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/x-bzip\n"));
+	if (!ft_strcmp(type.c_str() , ".bz2"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/x-bzip2\n"));
+	if (!ft_strcmp(type.c_str() , ".csh"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/x-csh\n"));
+	if (!ft_strcmp(type.c_str() , ".css"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: text/css\n"));
+	if (!ft_strcmp(type.c_str() , ".csv"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: text/csv\n"));
+	if (!ft_strcmp(type.c_str() , ".doc"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/msword\n"));
+	if (!ft_strcmp(type.c_str() , ".docx"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: pplication/vnd.openxmlformats-officedocument.wordprocessingml.document\n"));
+	if (!ft_strcmp(type.c_str() , ".eot"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.ms-fontobject\n"));
+	if (!ft_strcmp(type.c_str() , ".epub"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/epub+zip\n"));
+	if (!ft_strcmp(type.c_str() , ".gif"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: image/gif\n"));
+	if (!ft_strcmp(type.c_str() , ".htm"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: text/html\n"));
+	if (!ft_strcmp(type.c_str() , ".html"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: text/html\n"));
+	if (!ft_strcmp(type.c_str() , ".ico"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: image/x-icon\n"));
+	if (!ft_strcmp(type.c_str() , ".ics"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: text/calendar\n"));
+	if (!ft_strcmp(type.c_str() , ".jar"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/java-archive\n"));
+	if (!ft_strcmp(type.c_str() , ".jpg"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: image/jpeg\n"));
+	if (!ft_strcmp(type.c_str() , ".jpeg"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: image/jpeg\n"));
+	if (!ft_strcmp(type.c_str() , ".js"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/javascript\n"));
+	if (!ft_strcmp(type.c_str() , ".json"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/json\n"));
+	if (!ft_strcmp(type.c_str() , ".mid"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: audio/midi\n"));
+	if (!ft_strcmp(type.c_str() , ".midi"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: audio/midi\n"));
+	if (!ft_strcmp(type.c_str() , ".mpeg"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: video/mpeg\n"));
+	if (!ft_strcmp(type.c_str() , ".mpkg"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.apple.installer+xml\n"));
+	if (!ft_strcmp(type.c_str() , ".odp"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.oasis.opendocument.presentation\n"));
+	if (!ft_strcmp(type.c_str() , ".ods"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.oasis.opendocument.spreadsheet\n"));
+	if (!ft_strcmp(type.c_str() , ".odt"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.oasis.opendocument.text\n"));
+	if (!ft_strcmp(type.c_str() , ".oga"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: audio/ogg\n"));
+	if (!ft_strcmp(type.c_str() , ".ogv"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: video/ogg\n"));
+	if (!ft_strcmp(type.c_str() , ".ogx"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/ogg\n"));
+	if (!ft_strcmp(type.c_str() , ".otf"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: font/otf\n"));
+	if (!ft_strcmp(type.c_str() , ".png"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: image/png\n"));
+	if (!ft_strcmp(type.c_str() , ".pdf"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/pdf\n"));
+	if (!ft_strcmp(type.c_str() , ".ppt"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.ms-powerpoint\n"));
+	if (!ft_strcmp(type.c_str() , ".pptx"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.openxmlformats-officedocument.presentationml.presentation\n"));
+	if (!ft_strcmp(type.c_str() , ".rar"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/x-rar-compressed\n"));
+	if (!ft_strcmp(type.c_str() , ".rtf"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/rtf\n"));
+	if (!ft_strcmp(type.c_str() , ".sh"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/x-sh\n"));
+	if (!ft_strcmp(type.c_str() , ".svg"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: image/svg+xml\n"));
+	if (!ft_strcmp(type.c_str() , ".swf"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/x-shockwave-flash\n"));
+	if (!ft_strcmp(type.c_str() , ".tar"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/x-tar\n"));
+	if (!ft_strcmp(type.c_str() , ".tif"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: image/tiff\n"));
+	if (!ft_strcmp(type.c_str() , ".tiff"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: image/tiff\n"));
+	if (!ft_strcmp(type.c_str() , ".ts"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/typescript\n"));
+	if (!ft_strcmp(type.c_str() , ".ttf"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: font/ttf\n"));
+	if (!ft_strcmp(type.c_str() , ".vsd"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.visio\n"));
+	if (!ft_strcmp(type.c_str() , ".wav"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: audio/x-wav\n"));
+	if (!ft_strcmp(type.c_str() , ".weba"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: audio/webm\n"));
+	if (!ft_strcmp(type.c_str() , ".webm"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: video/webm\n"));
+	if (!ft_strcmp(type.c_str() , ".webp"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: image/webp\n"));
+	if (!ft_strcmp(type.c_str() , ".woff"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: font/woff\n"));
+	if (!ft_strcmp(type.c_str() , ".woff2")) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: font/woff2\n"));
+	if (!ft_strcmp(type.c_str() , ".xhtml")) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/xhtml+xml\n"));
+	if (!ft_strcmp(type.c_str() , ".xls"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.ms-excel\n"));
+	if (!ft_strcmp(type.c_str() , ".xlsx"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\n"));
+	if (!ft_strcmp(type.c_str() , ".xml"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/xml\n"));
+	if (!ft_strcmp(type.c_str() , ".xul"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/vnd.mozilla.xul+xml\n"));
+	if (!ft_strcmp(type.c_str() , ".zip"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/zip\n"));
+	if (!ft_strcmp(type.c_str() , ".3gp"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: video/3gpp\n"));
+	if (!ft_strcmp(type.c_str() , ".3g2"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: video/3gpp2\n"));
+	if (!ft_strcmp(type.c_str() , ".7z"))	 getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Content-Type: application/x-7z-compressed\n"));
 	if (!getRequest()->getAcceptCharsets().empty())
 	{
-		setResponse(getResponse().insert(getResponse().length() - 1, "; charset="));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length() - 1, "; charset="));
 		int sep[2];
 		sep[0] = 15;
 		sep[1] = getRequest()->getAcceptCharsets().find(',');
 		if (sep[1] == -1) sep[1] = getRequest()->getAcceptCharsets().length();
 		std::string charset = getRequest()->getAcceptCharsets().substr(sep[0] + 2, sep[1] - (sep[0] + 1));
-		setResponse(getResponse().insert(getResponse().length() - 1, charset));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length() - 1, charset));
 	}
 }
 
@@ -400,119 +389,119 @@ void Response::setLastModified(std::string path)
 		if (!(date = (char *)malloc(12))) throw Response::BuildResponseException();
 		ft_bzero(date, 12);
 		strftime(date, 3, "%a", gmtime(&(sb.st_ctime)));
-		setResponse(getResponse().insert(getResponse().length(), "Last-Modified: "));
-		setResponse(getResponse().insert(getResponse().length(), date));
-		setResponse(getResponse().insert(getResponse().length(), ", "));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Last-Modified: "));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), date));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), ", "));
 		ft_bzero(date, 3);
 		strftime(date, 11, "%d %h %Y", gmtime(&(sb.st_ctime)));
-		setResponse(getResponse().insert(getResponse().length(), date));
-		setResponse(getResponse().insert(getResponse().length(), " "));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), date));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " "));
 		ft_bzero(date, 11);
 		strftime(date, 8, "%H:%M:%S", gmtime(&(sb.st_ctime)));
-		setResponse(getResponse().insert(getResponse().length(), date));
-		setResponse(getResponse().insert(getResponse().length(), " GMT"));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), date));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " GMT"));
 		free(date);
-		setResponse(getResponse().insert(getResponse().length(), "\n"));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "\n"));
 	}
 }
 
 void Response::setLocation()
 {
 	if ((getStatusCode() >= 301 && getStatusCode() <= 308) || getStatusCode() == 201)
-		setResponse(getResponse().insert(getResponse().length(), "Location: " + getFile() + "\n"));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Location: " + getFile() + "\n"));
 }
 
 void Response::setRetryAfer()
 {
 	if (getStatusCode() == 503 || getStatusCode() == 429 || (getStatusCode() >= 300 && getStatusCode() <= 399))
-		setResponse(getResponse().insert(getResponse().length(), "Retry-After: " + getRequest()->getDate() + "\nRetry-After: 120\n"));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Retry-After: " + getRequest()->getDate() + "\nRetry-After: 120\n"));
 }
 
 void Response::setServerNginx()
 {
-	setResponse(getResponse().insert(getResponse().length(), "Server: Nginx\n"));
+	getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Server: Nginx\n"));
 }
 
 void Response::setWWWAuthenticate()
 {
 	if (getStatusCode() == 401)
 	{
-		setResponse(getResponse().insert(getResponse().length(), "WWW-Authenticate: Basic realm=\"Access to the staging site\"\n"));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "WWW-Authenticate: Basic realm=\"Access to the staging site\"\n"));
 		if (!getRequest()->getAcceptCharsets().empty())
 		{
-			setResponse(getResponse().insert(getResponse().length() - 1, ", charset=\""));
+			getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length() - 1, ", charset=\""));
 			int sep[2];
 			sep[0] = 15;
 			sep[1] = getRequest()->getAcceptCharsets().find(',');
 			if (sep[1] == -1) sep[1] = getRequest()->getAcceptCharsets().length();
 			std::string charset = getRequest()->getAcceptCharsets().substr(sep[0] + 2, sep[1] - (sep[0] + 1));
-			setResponse(getResponse().insert(getResponse().length() - 1, charset + "\""));
+			getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length() - 1, charset + "\""));
 		}
 	}
 }
 
 void Response::setConnectionClose()
 {
-	setResponse(getResponse().insert(getResponse().length(), "Connection: close\n"));
+	getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "Connection: close\n"));
 }
 
 void Response::setFirstLine()
 {
-	setResponse("HTTP/1.1");
-	if      (getStatusCode() == 100) setResponse(getResponse().insert(getResponse().length(), " 100 Continue\n"));
-	else if (getStatusCode() == 101) setResponse(getResponse().insert(getResponse().length(), " 101 Switching Protocols\n"));
-	else if (getStatusCode() == 103) setResponse(getResponse().insert(getResponse().length(), " 103 Early Hints\n"));
-	else if (getStatusCode() == 200) setResponse(getResponse().insert(getResponse().length(), " 200 OK\n"));
-	else if (getStatusCode() == 201) setResponse(getResponse().insert(getResponse().length(), " 201 Created\n"));
-	else if (getStatusCode() == 202) setResponse(getResponse().insert(getResponse().length(), " 202 Accepted\n"));
-	else if (getStatusCode() == 203) setResponse(getResponse().insert(getResponse().length(), " 203 Non-Authoritative Information\n"));
-	else if (getStatusCode() == 204) setResponse(getResponse().insert(getResponse().length(), " 204 No Content\n"));
-	else if (getStatusCode() == 205) setResponse(getResponse().insert(getResponse().length(), " 205 Reset Content\n"));
-	else if (getStatusCode() == 206) setResponse(getResponse().insert(getResponse().length(), " 206 Partial Content\n"));
-	else if (getStatusCode() == 300) setResponse(getResponse().insert(getResponse().length(), " 300 Multiple Choices\n"));
-	else if (getStatusCode() == 301) setResponse(getResponse().insert(getResponse().length(), " 301 Moved Permanently\n"));
-	else if (getStatusCode() == 302) setResponse(getResponse().insert(getResponse().length(), " 302 Found\n"));
-	else if (getStatusCode() == 303) setResponse(getResponse().insert(getResponse().length(), " 303 See Other\n"));
-	else if (getStatusCode() == 304) setResponse(getResponse().insert(getResponse().length(), " 304 Not Modified\n"));
-	else if (getStatusCode() == 307) setResponse(getResponse().insert(getResponse().length(), " 307 Temporary Redirect\n"));
-	else if (getStatusCode() == 308) setResponse(getResponse().insert(getResponse().length(), " 308 Permanent Redirect\n"));
-	else if (getStatusCode() == 400) setResponse(getResponse().insert(getResponse().length(), " 400 Bad Request\n"));
-	else if (getStatusCode() == 401) setResponse(getResponse().insert(getResponse().length(), " 401 Unauthorized\n"));
-	else if (getStatusCode() == 402) setResponse(getResponse().insert(getResponse().length(), " 402 Payment Required\n"));
-	else if (getStatusCode() == 403) setResponse(getResponse().insert(getResponse().length(), " 403 Forbidden\n"));
-	else if (getStatusCode() == 404) setResponse(getResponse().insert(getResponse().length(), " 404 Not Found\n"));
-	else if (getStatusCode() == 405) setResponse(getResponse().insert(getResponse().length(), " 405 Method Not Allowed\n"));
-	else if (getStatusCode() == 406) setResponse(getResponse().insert(getResponse().length(), " 406 Not Acceptable\n"));
-	else if (getStatusCode() == 407) setResponse(getResponse().insert(getResponse().length(), " 407 Proxy Authentication Required\n"));
-	else if (getStatusCode() == 408) setResponse(getResponse().insert(getResponse().length(), " 408 Request Timeout\n"));
-	else if (getStatusCode() == 409) setResponse(getResponse().insert(getResponse().length(), " 409 Conflict\n"));
-	else if (getStatusCode() == 410) setResponse(getResponse().insert(getResponse().length(), " 410 Gone\n"));
-	else if (getStatusCode() == 411) setResponse(getResponse().insert(getResponse().length(), " 411 Length Required\n"));
-	else if (getStatusCode() == 412) setResponse(getResponse().insert(getResponse().length(), " 412 Precondition Failed\n"));
-	else if (getStatusCode() == 413) setResponse(getResponse().insert(getResponse().length(), " 413 Payload Too Large\n"));
-	else if (getStatusCode() == 414) setResponse(getResponse().insert(getResponse().length(), " 414 URI Too Long\n"));
-	else if (getStatusCode() == 415) setResponse(getResponse().insert(getResponse().length(), " 415 Unsupported Media Type\n"));
-	else if (getStatusCode() == 416) setResponse(getResponse().insert(getResponse().length(), " 416 Range Not Satisfiable\n"));
-	else if (getStatusCode() == 417) setResponse(getResponse().insert(getResponse().length(), " 417 Expectation Failed\n"));
-	else if (getStatusCode() == 418) setResponse(getResponse().insert(getResponse().length(), " 418 I'm a teapot\n"));
-	else if (getStatusCode() == 422) setResponse(getResponse().insert(getResponse().length(), " 422 Unprocessable Entity\n"));
-	else if (getStatusCode() == 425) setResponse(getResponse().insert(getResponse().length(), " 425 Too Early\n"));
-	else if (getStatusCode() == 426) setResponse(getResponse().insert(getResponse().length(), " 426 Upgrade Required\n"));
-	else if (getStatusCode() == 428) setResponse(getResponse().insert(getResponse().length(), " 428 Precondition Required\n"));
-	else if (getStatusCode() == 429) setResponse(getResponse().insert(getResponse().length(), " 429 Too Many Requests\n"));
-	else if (getStatusCode() == 431) setResponse(getResponse().insert(getResponse().length(), " 431 Request Header Fields Too Large\n"));
-	else if (getStatusCode() == 451) setResponse(getResponse().insert(getResponse().length(), " 451 Unavailable For Legal Reasons\n"));
-	else if (getStatusCode() == 500) setResponse(getResponse().insert(getResponse().length(), " 500 Internal Server Error\n"));
-	else if (getStatusCode() == 501) setResponse(getResponse().insert(getResponse().length(), " 501 Not Implemented\n"));
-	else if (getStatusCode() == 502) setResponse(getResponse().insert(getResponse().length(), " 502 Bad Gateway\n"));
-	else if (getStatusCode() == 503) setResponse(getResponse().insert(getResponse().length(), " 503 Service Unavailable\n"));
-	else if (getStatusCode() == 504) setResponse(getResponse().insert(getResponse().length(), " 504 Gateway Timeout\n"));
-	else if (getStatusCode() == 505) setResponse(getResponse().insert(getResponse().length(), " 505 HTTP Version Not Supported\n"));
-	else if (getStatusCode() == 506) setResponse(getResponse().insert(getResponse().length(), " 506 Variant Also Negotiates\n"));
-	else if (getStatusCode() == 507) setResponse(getResponse().insert(getResponse().length(), " 507 Insufficient Sotrage\n"));
-	else if (getStatusCode() == 508) setResponse(getResponse().insert(getResponse().length(), " 508 Loop Detected\n"));
-	else if (getStatusCode() == 510) setResponse(getResponse().insert(getResponse().length(), " 510 Not Extended\n"));
-	else if (getStatusCode() == 511) setResponse(getResponse().insert(getResponse().length(), " 511 Network Authentication Required\n"));
+	getClient()[getI()]->setResponse("HTTP/1.1");
+	if      (getStatusCode() == 100) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 100 Continue\n"));
+	else if (getStatusCode() == 101) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 101 Switching Protocols\n"));
+	else if (getStatusCode() == 103) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 103 Early Hints\n"));
+	else if (getStatusCode() == 200) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 200 OK\n"));
+	else if (getStatusCode() == 201) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 201 Created\n"));
+	else if (getStatusCode() == 202) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 202 Accepted\n"));
+	else if (getStatusCode() == 203) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 203 Non-Authoritative Information\n"));
+	else if (getStatusCode() == 204) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 204 No Content\n"));
+	else if (getStatusCode() == 205) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 205 Reset Content\n"));
+	else if (getStatusCode() == 206) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 206 Partial Content\n"));
+	else if (getStatusCode() == 300) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 300 Multiple Choices\n"));
+	else if (getStatusCode() == 301) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 301 Moved Permanently\n"));
+	else if (getStatusCode() == 302) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 302 Found\n"));
+	else if (getStatusCode() == 303) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 303 See Other\n"));
+	else if (getStatusCode() == 304) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 304 Not Modified\n"));
+	else if (getStatusCode() == 307) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 307 Temporary Redirect\n"));
+	else if (getStatusCode() == 308) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 308 Permanent Redirect\n"));
+	else if (getStatusCode() == 400) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 400 Bad Request\n"));
+	else if (getStatusCode() == 401) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 401 Unauthorized\n"));
+	else if (getStatusCode() == 402) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 402 Payment Required\n"));
+	else if (getStatusCode() == 403) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 403 Forbidden\n"));
+	else if (getStatusCode() == 404) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 404 Not Found\n"));
+	else if (getStatusCode() == 405) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 405 Method Not Allowed\n"));
+	else if (getStatusCode() == 406) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 406 Not Acceptable\n"));
+	else if (getStatusCode() == 407) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 407 Proxy Authentication Required\n"));
+	else if (getStatusCode() == 408) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 408 Request Timeout\n"));
+	else if (getStatusCode() == 409) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 409 Conflict\n"));
+	else if (getStatusCode() == 410) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 410 Gone\n"));
+	else if (getStatusCode() == 411) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 411 Length Required\n"));
+	else if (getStatusCode() == 412) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 412 Precondition Failed\n"));
+	else if (getStatusCode() == 413) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 413 Payload Too Large\n"));
+	else if (getStatusCode() == 414) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 414 URI Too Long\n"));
+	else if (getStatusCode() == 415) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 415 Unsupported Media Type\n"));
+	else if (getStatusCode() == 416) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 416 Range Not Satisfiable\n"));
+	else if (getStatusCode() == 417) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 417 Expectation Failed\n"));
+	else if (getStatusCode() == 418) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 418 I'm a teapot\n"));
+	else if (getStatusCode() == 422) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 422 Unprocessable Entity\n"));
+	else if (getStatusCode() == 425) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 425 Too Early\n"));
+	else if (getStatusCode() == 426) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 426 Upgrade Required\n"));
+	else if (getStatusCode() == 428) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 428 Precondition Required\n"));
+	else if (getStatusCode() == 429) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 429 Too Many Requests\n"));
+	else if (getStatusCode() == 431) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 431 Request Header Fields Too Large\n"));
+	else if (getStatusCode() == 451) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 451 Unavailable For Legal Reasons\n"));
+	else if (getStatusCode() == 500) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 500 Internal Server Error\n"));
+	else if (getStatusCode() == 501) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 501 Not Implemented\n"));
+	else if (getStatusCode() == 502) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 502 Bad Gateway\n"));
+	else if (getStatusCode() == 503) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 503 Service Unavailable\n"));
+	else if (getStatusCode() == 504) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 504 Gateway Timeout\n"));
+	else if (getStatusCode() == 505) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 505 HTTP Version Not Supported\n"));
+	else if (getStatusCode() == 506) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 506 Variant Also Negotiates\n"));
+	else if (getStatusCode() == 507) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 507 Insufficient Sotrage\n"));
+	else if (getStatusCode() == 508) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 508 Loop Detected\n"));
+	else if (getStatusCode() == 510) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 510 Not Extended\n"));
+	else if (getStatusCode() == 511) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), " 511 Network Authentication Required\n"));
 }
 
 std::string Response::getContent(std::string path)
@@ -598,7 +587,7 @@ void Response::setAllHeader()
 {
 	if ((getStatusCode() >= 200 && getStatusCode() <= 299) && !getRoutes().getLimitClientBody().empty() && (int)getContent(getWww()).length() > ft_atoi(getRoutes().getLimitClientBody().c_str()))
 	{
-		setResponse("");
+		getClient()[getI()]->setResponse("");
 		setListingContent("");
 		setStatusCode(413);
 		check_method();
@@ -617,14 +606,14 @@ void Response::setAllHeader()
 		setContentLocation();
 		setContentType();
 		setConnectionClose();
-		setResponse(getResponse().insert(getResponse().length(), "\n"));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "\n"));
 	}
 }
 
 void Response::get_method()
 {
 	head_method();
-	setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
+	getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), getContent(getWww())));
 }
 
 void Response::head_method()
@@ -644,7 +633,7 @@ void Response::head_method()
 		if (check_exist(getWww())) throw Response::BuildResponseException();
 	}
 	setAllHeader();
-	if (!ft_strcmp("HEAD", getMethod().c_str())) setResponse(getResponse().insert(getResponse().length(), "\n"));
+	if (!ft_strcmp("HEAD", getMethod().c_str())) getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "\n"));
 }
 
 void Response::post_method()
@@ -669,7 +658,7 @@ void Response::put_method()
 		if (check_exist(getWww())) throw Response::BuildResponseException();
 		setFirstLine();
 		setAllHeader();
-		setResponse(getResponse().insert(getResponse().length(), getContent(getWww())));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), getContent(getWww())));
 	}
 	else
 	{
@@ -684,8 +673,8 @@ void Response::put_method()
 		setFirstLine();
 		setContentLocation();
 		if (!(ft_strcmp(getMethod().c_str(), "POST"))) setAllHeader();
-		else 	setResponse(getResponse().insert(getResponse().length(), "\n"));
-		setResponse(getResponse().insert(getResponse().length(), content));
+		else getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), "\n"));
+		getClient()[getI()]->setResponse(getClient()[getI()]->getResponse().insert(getClient()[getI()]->getResponse().length(), content));
 	}
 }
 
@@ -859,7 +848,6 @@ void Response::clean()
 
 void Response::clear()
 {
-	_response.clear(); 
 	_file.clear();
 	_method.clear();
 	_base.clear();

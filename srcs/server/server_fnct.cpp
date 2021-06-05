@@ -55,13 +55,16 @@ int			waiting_client(char **env, Response *res)
 				if (res->getClient()[i] && res->getClient()[i]->getRecvEnd() == 1)
 				{
 					one_client_send(res, i, env);
-					FD_CLR(i, res->getServer()->getRdFdAddr());
-					FD_CLR(i, res->getServer()->getWrFdAddr());
-					close(i);
-					// unlink(res->getClient()[i]->getDir().c_str());
-					delete res->getClient()[i];
-					res->getClient()[i] = NULL;
-					std::cout << "\033[1;32m   Connection:\033[0m closed for (" << i << ") on server [" << res->getServer()->getServerName() << "]" << std::endl;
+					if (res->getClient()[i]->getResponse().length() == res->getClient()[i]->getPos())
+					{
+						FD_CLR(i, res->getServer()->getRdFdAddr());
+						FD_CLR(i, res->getServer()->getWrFdAddr());
+						close(i);
+						unlink(res->getClient()[i]->getDir().c_str());
+						delete res->getClient()[i];
+						res->getClient()[i] = NULL;
+						std::cout << "\033[1;32m   Connection:\033[0m closed for (" << i << ") on server [" << res->getServer()->getServerName() << "]" << std::endl;
+					}
 				}
 			}
 		}

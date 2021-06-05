@@ -20,6 +20,7 @@ class Client {
 		Client &operator=(const Client &other);
 		Client(int socket);
 
+		void		setResponse(std::string value);
 		void		setSocket(int value);
 		void		setTimeout(int value);
 		void		setTime(int value);
@@ -33,6 +34,7 @@ class Client {
 		void		setMsg(std::string value);
 		void		setSize(int value);
 
+		std::string getResponse() const;
 		int			getSocket() const;
 		int			getTimeout() const;
 		int			getTime() const;
@@ -52,7 +54,7 @@ class Client {
 		std::list<std::string> _chunck;
 	private:
 		int			_socket, _timeout, _recvEnd, _time, _length, _size;
-		std::string	_dir, _login, _msg;
+		std::string	_response, _dir, _login, _msg;
 		sockaddr_in	_address;
 		bool		_work;
 		unsigned long long _pos;
