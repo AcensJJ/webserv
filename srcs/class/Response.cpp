@@ -686,7 +686,6 @@ void Response::put_method()
 		if (!(ft_strcmp(getMethod().c_str(), "POST"))) setAllHeader();
 		else 	setResponse(getResponse().insert(getResponse().length(), "\n"));
 		setResponse(getResponse().insert(getResponse().length(), content));
-		if (!(ft_strcmp(getMethod().c_str(), "POST"))) setResponse(getResponse().insert(getResponse().length() , "\n\n"));
 	}
 }
 
