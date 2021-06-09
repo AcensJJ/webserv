@@ -579,7 +579,9 @@ int Response::statu_code(std::string path)
 		if (S_ISDIR(sb.st_mode)) return (404);
 		return (200);
 	}
-
+	_cgi.getBody()_cgi.setBody("");
+	getClient()[getI()]->setBodyToWork(false);
+	setListingContent("");
 	return (405);
 }
 
@@ -587,8 +589,10 @@ void Response::setAllHeader()
 {
 	if ((getStatusCode() >= 200 && getStatusCode() <= 299) && !getRoutes().getLimitClientBody().empty() && (int)getContent(getWww()).length() > ft_atoi(getRoutes().getLimitClientBody().c_str()))
 	{
-		getClient()[getI()]->setResponse("");
+		_cgi.getBody()_cgi.setBody("");
+		getClient()[getI()]->setBodyToWork(false);
 		setListingContent("");
+		getClient()[getI()]->setResponse("");
 		setStatusCode(413);
 		check_method();
 	}
@@ -782,18 +786,20 @@ void Response::config_response(char **env, int i)
             }
             if (((!getRoutes().getCGIPath().empty()) && (getMethod() == "GET" || getMethod() == "POST" || getMethod() == "PUT" )))
             {
-				_cgi.setEnv(env);
-				_cgi.setRoutes(getRoutes());
-				_cgi.setServer(getServer());
-				_cgi.setMethod(getMethod());
-				_cgi.setFile(getUrl());
-				_cgi.setClient(getClient()[i]);
-				_cgi.setRequest(getRequest());
-		    		if (!getClient()[getI()]->getBodyToWork()) getClient()->_chunck.push_back(getContent(getWww()));
-				std::cout << "   \033[0;34mCGI launch\033[0m\n";
-				if (_cgi.config_cgi()) throw Response::BuildResponseException();
-                setListingContent("");
-				setStatusCode(_cgi.getStatu());
+		if (_http_method.find(getMethod()) != _http_method.end()) {
+		    _cgi.setEnv(env);
+		    _cgi.setRoutes(getRoutes());
+		    _cgi.setServer(getServer());
+		    _cgi.setMethod(getMethod());
+		    _cgi.setFile(getUrl());
+		    _cgi.setClient(getClient()[i]);
+		    _cgi.setRequest(getRequest());
+		    if (!getClient()[getI()]->getBodyToWork()) getClient()->_chunck.push_back(getContent(getWww()));
+	            std::cout << "   \033[0;34mCGI launch\033[0m\n";
+		    if (_cgi.config_cgi()) throw Response::BuildResponseException();
+                    setListingContent("");
+		    setStatusCode(_cgi.getStatu());
+		}
             }
         }
 	}
