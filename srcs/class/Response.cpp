@@ -843,10 +843,18 @@ void Response::clean()
 	delete getRequest();
 	if (getServer()->getWrFdAddr()) delete getServer()->getWrFdAddr();
 	if (getServer()->getRdFdAddr()) delete getServer()->getRdFdAddr();
-	delete getServer();
-	delete getRequest();
+	std::cout << "la 1\n";
+	if (getServer()) delete getServer();
+	std::cout << "la 2\n";
+	if (getRequest()) {
+		std::cout << "la 2 nis\n";
+		delete getRequest();
+	}
+	std::cout << "la 3\n";
 	if (getServer()->getSocket() > -1) close(getServer()->getSocket());
+	std::cout << "la 4\n";
 	delete this;
+	std::cout << "la 5\n";
 }
 
 void Response::clear()

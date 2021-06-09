@@ -87,10 +87,9 @@ int		main(int ac, char **av, char **env)
 				}
 			}
 			Response *res = new Response();
-			Request *req = new Request();
 			Server *serv = new Server(*itr);
+			res->setRequest(NULL);
 			res->setServer(serv);
-			res->setRequest(req);
 			servers.push_back(res);
 		}
 		catch (std::exception & e)
@@ -103,15 +102,19 @@ int		main(int ac, char **av, char **env)
 		try
 		{
 			fd_set *readfds = new fd_set, *writefds = new fd_set;
+			Response *tmp = *itr;
+			std::cout << "   Config Serv [" << tmp->getServer()->getServerName() << "]" << std::endl;
+			tmp->getServer()->setRdFd(NULL);
+			tmp->getServer()->setWrFd(NULL);
+			if (launch_serv(tmp)) throw myexception();
 			FD_ZERO(readfds);
 			FD_ZERO(writefds);
 			FD_SET(tmp->getServer()->getSocket(), readfds);
 			FD_SET(tmp->getServer()->getSocket(), writefds);
 			tmp->getServer()->setRdFd(readfds);
 			tmp->getServer()->setWrFd(writefds);
-			Response *tmp = *itr;
-			std::cout << "   Config Serv [" << tmp->getServer()->getServerName() << "]" << std::endl;
-			if (launch_serv(tmp)) throw myexception();
+			Request *req = new Request();
+			tmp->setRequest(req);
 		}
 		catch (std::exception & e)
 		{
@@ -121,6 +124,7 @@ int		main(int ac, char **av, char **env)
 				Response *tmp = *itr;
 				tmp->clean();
 			}
+			while (1) ;
 			return (EXIT_FAILURE);
 		}
 	}
