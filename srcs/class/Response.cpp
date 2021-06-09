@@ -778,7 +778,7 @@ void Response::config_response(char **env, int i)
                     setStatusCode(404);
         		}
 				struct stat	sb;
-				if (stat(getWww().c_str(), &sb) != -1) if (S_ISDIR(sb.st_mode)) setStatusCode (200);
+				if (_http_method.find(getMethod()) != _http_method.end() && stat(getWww().c_str(), &sb) != -1) if (S_ISDIR(sb.st_mode)) setStatusCode (200);
 			}
             else {
                 setWww(getBase().insert(getBase().length(), getFile()));
