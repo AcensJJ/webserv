@@ -507,7 +507,7 @@ void Response::setFirstLine()
 std::string Response::getContent(std::string path)
 {
 	if (_cgi.getDo()) return (_cgi.getBody());
-	if (getClient()[getI()]->getBodyToWork()){
+	if (getClient()[getI()]->getBodyToWork() && getStatusCode() >= 200 && getStatusCode() <= 299){
 		if (getClient()[getI()]->_chunck.size() > 0) getClient()[getI()]->setMsg("");
 		for (std::list<std::string>::iterator itr = getClient()[getI()]->_chunck.begin(); itr != getClient()[getI()]->_chunck.end(); itr++)
 			getClient()[getI()]->setMsg(getClient()[getI()]->getMsg() + *itr);
@@ -579,9 +579,6 @@ int Response::statu_code(std::string path)
 		if (S_ISDIR(sb.st_mode)) return (404);
 		return (200);
 	}
-	_cgi.getBody()_cgi.setBody("");
-	getClient()[getI()]->setBodyToWork(false);
-	setListingContent("");
 	return (405);
 }
 
@@ -768,7 +765,7 @@ void Response::config_response(char **env, int i)
                     }
                 }
             }
-            else if (getRoutes().getListen() && (getFile()[getFile().length() - 1] == '/' || getFile().empty()) && !ft_strcmp("GET", getMethod().c_str()))
+            else if (_http_method.find(getMethod()) != _http_method.end() && getRoutes().getListen() && (getFile()[getFile().length() - 1] == '/' || getFile().empty()) && !ft_strcmp("GET", getMethod().c_str()))
             {
                 setWww(getBase().insert(getBase().length(), getFile()));
                 setListingContent("<H1>Auto-index</H1>\n\n");
@@ -778,28 +775,26 @@ void Response::config_response(char **env, int i)
                     setStatusCode(404);
         		}
 				struct stat	sb;
-				if (_http_method.find(getMethod()) != _http_method.end() && stat(getWww().c_str(), &sb) != -1) if (S_ISDIR(sb.st_mode)) setStatusCode (200);
+				if (stat(getWww().c_str(), &sb) != -1) if (S_ISDIR(sb.st_mode)) setStatusCode (200);
 			}
             else {
                 setWww(getBase().insert(getBase().length(), getFile()));
                 if (!getStatusCode()) setStatusCode(statu_code(getWww()));
             }
-            if (((!getRoutes().getCGIPath().empty()) && (getMethod() == "GET" || getMethod() == "POST" || getMethod() == "PUT" )))
+            if (_http_method.find(getMethod()) != _http_method.end() && ((!getRoutes().getCGIPath().empty()) && (getMethod() == "GET" || getMethod() == "POST" || getMethod() == "PUT" )))
             {
-		if (_http_method.find(getMethod()) != _http_method.end()) {
-		    _cgi.setEnv(env);
-		    _cgi.setRoutes(getRoutes());
-		    _cgi.setServer(getServer());
-		    _cgi.setMethod(getMethod());
-		    _cgi.setFile(getUrl());
-		    _cgi.setClient(getClient()[i]);
-		    _cgi.setRequest(getRequest());
-		    if (!getClient()[getI()]->getBodyToWork()) getClient()->_chunck.push_back(getContent(getWww()));
-	            std::cout << "   \033[0;34mCGI launch\033[0m\n";
-		    if (_cgi.config_cgi()) throw Response::BuildResponseException();
-                    setListingContent("");
-		    setStatusCode(_cgi.getStatu());
-		}
+				_cgi.setEnv(env);
+				_cgi.setRoutes(getRoutes());
+				_cgi.setServer(getServer());
+				_cgi.setMethod(getMethod());
+				_cgi.setFile(getUrl());
+				_cgi.setClient(getClient()[i]);
+				_cgi.setRequest(getRequest());
+				if (!getClient()[getI()]->getBodyToWork()) getClient()->_chunck.push_back(getContent(getWww()));
+				std::cout << "   \033[0;34mCGI launch\033[0m\n";
+				if (_cgi.config_cgi()) throw Response::BuildResponseException();
+					setListingContent("");
+				setStatusCode(_cgi.getStatu());
             }
         }
 	}
