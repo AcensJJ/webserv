@@ -586,7 +586,7 @@ void Response::setAllHeader()
 {
 	if ((getStatusCode() >= 200 && getStatusCode() <= 299) && !getRoutes().getLimitClientBody().empty() && (int)getContent(getWww()).length() > ft_atoi(getRoutes().getLimitClientBody().c_str()))
 	{
-		_cgi.getBody()_cgi.setBody("");
+		_cgi.setBody("");
 		getClient()[getI()]->setBodyToWork(false);
 		setListingContent("");
 		getClient()[getI()]->setResponse("");
@@ -790,10 +790,11 @@ void Response::config_response(char **env, int i)
 				_cgi.setFile(getUrl());
 				_cgi.setClient(getClient()[i]);
 				_cgi.setRequest(getRequest());
-				if (!getClient()[getI()]->getBodyToWork()) getClient()->_chunck.push_back(getContent(getWww()));
+				if (!getClient()[getI()]->getBodyToWork()) {
+					getClient()[getI()]->_chunck.push_back(getContent(getWww()));
+				}
 				std::cout << "   \033[0;34mCGI launch\033[0m\n";
 				if (_cgi.config_cgi()) throw Response::BuildResponseException();
-					setListingContent("");
 				setStatusCode(_cgi.getStatu());
             }
         }

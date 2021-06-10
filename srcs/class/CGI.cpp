@@ -236,6 +236,8 @@ int CGI::set_all_variable(std::list<std::string> *metavar)
 		val = getRoutes().getCGIPath().substr(pos, getRoutes().getCGIPath().length() - pos);
 		metavar->push_back("PATH_INFO=" + getFile());
 		metavar->push_back("PATH_TRANSLATED=." +  getRoutes().getCGIPath() + "");
+		struct stat	sb;
+		if (stat(getRoutes().getCGIPath().c_str(), &sb) == -1) return (1);
 	}
 	pos = getFile().find("?");
 	if (pos == std::string::npos) pos = getFile().length(); 
