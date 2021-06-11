@@ -825,7 +825,7 @@ void Response::config_response(char **env, int i)
 		}
 	}
 	check_method();
-	// std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getResponse() << std::endl;
+	std::cout << "   \033[1;34mRESPONSE: \033[0;34m" << std::endl << "\033[0m" << getClient()[getI()]->getResponse() << std::endl;
 }
 
 void Response::clean()
