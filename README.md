@@ -1,10 +1,12 @@
-![42-lyon](https://user-images.githubusercontent.com/45235527/106354618-6ec65a00-62f3-11eb-8688-ba9e0f4e77de.jpg)
+<p align="center">
+    <img alt="42-lyon" src="https://user-images.githubusercontent.com/45235527/106354618-6ec65a00-62f3-11eb-8688-ba9e0f4e77de.jpg" />
+</p>
 
 # Webserv
 
 <img alt="Note" src="https://user-images.githubusercontent.com/45235527/96753610-698e7080-13d0-11eb-9461-d3351c9208d7.png" width="250" height="200" />
 
-<strong>Description</strong>
+### <strong>Description</strong>
 
 This project is here to make you write your own HTTP server. You will
 follow the real HTTP RFC and you will be able to test it with a real browser. HTTP is
@@ -15,7 +17,9 @@ won’t be working on a website.
 > -	   *<a href="https://github.com/nemu69">Nemuel Page Léonie</a> (<a href="https://profile.intra.42.fr/users/nepage-l">nepage-l</a>).<br>*
 > -    *<a href="https://github.com/AcensJJ">Jean-Jacques Acens</a> (<a href="https://profile.intra.42.fr/users/jacens">jacens</a>).*
 
-![webserv](https://user-images.githubusercontent.com/45235527/121715234-e9dc2000-cade-11eb-9a56-4fb8feb8f3e9.gif)
+<p align="center">
+    <img alt="webserv" src="https://user-images.githubusercontent.com/45235527/121715234-e9dc2000-cade-11eb-9a56-4fb8feb8f3e9.gif" />
+</p>
 
 # Mandatory part
 
